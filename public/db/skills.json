@@ -1,1 +1,277 @@
-[]
+[
+  {
+    "id": "skill-001",
+    "title": "Программирование teach #1",
+    "description": "Описание навыка Программирование (teach)",
+    "type": "teach",
+    "category": "Программирование",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-15",
+    "createdAt": "2026-03-24"
+  },
+  {
+    "id": "skill-002",
+    "title": "Программирование learn #2",
+    "description": "Описание навыка Программирование (learn)",
+    "type": "learn",
+    "category": "Программирование",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-25",
+    "createdAt": "2025-11-30"
+  },
+  {
+    "id": "skill-003",
+    "title": "Дизайн teach #3",
+    "description": "Описание навыка Дизайн (teach)",
+    "type": "teach",
+    "category": "Дизайн",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-23",
+    "createdAt": "2025-11-05"
+  },
+  {
+    "id": "skill-004",
+    "title": "Дизайн learn #4",
+    "description": "Описание навыка Дизайн (learn)",
+    "type": "learn",
+    "category": "Дизайн",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-18",
+    "createdAt": "2026-07-15"
+  },
+  {
+    "id": "skill-005",
+    "title": "Языки teach #5",
+    "description": "Описание навыка Языки (teach)",
+    "type": "teach",
+    "category": "Языки",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-02",
+    "createdAt": "2025-10-20"
+  },
+  {
+    "id": "skill-006",
+    "title": "Языки learn #6",
+    "description": "Описание навыка Языки (learn)",
+    "type": "learn",
+    "category": "Языки",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-05",
+    "createdAt": "2026-05-18"
+  },
+  {
+    "id": "skill-007",
+    "title": "Музыка teach #7",
+    "description": "Описание навыка Музыка (teach)",
+    "type": "teach",
+    "category": "Музыка",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-18",
+    "createdAt": "2026-05-02"
+  },
+  {
+    "id": "skill-008",
+    "title": "Музыка learn #8",
+    "description": "Описание навыка Музыка (learn)",
+    "type": "learn",
+    "category": "Музыка",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-27",
+    "createdAt": "2025-12-02"
+  },
+  {
+    "id": "skill-009",
+    "title": "Спорт teach #9",
+    "description": "Описание навыка Спорт (teach)",
+    "type": "teach",
+    "category": "Спорт",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-02",
+    "createdAt": "2026-04-07"
+  },
+  {
+    "id": "skill-010",
+    "title": "Спорт learn #10",
+    "description": "Описание навыка Спорт (learn)",
+    "type": "learn",
+    "category": "Спорт",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-09",
+    "createdAt": "2025-12-13"
+  },
+  {
+    "id": "skill-011",
+    "title": "Кулинария teach #11",
+    "description": "Описание навыка Кулинария (teach)",
+    "type": "teach",
+    "category": "Кулинария",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-26",
+    "createdAt": "2026-07-14"
+  },
+  {
+    "id": "skill-012",
+    "title": "Кулинария learn #12",
+    "description": "Описание навыка Кулинария (learn)",
+    "type": "learn",
+    "category": "Кулинария",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-22",
+    "createdAt": "2026-03-18"
+  },
+  {
+    "id": "skill-013",
+    "title": "Фото и видео teach #13",
+    "description": "Описание навыка Фото и видео (teach)",
+    "type": "teach",
+    "category": "Фото и видео",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-04",
+    "createdAt": "2025-10-20"
+  },
+  {
+    "id": "skill-014",
+    "title": "Фото и видео learn #14",
+    "description": "Описание навыка Фото и видео (learn)",
+    "type": "learn",
+    "category": "Фото и видео",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-13",
+    "createdAt": "2026-04-07"
+  },
+  {
+    "id": "skill-015",
+    "title": "Бизнес teach #15",
+    "description": "Описание навыка Бизнес (teach)",
+    "type": "teach",
+    "category": "Бизнес",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-28",
+    "createdAt": "2026-08-10"
+  },
+  {
+    "id": "skill-016",
+    "title": "Бизнес learn #16",
+    "description": "Описание навыка Бизнес (learn)",
+    "type": "learn",
+    "category": "Бизнес",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-23",
+    "createdAt": "2026-04-17"
+  },
+  {
+    "id": "skill-017",
+    "title": "Другое teach #17",
+    "description": "Описание навыка Другое (teach)",
+    "type": "teach",
+    "category": "Другое",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-17",
+    "createdAt": "2025-11-06"
+  },
+  {
+    "id": "skill-018",
+    "title": "Другое learn #18",
+    "description": "Описание навыка Другое (learn)",
+    "type": "learn",
+    "category": "Другое",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-23",
+    "createdAt": "2026-08-10"
+  },
+  {
+    "id": "skill-019",
+    "title": "Кулинария практикум 19",
+    "description": "Практический навык Кулинария",
+    "type": "learn",
+    "category": "Кулинария",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-12",
+    "createdAt": "2026-03-23"
+  },
+  {
+    "id": "skill-020",
+    "title": "Языки практикум 20",
+    "description": "Практический навык Языки",
+    "type": "teach",
+    "category": "Языки",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-30",
+    "createdAt": "2026-03-24"
+  },
+  {
+    "id": "skill-021",
+    "title": "Спорт практикум 21",
+    "description": "Практический навык Спорт",
+    "type": "teach",
+    "category": "Спорт",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-11",
+    "createdAt": "2026-05-02"
+  },
+  {
+    "id": "skill-022",
+    "title": "Другое практикум 22",
+    "description": "Практический навык Другое",
+    "type": "teach",
+    "category": "Другое",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-29",
+    "createdAt": "2026-07-15"
+  },
+  {
+    "id": "skill-023",
+    "title": "Кулинария практикум 23",
+    "description": "Практический навык Кулинария",
+    "type": "learn",
+    "category": "Кулинария",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-27",
+    "createdAt": "2026-07-24"
+  },
+  {
+    "id": "skill-024",
+    "title": "Языки практикум 24",
+    "description": "Практический навык Языки",
+    "type": "teach",
+    "category": "Языки",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-15",
+    "createdAt": "2026-01-28"
+  },
+  {
+    "id": "skill-025",
+    "title": "Кулинария практикум 25",
+    "description": "Практический навык Кулинария",
+    "type": "learn",
+    "category": "Кулинария",
+    "tags": [],
+    "imageUrl": null,
+    "authorId": "user-09",
+    "createdAt": "2026-02-06"
+  }
+]
