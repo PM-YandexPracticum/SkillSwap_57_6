@@ -14,12 +14,19 @@ export interface Skill {
 }
 
 // ─── User ────────────────────────────────────────────────
+export type Gender = 'male' | 'female' | 'other'
+
 export interface User {
   id: string
   name: string
   email: string
   avatarUrl: string | null
   createdAt: string
+  age: number
+  gender: Gender
+  city: string
+  description: string
+  likesCount: number
 }
 
 // ─── Request ─────────────────────────────────────────────
@@ -33,6 +40,11 @@ export interface SwapRequest {
   status: RequestStatus
   createdAt: string
   updatedAt: string
+}
+
+// ─── City ────────────────────────────────────────────────
+export interface City {
+  name: string
 }
 
 // ─── Auth ────────────────────────────────────────────────
