@@ -51,15 +51,15 @@
     justify-content: stretch;
     gap: 12px;
     padding: 16px;
-}
+  }
 
-.search {
-  width: 100%;
-  min-width: 0;
-}
+  .search {
+    width: 100%;
+    min-width: 0;
+  }
 
-.nav {
-  flex-wrap: wrap;
-  gap: 8px 16px;
-}
+  .nav {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
 }

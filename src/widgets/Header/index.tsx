@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { ROUTES } from '@/shared/lib/constants';
-import styles from './Header.module.css';
-import { APP_TITLE } from '@/shared/lib/appTitle';
+import { Link } from 'react-router-dom'
+import { ROUTES } from '@/shared/lib/constants'
+import styles from './Header.module.css'
+import { APP_TITLE } from '@/shared/lib/appTitle'
 
 export const Header = () => {
   return (
@@ -13,5 +13,5 @@ export const Header = () => {
         <Link to={ROUTES.REGISTER}>Зарегистрироваться</Link>
       </nav>
     </header>
-  );
+  )
 }
