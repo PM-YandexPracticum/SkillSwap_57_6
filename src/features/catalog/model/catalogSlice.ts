@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { fetchSkills } from '../../../api/skills';
 import { fetchUsers } from '../../../api/users';
-
+import {TCatalogData} from '../../../shared/types/index'
 export const getCatalogThunk = createAsyncThunk(
   'catalog/getCatalog',
   async () => {
@@ -36,7 +36,7 @@ export const catalogSlice = createSlice({
 
     builder.addCase(getCatalogThunk.rejected, (state, action) => {
       state.status = 'error';
-      state.error = action.error;
+      state.error = action.error.message?? 'Ошибка загрузки каталога';
     });
 
     builder.addCase(getCatalogThunk.fulfilled, (state, { payload }) => {
@@ -47,3 +47,5 @@ export const catalogSlice = createSlice({
     });
   },
 });
+
+export default catalogSlice.reducer;

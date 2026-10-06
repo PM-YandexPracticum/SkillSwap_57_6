@@ -61,5 +61,5 @@ export type TCatalogData = {
   users: User[];
   skills: Skill[];
   status: CatalogStatus;
-  error: null;
+  error: string | null;
 }
