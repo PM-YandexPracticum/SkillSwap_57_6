@@ -11,6 +11,7 @@
   gap: 20px;
   width: 100%;
   min-width: 0;
+  height: 100%;
   padding: 20px;
   border-radius: 12px;
   font-family: Roboto, var(--font-sans);
@@ -52,6 +53,7 @@
 }
 
 .user-card__name {
+  padding-right: 28px;
   font-family: 'Open Sans', var(--font-sans);
   font-size: 20px;
   font-weight: 600;
@@ -116,34 +118,11 @@
   background-color: var(--card-tag-default);
 }
 
-.user-card__tag--business {
-  background-color: #eee7f7;
-}
-
-.user-card__tag--art {
-  background-color: #f7e7f2;
-}
-
-.user-card__tag--languages {
-  background-color: #ebe5c5;
-}
-
-.user-card__tag--education {
-  background-color: #e7f2f6;
-}
-
-.user-card__tag--health {
-  background-color: #e9f7e7;
-}
-
-.user-card__tag--home {
-  background-color: #f7ebe5;
-}
-
 .user-card__button {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: auto;
   padding: 12px 24px;
   border-radius: 12px;
   font-size: 16px;

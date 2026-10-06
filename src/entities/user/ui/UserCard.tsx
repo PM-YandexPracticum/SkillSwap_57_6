@@ -7,14 +7,17 @@ import './UserCard.css'
 
 const MAX_VISIBLE_SKILLS = 2
 
-// Цвет тега зависит от категории навыка
-const CATEGORY_MODIFIERS: Record<string, string> = {
-  'Бизнес и карьера': 'user-card__tag--business',
-  'Творчество и искусство': 'user-card__tag--art',
-  'Иностранные языки': 'user-card__tag--languages',
-  'Образование и развитие': 'user-card__tag--education',
-  'Здоровье и лайфстайл': 'user-card__tag--health',
-  'Дом и уют': 'user-card__tag--home',
+// Палитра тегов. Цвет выбирается по названию категории
+const CATEGORY_COLORS = ['#eee7f7', '#f7e7f2', '#ebe5c5', '#e7f2f6', '#e9f7e7', '#f7ebe5'] as const
+
+const getCategoryColor = (category: string) => {
+  let hash = 0
+
+  for (let i = 0; i < category.length; i += 1) {
+    hash = category.charCodeAt(i) + ((hash << 5) - hash)
+  }
+
+  return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length]
 }
 
 const getSkillPath = (id: string) => generatePath(ROUTES.SKILL, { id })
@@ -38,7 +41,8 @@ function SkillGroup({ title, skills }: SkillGroupProps) {
           {visibleSkills.map((skill) => (
             <li key={skill.id} className="user-card__tags-item">
               <Link
-                className={`user-card__tag ${CATEGORY_MODIFIERS[skill.category] ?? ''}`}
+                className="user-card__tag"
+                style={{ backgroundColor: getCategoryColor(skill.category) }}
                 to={getSkillPath(skill.id)}
               >
                 {skill.title}
