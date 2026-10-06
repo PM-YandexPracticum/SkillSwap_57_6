@@ -1,0 +1,43 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+  padding: 40px 36px;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #222;
+}
+
+.copyright {
+  font-size: 14px;
+  color: #888;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 14px;
+  color: #222;
+}
+
+@media (width < 768px) {
+  .footer {
+    flex-direction: column;
+    padding: 32px 16px;
+    gap: 32px;
+  }
+}
