@@ -54,3 +54,12 @@ export interface AuthUser {
   email: string
   token: string
 }
+
+type CatalogStatus = 'idle' | 'loading' | 'success' | 'error';
+
+export type TCatalogData = {
+  users: User[];
+  skills: Skill[];
+  status: CatalogStatus;
+  error: null;
+}
