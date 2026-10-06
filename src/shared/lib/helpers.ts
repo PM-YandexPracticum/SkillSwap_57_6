@@ -1,5 +1,3 @@
-
-
 /** Форматирует дату в читаемый вид */
 export function formatDate(dateString: string): string {
   return new Intl.DateTimeFormat('ru-RU', {
