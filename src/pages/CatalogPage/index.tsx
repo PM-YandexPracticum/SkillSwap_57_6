@@ -2,12 +2,13 @@
 import { Header } from '../../widgets/Header'
 import { Footer } from '../../widgets/Footer'
 import styles from './CatalogPage.module.css'
+import { useState } from 'react'
 
-//export default function CatalogPage() {
 const CatalogPage = () => {
+  const [searchValue, setSearchValue] = useState('')
   return (
     <div className={styles.page}>
-      <Header />
+      <Header searchValue={searchValue} onSearchChange={setSearchValue} />
       <main className={styles.main}>
         <aside className={styles.filters}>
           <h2>Фильтры</h2>
