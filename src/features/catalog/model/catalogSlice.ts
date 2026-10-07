@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { fetchSkills } from '../../../api/skills';
 import { fetchUsers } from '../../../api/users';
 import {TCatalogData} from '../../../shared/types/index'
+import type { RootState } from '../../../store';
 export const getCatalogThunk = createAsyncThunk(
   'catalog/getCatalog',
   async () => {
@@ -9,13 +10,27 @@ export const getCatalogThunk = createAsyncThunk(
       fetchUsers(),
       fetchSkills(),
     ]);
-
+      
+        
     return {
       users,
       skills,
     };
+  
+  },
+  {
+    condition: (_, { getState }) => {
+      const state = getState() as RootState;
+
+      if (state.catalog.status === 'loading') {
+        return false;
+      }
+
+      return true;
+    },
   }
 );
+
 
 const initialState: TCatalogData = {
   users: [],
