@@ -1,5 +1,6 @@
 import styles from './SearchInput.module.css'
 import type { ChangeEvent } from 'react'
+import { useRef } from 'react'
 
 type SearchInputProps = {
   value: string
@@ -7,12 +8,14 @@ type SearchInputProps = {
 }
 
 export const SearchInput = ({ value, onChange }: SearchInputProps) => {
+  const inputRef = useRef<HTMLInputElement>(null)
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value)
   }
 
   const handleClear = () => {
     onChange('')
+    inputRef.current?.focus()
   }
 
   return (
@@ -39,6 +42,7 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
           </svg>
         </span>
         <input
+          ref={inputRef}
           id="search-input"
           className={styles.input}
           type="search"
