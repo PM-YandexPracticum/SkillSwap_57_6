@@ -1,5 +1,5 @@
 import { UserCard } from '@/entities/user/ui/UserCard'
-import type { CatalogItem } from '@/features/catalog/model/catalogData'
+import type { CatalogItem } from '@/shared/types'
 import styles from './UserCardsGrid.module.css'
 
 // props компонента UserCardsGrid.
