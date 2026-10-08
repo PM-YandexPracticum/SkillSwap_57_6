@@ -1,9 +1,4 @@
-import type { Skill, User } from '@/shared/types'
-
-export interface CatalogItem {
-  user: User
-  skills: Skill[]
-}
+import type { Skill, User, CatalogItem } from '@/shared/types'
 
 /** Объединяет пользователей с их навыками по Skill.authorId */
 export function buildCatalogItems(users: User[], skills: Skill[]): CatalogItem[] {

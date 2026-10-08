@@ -63,3 +63,8 @@ export type TCatalogData = {
   status: CatalogStatus
   error: string | null
 }
+
+export interface CatalogItem {
+  user: User
+  skills: Skill[]
+}
