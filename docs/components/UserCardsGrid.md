@@ -7,13 +7,13 @@
 ### Props
 
 ```ts
-interface UserCardsGridItem {
+interface CatalogItem {
   user: User
   skills: Skill[]
 }
 
 interface UserCardsGridProps {
-  items: UserCardsGridItem[]
+  items: CatalogItem[]
 }
 ```
 
@@ -21,15 +21,15 @@ interface UserCardsGridProps {
 - `user` — объект пользователя типа `User`, содержащий его идентификатор, имя, возраст, город, аватар и другие данные.
 - `skills` — массив навыков пользователя типа `Skill[]`, включающий навыки типов `teach` и `learn`. Разделение навыков выполняет компонент `UserCard`.
 
-Типы `User` и `Skill` описаны в `src/shared/types`, а `UserCardsGridItem` — в `src/features/catalog/model/types.ts`.
+Типы `User` и `Skill` описаны в `src/shared/types`, а существующий тип `CatalogItem` — в `src/features/catalog/model/catalogData.ts`. Повторно объявлять его в коде компонента не требуется.
 
 ### Как подключить
 
 ```tsx
 import { UserCardsGrid } from '@/widgets/UserCardsGrid'
-import type { UserCardsGridItem } from '@/features/catalog/model/types'
+import type { CatalogItem } from '@/features/catalog/model/catalogData'
 
-const items: UserCardsGridItem[] = [
+const items: CatalogItem[] = [
   {
     user,
     skills: userSkills,

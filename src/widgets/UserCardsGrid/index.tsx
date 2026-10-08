@@ -1,13 +1,12 @@
 import { UserCard } from '@/entities/user/ui/UserCard'
-import type { UserCardsGridItem } from '@/features/catalog/model/types'
+import type { CatalogItem } from '@/features/catalog/model/catalogData'
 import styles from './UserCardsGrid.module.css'
 
-// props, принимающие компонент UserCardsGrid.
+// props компонента UserCardsGrid.
 interface UserCardsGridProps {
-  items: UserCardsGridItem[]
+  items: CatalogItem[]
 }
 
-// Компонент получает готовые данные и отрисовать сетку карточек.
 export function UserCardsGrid({ items }: UserCardsGridProps) {
   return (
     <div className={styles.grid}>
