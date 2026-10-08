@@ -11,11 +11,7 @@ export function UserCardsGrid({ items }: UserCardsGridProps) {
   return (
     <div className={styles.grid}>
       {items.map((item) => (
-        <UserCard
-          key={item.user.id}
-          user={item.user}
-          skills={item.skills}
-        />
+        <UserCard key={item.user.id} user={item.user} skills={item.skills} />
       ))}
     </div>
   )
