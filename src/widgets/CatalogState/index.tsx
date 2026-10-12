@@ -1,12 +1,13 @@
 import { useCallback } from 'react'
 import type { ReactNode } from 'react'
+
 import styles from './CatalogState.module.css'
 
 export type CatalogStateName = 'loading' | 'error' | 'empty'
 
 interface CatalogStateProps {
   state: CatalogStateName
-  onRetry: () => void
+  onRetry?: () => void
   messages?: Partial<Record<CatalogStateName, string>>
   retryLabel?: string
   icon?: ReactNode
@@ -29,7 +30,13 @@ export function CatalogState({
   icon,
   className,
 }: CatalogStateProps) {
-  const handleRetry = useCallback(() => onRetry(), [onRetry])
+  const handleRetry = useCallback(() => {
+    if (!onRetry) {
+      console.error('CatalogState: onRetry не передан, но состояние — error')
+      return
+    }
+    onRetry()
+  }, [onRetry])
 
   const message = messages?.[state] ?? DEFAULT_MESSAGES[state]
 
@@ -45,8 +52,14 @@ export function CatalogState({
         </div>
       )}
       <p className={styles.message}>{message}</p>
-      {state === 'error' && (
-        <button type="button" className={styles.retry} onClick={handleRetry}>
+
+      {state === 'error' && onRetry && (
+        <button
+          type="button"
+          className={styles.retry}
+          onClick={handleRetry}
+          aria-label={retryLabel}
+        >
           {retryLabel}
         </button>
       )}
