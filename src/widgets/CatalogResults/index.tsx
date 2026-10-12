@@ -1,6 +1,6 @@
-import { UserCard } from '@/entities/user/ui/UserCard'
+import { UserCardsGrid } from '@/widgets/UserCardsGrid'
 import Pagination from '@/shared/ui/Pagination'
-import type { CatalogItem } from '@/features/catalog/model/catalogData'
+import type { CatalogItem } from '@/shared/types'
 import styles from './CatalogResults.module.css'
 
 const PAGE_SIZE = 9
@@ -33,16 +33,7 @@ export function CatalogResults({
     <section className={styles.root} aria-label="Результаты каталога">
       <p className={styles.count}>Подходящие предложения: {totalItems}</p>
 
-      {/*
-        TODO(#14): заменить на <UserCardGrid items={pageItems} /> после мержа #14
-      */}
-      <ul className={styles.grid}>
-        {pageItems.map(({ user, skills }) => (
-          <li key={user.id} className={styles.gridItem}>
-            <UserCard user={user} skills={skills} />
-          </li>
-        ))}
-      </ul>
+      <UserCardsGrid items={pageItems} />
 
       <Pagination
         currentPage={currentPage}
