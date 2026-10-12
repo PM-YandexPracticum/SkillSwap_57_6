@@ -1,5 +1,8 @@
+import type { SKILL_CATEGORIES } from '@/shared/lib/constants'
+
 // ─── Skill ───────────────────────────────────────────────
 export type SkillType = 'teach' | 'learn'
+export type SkillCategory = (typeof SKILL_CATEGORIES)[number]
 
 export interface Skill {
   id: string
