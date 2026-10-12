@@ -1,0 +1,51 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.title {
+  color: #253017;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.showAll {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  color: #253017;
+  background-color: #fff;
+}
+
+.showAll:hover {
+  background-color: #deebc5;
+}
+
+.showAll:focus-visible {
+  outline: 2px solid #508826;
+  outline-offset: 2px;
+}
+
+.arrow {
+  width: 9px;
+  height: 9px;
+  border-top: 1.5px solid currentcolor;
+  border-right: 1.5px solid currentcolor;
+  transform: rotate(45deg);
+}
