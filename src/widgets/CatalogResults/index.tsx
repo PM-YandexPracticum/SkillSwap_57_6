@@ -26,7 +26,15 @@ export function CatalogResults({
     return <div className={styles.empty}>Ничего не найдено</div>
   }
 
-  const startIndex = (currentPage - 1) * PAGE_SIZE
+  // Реальное число страниц при текущем размере массива
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
+
+  // Безопасная страница: не меньше 1 и не больше totalPages.
+  // Защищает от ситуации, когда родитель уменьшил items, а currentPage
+  // остался старым (например, 3 при 2 доступных страницах).
+  const safePage = Math.min(Math.max(currentPage, 1), totalPages)
+
+  const startIndex = (safePage - 1) * PAGE_SIZE
   const pageItems = items.slice(startIndex, startIndex + PAGE_SIZE)
 
   return (
@@ -36,7 +44,7 @@ export function CatalogResults({
       <UserCardsGrid items={pageItems} />
 
       <Pagination
-        currentPage={currentPage}
+        currentPage={safePage}
         totalItems={totalItems}
         pageSize={PAGE_SIZE}
         onPageChange={onPageChange}
