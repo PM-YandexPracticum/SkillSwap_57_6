@@ -1,6 +1,6 @@
 import styles from './SearchInput.module.css'
 import type { ChangeEvent } from 'react'
-import { useRef, useId, forwardRef } from 'react'
+import { useRef, useId, forwardRef, useCallback } from 'react'
 
 type SearchInputProps = {
   id?: string
@@ -15,15 +15,18 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
     const inputRef = useRef<HTMLInputElement | null>(null)
 
-    const setInputRef = (element: HTMLInputElement | null) => {
-      inputRef.current = element
+    const setInputRef = useCallback(
+      (element: HTMLInputElement | null) => {
+        inputRef.current = element
 
-      if (typeof ref === 'function') {
-        ref(element)
-      } else if (ref) {
-        ref.current = element
-      }
-    }
+        if (typeof ref === 'function') {
+          ref(element)
+        } else if (ref) {
+          ref.current = element
+        }
+      },
+      [ref],
+    )
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
       onChange(event.target.value)
