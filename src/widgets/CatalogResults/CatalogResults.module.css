@@ -11,9 +11,3 @@
   font-weight: 600;
   color: var(--color-text);
 }
-
-.empty {
-  padding: var(--space-xl) 0;
-  color: var(--color-text-secondary);
-  text-align: center;
-}
