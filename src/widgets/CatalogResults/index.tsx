@@ -1,4 +1,5 @@
 import { UserCardsGrid } from '@/widgets/UserCardsGrid'
+import { CatalogState } from '@/widgets/CatalogState'
 import Pagination from '@/shared/ui/Pagination'
 import type { CatalogItem } from '@/shared/types'
 import styles from './CatalogResults.module.css'
@@ -14,16 +15,11 @@ export interface CatalogResultsProps {
   onPageChange: (page: number) => void
 }
 
-export function CatalogResults({
-  items,
-  currentPage,
-  onPageChange,
-}: CatalogResultsProps) {
+export function CatalogResults({ items, currentPage, onPageChange }: CatalogResultsProps) {
   const totalItems = items.length
 
   if (totalItems === 0) {
-    // TODO(#26): заменить на <CatalogState state="empty" /> после мержа #26
-    return <div className={styles.empty}>Ничего не найдено</div>
+    return <CatalogState state="empty" />
   }
 
   // Реальное число страниц при текущем размере массива
