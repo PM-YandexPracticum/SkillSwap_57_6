@@ -17,6 +17,7 @@ export const favoritesSlice = createSlice({
   reducers: {
     /** Добавляет skill.id в избранное. Дубликаты игнорируются. */
     addFavorite(state, action: PayloadAction<string>) {
+      if (!action.payload) return
       if (!state.ids.includes(action.payload)) {
         state.ids.push(action.payload)
       }
