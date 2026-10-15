@@ -20,11 +20,7 @@ export function CatalogSection({ title, items }: CatalogSectionProps) {
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>
         {!isExpanded && items.length > INITIAL_VISIBLE_ITEMS && (
-          <button
-            className={styles.showAll}
-            type="button"
-            onClick={() => setIsExpanded(true)}
-          >
+          <button className={styles.showAll} type="button" onClick={() => setIsExpanded(true)}>
             Смотреть все
             <span className={styles.arrow} aria-hidden="true" />
           </button>
