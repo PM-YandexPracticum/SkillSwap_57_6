@@ -96,8 +96,6 @@
   overflow: hidden;
 }
 
-/* Временная проверка позиционирования на узких экранах. */
-
 /* Контейнер месяца, создаваемый библиотекой react-datepicker. */
 .calendar [class~='react-datepicker__month-container'] {
   width: 100%;
