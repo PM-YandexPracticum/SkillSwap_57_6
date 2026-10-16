@@ -43,6 +43,7 @@ export interface SwapRequest {
   status: RequestStatus
   createdAt: string
   updatedAt: string
+  completedAt?: string
 }
 
 // ─── City ────────────────────────────────────────────────
