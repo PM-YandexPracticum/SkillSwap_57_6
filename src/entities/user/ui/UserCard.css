@@ -70,6 +70,7 @@
   letter-spacing: 0.24px;
 }
 
+.user-card__action,
 .user-card__like {
   position: absolute;
   top: 0;

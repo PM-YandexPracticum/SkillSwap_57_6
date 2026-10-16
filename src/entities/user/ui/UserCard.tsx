@@ -1,4 +1,5 @@
 import { Link, generatePath } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import type { Skill, User } from '@/shared/types'
 import { ROUTES } from '@/shared/lib/constants'
 import { formatAge } from '@/shared/lib/helpers'
@@ -25,9 +26,15 @@ const getSkillPath = (id: string) => generatePath(ROUTES.SKILL, { id })
 interface SkillGroupProps {
   title: string
   skills: Skill[]
+  /** Если true — при пустом списке группа не рендерится вовсе */
+  hideEmpty: boolean
 }
 
-function SkillGroup({ title, skills }: SkillGroupProps) {
+function SkillGroup({ title, skills, hideEmpty }: SkillGroupProps) {
+  if (hideEmpty && skills.length === 0) {
+    return null
+  }
+
   const visibleSkills = skills.slice(0, MAX_VISIBLE_SKILLS)
   const hiddenCount = skills.length - visibleSkills.length
 
@@ -64,9 +71,13 @@ interface UserCardProps {
   user: User
   /** Все навыки пользователя: teach и learn */
   skills: Skill[]
+  /** Готовый элемент действия (например, кнопка избранного). Заменяет декоративное сердце */
+  action?: ReactNode
+  /** Если true — пустые группы «Может научить» / «Хочет научиться» скрываются */
+  hideEmptyGroups?: boolean
 }
 
-export function UserCard({ user, skills }: UserCardProps) {
+export function UserCard({ user, skills, action, hideEmptyGroups = false }: UserCardProps) {
   const teachSkills = skills.filter((skill) => skill.type === 'teach')
   const learnSkills = skills.filter((skill) => skill.type === 'learn')
   const detailsSkill = teachSkills[0] ?? learnSkills[0]
@@ -87,12 +98,16 @@ export function UserCard({ user, skills }: UserCardProps) {
             {user.city}, {formatAge(user.age)}
           </p>
         </div>
-        <img className="user-card__like" src={likeIcon} alt="" width={24} height={24} />
+        {action ? (
+          <div className="user-card__action">{action}</div>
+        ) : (
+          <img className="user-card__like" src={likeIcon} alt="" width={24} height={24} />
+        )}
       </div>
 
       <div className="user-card__skills">
-        <SkillGroup title="Может научить:" skills={teachSkills} />
-        <SkillGroup title="Хочет научиться:" skills={learnSkills} />
+        <SkillGroup title="Может научить:" skills={teachSkills} hideEmpty={hideEmptyGroups} />
+        <SkillGroup title="Хочет научиться:" skills={learnSkills} hideEmpty={hideEmptyGroups} />
       </div>
 
       {detailsSkill && (
