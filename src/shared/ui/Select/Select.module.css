@@ -1,0 +1,76 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  width: 100%;
+  min-width: 0;
+  color: var(--color-text);
+}
+
+.label {
+  overflow-wrap: anywhere;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.control:focus-within {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.control[data-error] {
+  border-color: var(--color-error);
+}
+
+.control[data-disabled] {
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-secondary);
+}
+
+.select {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  overflow: hidden;
+  font: inherit;
+  color: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+}
+
+.select:focus {
+  outline: none;
+}
+
+.select[data-placeholder] {
+  color: var(--color-text-secondary);
+}
+
+.select option {
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.select:disabled {
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  overflow-wrap: anywhere;
+}
