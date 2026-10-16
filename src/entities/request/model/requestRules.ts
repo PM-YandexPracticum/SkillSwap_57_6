@@ -1,18 +1,9 @@
-export type SwapRequestStatus = 'pending' | 'accepted' | 'inProgress' | 'rejected' | 'done'
-export type SwapRequest = {
-  id: string
-  fromUserId: string
-  toUserId: string
-  skillId: string
-  status: SwapRequestStatus
-  createdAt: string
-  updatedAt: string
-  completedAt?: string
-}
+import { SwapRequest, RequestStatus, Skill } from '../../../shared/types'
+
 export type RequestAction = 'accept' | 'reject' | 'complete'
 
 //Вспомогательная функция для проверки активности статуса // Активные статусы: pending, accepted, inProgress
-const isActiveStatus = (status: SwapRequestStatus) =>
+const isActiveStatus = (status: RequestStatus) =>
   ['pending', 'accepted', 'inProgress'].includes(status)
 
 //Определяет, какие действия доступны пользователю для конкретной заявки.
@@ -40,38 +31,108 @@ export function getAllowedRequestActions(request: SwapRequest, userId: string): 
   return actions
 }
 
-//Чистая функция: принятие заявки (pending -> accepted)
-export function acceptRequest(request: SwapRequest): SwapRequest {
-  const now = new Date().toISOString()
-  return { ...request, status: 'accepted', updatedAt: now }
+// Эта функция делает проверяет права и применяет изменения.
+function applyActionIfAllowed(
+  request: SwapRequest,
+  userId: string,
+  action: RequestAction,
+  updates: Partial<SwapRequest>,
+  now: string,
+): SwapRequest | null {
+  // Шаг 1: Спрашиваем: "Можно ли этому пользователю делать это действие?"
+  const allowedActions = getAllowedRequestActions(request, userId)
+
+  // Шаг 2: Если действия нет в списке разрешённых — стоп. Возвращаем null.
+  if (!allowedActions.includes(action)) {
+    return null
+  }
+
+  // Шаг 3: Если всё ок, формируем новый объект.
+  return {
+    ...request, // Сохраняем все старые данные (включая createdAt)
+    ...updates, // Накладываем изменения (статус, completedAt и т.д.)
+    updatedAt: now, // Обязательно обновляем время последнего изменения
+  }
 }
 
-//Чистая функция: отклонение заявки (pending -> rejected)
-export function rejectRequest(request: SwapRequest): SwapRequest {
-  const now = new Date().toISOString()
-  return { ...request, status: 'rejected', updatedAt: now }
+// 2. ПУБЛИЧНЫЕ ФУНКЦИИ (теперь они просто делегируют работу помощнику)
+// Чистая функция: принятие заявки
+export function acceptRequest(
+  request: SwapRequest,
+  userId: string,
+  now: string,
+): SwapRequest | null {
+  // Пытаемся применить действие 'accept' с обновлением статуса
+  return applyActionIfAllowed(
+    request,
+    userId,
+    'accept',
+    {
+      status: 'inProgress',
+    },
+    now,
+  )
 }
 
-//Чистая функция: завершение заявки (inProgress -> done)
-export function completeRequest(request: SwapRequest): SwapRequest {
-  const now = new Date().toISOString()
-  return { ...request, status: 'done', completedAt: now, updatedAt: now }
+// Чистая функция: отклонение заявки
+export function rejectRequest(
+  request: SwapRequest,
+  userId: string,
+  now: string,
+): SwapRequest | null {
+  // Пытаемся применить действие 'reject' с обновлением статуса
+  return applyActionIfAllowed(
+    request,
+    userId,
+    'reject',
+    {
+      status: 'rejected',
+    },
+    now,
+  )
+}
+
+// Чистая функция: завершение заявки
+export function completeRequest(
+  request: SwapRequest,
+  userId: string,
+  now: string,
+): SwapRequest | null {
+  // Пытаемся применить действие 'complete' с обновлением статуса и даты завершения
+  return applyActionIfAllowed(
+    request,
+    userId,
+    'complete',
+    {
+      status: 'done',
+      completedAt: now, // Равен моменту события
+    },
+    now,
+  )
 }
 
 //Чистая функция: создание новой заявки.
 export function createRequest(
-  skillId: string,
-  toUserId: string,
+  skill: Skill | undefined,
   fromUserId: string,
   id: string,
   createdAt: string,
   updatedAt: string,
   existingRequests: SwapRequest[],
 ): SwapRequest | null {
+  //Проверка: существует ли навык
+  if (!skill) {
+    return null
+  }
+  //Проверка: нельзя создавать заявку самому себе (на свой навык)
+  if (skill.authorId === fromUserId) {
+    return null
+  }
+
   // 1. Проверяем, нет ли уже активной заявки от этого пользователя на этот навык.
-  // Активные статусы: pending, accepted, inProgress.
   const hasActiveDuplicate = existingRequests.some(
-    (req) => req.fromUserId === fromUserId && req.skillId === skillId && isActiveStatus(req.status),
+    (req) =>
+      req.fromUserId === fromUserId && req.skillId === skill.id && isActiveStatus(req.status),
   )
 
   // Если активный дубль найден — создание невозможно.
@@ -80,15 +141,15 @@ export function createRequest(
     return null
   }
 
-  // 2. Если дублей нет — конструируем и возвращаем новую заявку.
+  // 2. Создание заявки
   return {
     id,
     fromUserId,
-    toUserId,
-    skillId,
+    toUserId: skill.authorId, // Получатель — автор навыка
+    skillId: skill.id, // ID навыка из объекта
     status: 'pending', // По ТЗ: новая заявка всегда создаётся в статусе pending
-    createdAt, // Передаётся вызывающим кодом (сохраняем историю создания)
-    updatedAt, // Передаётся вызывающим кодом
-    // completedAt не указываем — он появится только при завершении
+    createdAt, // Сохраняем исходную дату создания (передаётся извне)
+    updatedAt, // Сохраняем исходную дату обновления (для новой заявки она равна createdAt)
+    // completedAt не указываем т к заявка только создана
   }
 }
