@@ -1,5 +1,8 @@
+import type { SKILL_CATEGORIES } from '@/shared/lib/constants'
+
 // ─── Skill ───────────────────────────────────────────────
 export type SkillType = 'teach' | 'learn'
+export type SkillCategory = (typeof SKILL_CATEGORIES)[number]
 
 export interface Skill {
   id: string
@@ -40,6 +43,7 @@ export interface SwapRequest {
   status: RequestStatus
   createdAt: string
   updatedAt: string
+  completedAt?: string
 }
 
 // ─── City ────────────────────────────────────────────────
@@ -53,4 +57,18 @@ export interface AuthUser {
   name: string
   email: string
   token: string
+}
+
+type CatalogStatus = 'idle' | 'loading' | 'success' | 'error'
+
+export type TCatalogData = {
+  users: User[]
+  skills: Skill[]
+  status: CatalogStatus
+  error: string | null
+}
+
+export interface CatalogItem {
+  user: User
+  skills: Skill[]
 }

@@ -1,10 +1,88 @@
 // TODO: реализовать страницу CatalogPage
+import { Header } from '../../widgets/Header'
+import { Footer } from '../../widgets/Footer'
+import styles from './CatalogPage.module.css'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { useEffect, useMemo, useState } from 'react'
+import { getCatalogThunk } from '../../features/catalog/model/catalogSlice'
+import FiltersBar, { SkillCategoryFilter, SkillTypeFilter } from '../../widgets/FiltersBar'
+import {
+  buildCatalogItems,
+  shuffleItems,
+  sortByNewest,
+  sortByPopularity,
+} from '../../features/catalog/model/catalogData'
+import { CatalogSection } from '../../widgets/CatalogSection'
+import { CatalogResults } from '../../widgets/CatalogResults'
+import { CatalogState } from '../../widgets/CatalogState'
 
-export default function CatalogPage() {
+const CatalogPage = () => {
+  const dispatch = useAppDispatch()
+  const [searchValue, setSearchValue] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const { users, skills, status, error } = useAppSelector((state) => state.catalog)
+  const [selectedType, setSelectedType] = useState<SkillTypeFilter>('all')
+  const [selectedCategory, setSelectedCategory] = useState<SkillCategoryFilter>('all')
+
+  useEffect(() => {
+    dispatch(getCatalogThunk())
+  }, [dispatch])
+
+  /**Созданный каталог карточек */
+  const catalogItems = useMemo(() => buildCatalogItems(users, skills), [users, skills])
+  /**Каталог карточек в секции "Популярное" */
+  const popularItems = useMemo(() => sortByPopularity(catalogItems), [catalogItems])
+  /**Каталог карточек в секции "Новое" */
+  const newestItems = useMemo(() => sortByNewest(catalogItems), [catalogItems])
+  /**Каталог карточек в секции "Рекомендуем" */
+  const recommendedItems = useMemo(() => shuffleItems(catalogItems), [catalogItems])
+
   return (
-    <main>
-      <h1>CatalogPage</h1>
-      <p>Страница в разработке</p>
-    </main>
+    <div className={styles.page}>
+      <Header searchValue={searchValue} onSearchChange={setSearchValue} />
+
+      <main className={styles.main}>
+        <aside className={styles.filters}>
+          <h2>Фильтры</h2>
+
+          <FiltersBar
+            selectedType={selectedType}
+            selectedCategory={selectedCategory}
+            onTypeChange={setSelectedType}
+            onCategoryChange={setSelectedCategory}
+          />
+        </aside>
+
+        <section className={styles.user_section}>
+          {status === 'loading' || status === 'idle' ? (
+            <CatalogState state="loading" />
+          ) : status === 'error' ? (
+            <CatalogState
+              state="error"
+              messages={{ error: error ?? undefined }}
+              onRetry={() => dispatch(getCatalogThunk())}
+            />
+          ) : (
+            <>
+              <CatalogSection title="Популярное" items={popularItems} />
+
+              <CatalogSection title="Новое" items={newestItems} />
+
+              <section>
+                <h2>Рекомендуем</h2>
+
+                <CatalogResults
+                  items={recommendedItems}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              </section>
+            </>
+          )}
+        </section>
+      </main>
+      <Footer />
+    </div>
   )
 }
+export default CatalogPage

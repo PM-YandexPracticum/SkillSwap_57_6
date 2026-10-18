@@ -1,0 +1,54 @@
+.nav a {
+  color: #222;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 1388px;
+  margin: 0 auto;
+  flex: 1;
+  justify-self: center;
+}
+
+.filters,
+.results {
+  min-width: 0;
+  padding: 24px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.user_section {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+@media (width < 768px) {
+  .main {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 24px 16px;
+  }
+}
