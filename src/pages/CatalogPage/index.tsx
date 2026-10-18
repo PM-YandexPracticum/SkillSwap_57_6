@@ -46,10 +46,9 @@ const CatalogPage = () => {
 
   // Добавляем сброс пагинации
   useEffect(() => {
-    // Если в поиске есть текст (после удаления пробелов), сбрасываем страницу на 1
-    if (debouncedSearch.trim().length > 0) {
-      setCurrentPage(1)
-    }
+    // Сбрасываем страницу на 1 при любом изменении debouncedSearch
+    // Если мы стираем поиск и переходим обратно к секцииям, мы гарантированно начинаем с 1 стр
+    setCurrentPage(1)
   }, [debouncedSearch])
 
   return (
