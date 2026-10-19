@@ -14,10 +14,7 @@ interface CatalogSectionProps {
 export function CatalogSection({ title, items }: CatalogSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const visibleItems = items.slice(
-    0,
-    isExpanded ? MAX_VISIBLE_ITEMS : INITIAL_VISIBLE_ITEMS
-  )
+  const visibleItems = items.slice(0, isExpanded ? MAX_VISIBLE_ITEMS : INITIAL_VISIBLE_ITEMS)
 
   const isButtonVisible = items.length > INITIAL_VISIBLE_ITEMS
   const buttonText = isExpanded ? 'Свернуть' : 'Смотреть все'

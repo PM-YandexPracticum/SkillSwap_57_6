@@ -17,7 +17,12 @@ export interface CatalogResultsProps {
   showCount?: boolean
 }
 
-export function CatalogResults({ items, currentPage, onPageChange, showCount = true,}: CatalogResultsProps) {
+export function CatalogResults({
+  items,
+  currentPage,
+  onPageChange,
+  showCount = true,
+}: CatalogResultsProps) {
   const totalItems = items.length
 
   // Реальное число страниц при текущем размере массива
@@ -29,13 +34,13 @@ export function CatalogResults({ items, currentPage, onPageChange, showCount = t
   const safePage = Math.min(Math.max(currentPage, 1), totalPages)
 
   // Синхронизируем страницу с родителем, если она вышла за границы
-    useEffect(() => {
-      if (currentPage !== safePage) {
-        onPageChange(safePage)
-      }
-    }, [currentPage, safePage, onPageChange])
+  useEffect(() => {
+    if (currentPage !== safePage) {
+      onPageChange(safePage)
+    }
+  }, [currentPage, safePage, onPageChange])
 
-    if (totalItems === 0) {
+  if (totalItems === 0) {
     return <CatalogState state="empty" />
   }
 
@@ -44,9 +49,7 @@ export function CatalogResults({ items, currentPage, onPageChange, showCount = t
 
   return (
     <section className={styles.root} aria-label="Результаты каталога">
-      {showCount && (
-        <p className={styles.count}>Подходящие предложения: {totalItems}</p>
-      )}
+      {showCount && <p className={styles.count}>Подходящие предложения: {totalItems}</p>}
 
       <UserCardsGrid items={pageItems} />
 
