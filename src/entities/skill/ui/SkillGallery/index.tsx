@@ -1,4 +1,5 @@
-﻿import { Swiper, SwiperSlide } from 'swiper/react'
+﻿import { useCallback, useState } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 
 import 'swiper/css'
@@ -17,8 +18,26 @@ export interface SkillGalleryProps {
 }
 
 export const SkillGallery = ({ images, loop = false }: SkillGalleryProps) => {
+  const [failedSrcs, setFailedSrcs] = useState<ReadonlySet<string>>(() => new Set())
+
+  const handleImageError = useCallback((src: string) => {
+    setFailedSrcs((prev) => {
+      if (prev.has(src)) {
+        return prev
+      }
+
+      const next = new Set(prev)
+      next.add(src)
+      return next
+    })
+  }, [])
+
   if (!images?.length) {
-    return null
+    return (
+      <div className={styles.gallery}>
+        <div className={styles.placeholder} aria-hidden="true" />
+      </div>
+    )
   }
 
   return (
@@ -32,11 +51,24 @@ export const SkillGallery = ({ images, loop = false }: SkillGalleryProps) => {
         loop={loop}
         className={styles.swiper}
       >
-        {images.map((image, index) => (
-          <SwiperSlide key={`${image.src}-${index}`}>
-            <img className={styles.image} src={image.src} alt={image.alt} />
-          </SwiperSlide>
-        ))}
+        {images.map((image, index) => {
+          const isFailed = failedSrcs.has(image.src)
+
+          return (
+            <SwiperSlide key={`${image.src}-${index}`}>
+              {isFailed ? (
+                <div className={styles.placeholder} role="img" aria-label={image.alt} />
+              ) : (
+                <img
+                  className={styles.image}
+                  src={image.src}
+                  alt={image.alt}
+                  onError={() => handleImageError(image.src)}
+                />
+              )}
+            </SwiperSlide>
+          )
+        })}
       </Swiper>
       <button
         type="button"
