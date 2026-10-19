@@ -85,6 +85,17 @@ export const DatePicker = ({
   minDate,
   maxDate,
 }: DatePickerProps) => {
+  const currentYear = new Date().getFullYear()
+
+  const startYear = minDate?.getFullYear() ?? Math.min(1900, value?.getFullYear() ?? 1900)
+  const endYear =
+    maxDate?.getFullYear() ?? Math.max(currentYear, value?.getFullYear() ?? currentYear)
+
+  const years = Array.from(
+    { length: Math.max(0, endYear - startYear + 1) },
+    (_, index) => startYear + index,
+  )
+
   const id = useId()
   const errorId = `${id}-error`
   const [draftDate, setDraftDate] = useState<Date | null>(value)
@@ -103,7 +114,16 @@ export const DatePicker = ({
     setInputValue(formatDate(value))
   }, [value])
 
+  // Закрываем календарь, если компонент становится недоступным.
+  useEffect(() => {
+    if (disabled) {
+      setIsOpen(false)
+    }
+  }, [disabled])
+
   const handleConfirm = () => {
+    // Запрещаем подтверждение даты, если компонент отключён.
+    if (disabled) return
     // При ручном вводе проверяем текст из поля.
     if (isManualInput) {
       const text = inputValue.trim()
@@ -213,11 +233,13 @@ export const DatePicker = ({
                 value={date.getFullYear()}
                 onChange={(event) => changeYear(Number(event.target.value))}
               >
-                {Array.from({ length: 127 }, (_, index) => 1900 + index).map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
+                {Array.from(new Set([...years, date.getFullYear()]))
+                  .sort((a, b) => a - b)
+                  .map((year) => (
+                    <option key={year} value={year} disabled={year < startYear || year > endYear}>
+                      {year}
+                    </option>
+                  ))}
               </select>
 
               <img src={chevronDown} alt="" aria-hidden="true" />
@@ -230,7 +252,17 @@ export const DatePicker = ({
         showIcon
         calendarIconClassName={styles.calendarIcon}
         calendarClassName={styles.calendar}
-        icon={<img src={calendarIcon} alt="" />}
+        icon={
+          <img
+            src={calendarIcon}
+            alt=""
+            onClick={() => {
+              if (!disabled) {
+                setIsOpen(true)
+              }
+            }}
+          />
+        }
         selected={value}
         dayClassName={(date) => {
           if (
@@ -263,6 +295,12 @@ export const DatePicker = ({
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             handleCancel()
+            return
+          }
+
+          if (!disabled && !isOpen && (event.key === 'Enter' || event.key === 'ArrowDown')) {
+            event.preventDefault()
+            setIsOpen(true)
           }
         }}
         shouldCloseOnSelect={false}

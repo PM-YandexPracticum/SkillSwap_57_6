@@ -85,6 +85,7 @@
   height: 20px;
   padding: 0;
   transform: translateY(-50%);
+  cursor: pointer;
 }
 
 /* Внешний контейнер всплывающего календаря. */
