@@ -1,15 +1,24 @@
-import React from 'react'
-import { useForm, SubmitHandler } from 'react-hook-form'
-import type { Credentials, AuthMode } from '../model/Credentials'
-import { validateCredentials } from '../model/Credentials'
-import styles from './CredentialForm.module.css' // импорт CSS Modules
+import React from 'react';
+import {
+  useForm,
+  SubmitHandler,
+  Path,
+} from 'react-hook-form';
+import type { Credentials, AuthMode } from '../model/Credentials';
+import { validateCredentials } from '../model/Credentials';
+import styles from './CredentialForm.module.css';
+
+import { FormInput } from '@/shared/ui/FormInput';
+import { PasswordInput } from '@/shared/ui/PasswordInput';
+import { Link, useLocation } from 'react-router-dom';
 
 interface CredentialFormProps {
-  mode: AuthMode
-  initialValues?: Partial<Credentials>
-  onSubmit: (values: Credentials) => void | Promise<void>
-  externalError?: string | null
-  disabled?: boolean
+  mode: AuthMode;
+  initialValues?: Partial<Credentials>;
+  onSubmit: (values: Credentials) => Promise<void>;
+  externalError?: string | null;
+  returnTo?: string;
+  disabled?: boolean;
 }
 
 export const CredentialForm: React.FC<CredentialFormProps> = ({
@@ -17,103 +26,150 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
   initialValues,
   onSubmit,
   externalError,
+  returnTo,
   disabled = false,
 }) => {
+  const location = useLocation();
+  // Приоритет: проп returnTo > state из роутера
+  const inferredReturnTo = returnTo ?? (location.state?.returnTo as string | undefined);
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError: setFormError,
-    clearErrors: clearFormErrors,
+    clearErrors,
+    setError,
   } = useForm<Credentials>({
     defaultValues: initialValues ?? { email: '', password: '' },
-  })
+  });
 
-  const isSubmitDisabled = isSubmitting || disabled
+  const emailField = register('email');
+  const passwordField = register('password');
+
+  // Блокируем кнопку, если: идёт отправка, форма принудительно disabled, ИЛИ есть ошибки на полях
+  // Исключаем root из проверки, чтобы общая ошибка не блокировала кнопку сама по себе
+  const hasFieldErrors = Object.keys(errors).some(
+    (key) => key !== 'root' && errors[key as keyof typeof errors]?.message
+  );
+
+  const isSubmitDisabled = isSubmitting || disabled || hasFieldErrors;
 
   const onValidSubmit: SubmitHandler<Credentials> = async (values) => {
-    clearFormErrors()
-    const formErrors = validateCredentials(values, mode)
+    // 1. Синхронная бизнес-валидация
+    const formErrors = validateCredentials(values, mode);
+    clearErrors();
 
     if (Object.keys(formErrors).length > 0) {
       Object.entries(formErrors).forEach(([field, message]) => {
-        setFormError(field as keyof Credentials, { type: 'manual', message })
-      })
-      return
+        const fieldName = field as Path<Credentials>;
+        setError(fieldName, { type: 'manual', message });
+      });
+      return;
     }
 
+    // 2. Нормализация данных
     const normalized: Credentials = {
       email: values.email.trim().toLowerCase(),
       password: values.password,
-    }
+    };
 
     try {
-      await onSubmit(normalized)
+      // 3. Асинхронная отправка
+      await onSubmit(normalized);
+      // Если всё ок — можно сбросить externalError, если он управлялся снаружи
     } catch (e) {
-      if (externalError === null) {
-        setFormError('root', { type: 'external', message: 'Произошла ошибка при отправке' })
-      }
+      // 4. Обработка ошибки: логируем, показываем понятное сообщение, данные НЕ сбрасываем
+      console.error('Auth submit error:', e);
+
+      setError('root', {
+        type: 'server',
+        message: externalError ?? 'Произошла ошибка при отправке формы. Попробуйте ещё раз.',
+      });
+
+      // Пробрасываем ошибку дальше, если родитель хочет обработать её дополнительно
+      throw e;
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onValidSubmit)} noValidate>
-      {/* Email */}
       <div className={styles.formGroup}>
-        <label htmlFor="email" className={styles.label}>
-          Email
-        </label>
-        <input
-          id="email"
-          aria-invalid={!!errors.email}
-          aria-describedby={errors.email ? 'email-error' : undefined}
-          {...register('email')}
-          type="email"
-          autoComplete="email"
+        <FormInput
+          label="Email"
           placeholder="Введите email"
           disabled={disabled}
-          className={`${styles.input} ${errors.email ? styles.input + ' ' + styles.error : ''}`}
+          error={errors.email?.message}
+          autoComplete="email"
+          ref={emailField.ref}
+          onChange={emailField.onChange}
+          onBlur={emailField.onBlur}
+          name={emailField.name}
         />
-        {errors.email && (
-          <span id="email-error" className={styles.errorMessage}>
-            {errors.email.message}
-          </span>
-        )}
       </div>
 
-      {/* Password */}
       <div className={styles.formGroup}>
-        <label htmlFor="password" className={styles.label}>
-          {mode === 'login' ? 'Пароль' : 'Придумайте пароль'}
-        </label>
-        <input
-          id="password"
-          aria-invalid={!!errors.password}
-          aria-describedby={errors.password ? 'password-error' : undefined}
-          {...register('password')}
-          type="password"
-          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+        <PasswordInput
+          label={mode === 'login' ? 'Пароль' : 'Придумайте пароль'}
           placeholder={mode === 'login' ? 'Введите пароль' : 'Минимум 8 символов'}
           disabled={disabled}
-          className={`${styles.input} ${errors.password ? styles.input + ' ' + styles.error : ''}`}
+          error={errors.password?.message}
+          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+          ref={passwordField.ref}
+          onChange={passwordField.onChange}
+          onBlur={passwordField.onBlur}
+          name={passwordField.name}
         />
-        {errors.password && (
-          <span id="password-error" className={styles.errorMessage}>
-            {errors.password.message}
-          </span>
-        )}
       </div>
 
-      {externalError && <div className={styles.externalError}>{externalError}</div>}
+      {/* Внешняя ошибка (переданная через проп) */}
+      {externalError && (
+        <div className={styles.externalError} role="alert">
+          {externalError}
+        </div>
+      )}
+
+      {/* Общая ошибка формы (например, неверный пароль от сервера) */}
+      {errors.root?.message && (
+        <div className={styles.externalError} role="alert">
+          {errors.root.message}
+        </div>
+      )}
 
       <button
         type="submit"
         disabled={isSubmitDisabled}
-        aria-busy={isSubmitting}
+        aria-disabled={isSubmitDisabled}
+        aria-busy={isSubmitting ? 'true' : undefined}
         className={styles.submitButton}
       >
         {isSubmitting ? 'Отправка...' : mode === 'login' ? 'Войти' : 'Далее'}
       </button>
+
+      <p className={styles.switchLinkBlock}>
+        {mode === 'login' ? (
+          <>
+            Нет аккаунта?{' '}
+            <Link
+              to="/register"
+              state={{ returnTo: inferredReturnTo }}
+              className={styles.link}
+            >
+              Зарегистрироваться
+            </Link>
+          </>
+        ) : (
+          <>
+            Уже есть аккаунт?{' '}
+            <Link
+              to="/login"
+              state={{ returnTo: inferredReturnTo }}
+              className={styles.link}
+            >
+              Войти
+            </Link>
+          </>
+        )}
+      </p>
     </form>
-  )
-}
+  );
+};
