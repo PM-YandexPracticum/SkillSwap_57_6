@@ -3,10 +3,13 @@ import { fetchSkills } from '../../../api/skills'
 import { fetchUsers } from '../../../api/users'
 import { TCatalogData } from '../../../shared/types/index'
 import type { RootState } from '../../../store'
+import { assertSingleTeachPerUser } from '../../../shared/lib/skillRules'
 export const getCatalogThunk = createAsyncThunk(
   'catalog/getCatalog',
   async () => {
     const [users, skills] = await Promise.all([fetchUsers(), fetchSkills()])
+
+    assertSingleTeachPerUser(users, skills)
 
     return {
       users,
