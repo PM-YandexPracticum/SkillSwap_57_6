@@ -9,7 +9,6 @@ interface CredentialFormProps {
   initialValues?: Partial<Credentials>
   onSubmit: (values: Credentials) => void | Promise<void>
   externalError?: string | null
-  returnTo?: string
   disabled?: boolean
 }
 
@@ -18,7 +17,6 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
   initialValues,
   onSubmit,
   externalError,
-  returnTo,
   disabled = false,
 }) => {
   const {
