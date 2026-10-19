@@ -20,10 +20,6 @@ export interface CatalogResultsProps {
 export function CatalogResults({ items, currentPage, onPageChange, showCount = true,}: CatalogResultsProps) {
   const totalItems = items.length
 
-  if (totalItems === 0) {
-    return <CatalogState state="empty" />
-  }
-
   // Реальное число страниц при текущем размере массива
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
 
@@ -38,6 +34,10 @@ export function CatalogResults({ items, currentPage, onPageChange, showCount = t
         onPageChange(safePage)
       }
     }, [currentPage, safePage, onPageChange])
+
+    if (totalItems === 0) {
+    return <CatalogState state="empty" />
+  }
 
   const startIndex = (safePage - 1) * PAGE_SIZE
   const pageItems = items.slice(startIndex, startIndex + PAGE_SIZE)
