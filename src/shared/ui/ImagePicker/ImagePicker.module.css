@@ -21,3 +21,23 @@
   object-fit: contain;
   display: block;
 }
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 120px;
+  padding: 16px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.placeholderError {
+  color: #f00;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
