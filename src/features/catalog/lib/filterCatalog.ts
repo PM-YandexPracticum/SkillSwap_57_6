@@ -1,37 +1,38 @@
-import type { CatalogItem } from '@/shared/types'
+import type { CatalogItem, SkillCategory, SkillType } from '@/shared/types'
 
-export function filterCatalogBySkillTitle(items: CatalogItem[], query: string) {
-  // Сначала обрабатываем сам запрос, убираем пробелы по краям
-  const trimmedQuery = query.trim()
+export function filterCatalog(
+  items: CatalogItem[],
+  query: string,
+  type: SkillType | 'all' = 'all',
+  category: SkillCategory | 'all' = 'all',
+): CatalogItem[] {
+  const normalizedQuery = query.trim().toLowerCase()
 
-  // Если запрос пустой после обрезки пробелов, возвращаем все как есть
-  if (!trimmedQuery) {
+  if (!normalizedQuery && type === 'all' && category === 'all') {
     return items
   }
 
-  const lowerQuery = trimmedQuery.toLowerCase()
-  const seenIds = new Set<string>() // Сюда будем складывать ID пользователей,которых уже нашли
-  const result: CatalogItem[] = [] // Сюда будем складывать итоговые карточки
+  const seenIds = new Set<string>()
+  const result: CatalogItem[] = []
 
   for (const item of items) {
-    // 1. Сначала проверяем, не добавляли ли мы уже этого пользователя (защита от дублей)
     const userId = item.user.id
 
     if (seenIds.has(userId)) {
-      continue // Если уже видели этого пользователя, пропускаем дальше
+      continue
     }
 
-    // 2. Ищем совпадение среди навыков
-    const hasMatchingSkill = item.skills.some((skill: { title: string }) => {
-      // Приводим и название навыка и запрос к нижнему регистру
-      // includes проверяет, содержится ли запрос внутри названия навыка
-      return skill.title.toLowerCase().includes(lowerQuery)
-    })
+    // Все активные условия должны совпасть у одного навыка.
+    const hasMatchingSkill = item.skills.some(
+      (skill) =>
+        (!normalizedQuery || skill.title.toLowerCase().includes(normalizedQuery)) &&
+        (type === 'all' || skill.type === type) &&
+        (category === 'all' || skill.category === category),
+    )
 
-    // 3. Если совпадений найдено, добавляем пользователя в результат
     if (hasMatchingSkill) {
-      seenIds.add(userId) // Запоминаем, что этого пользователя мы уже обработали
-      result.push(item) // Добавляем карточку в список результатов
+      seenIds.add(userId)
+      result.push(item)
     }
   }
 

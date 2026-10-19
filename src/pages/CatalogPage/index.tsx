@@ -15,7 +15,7 @@ import {
 import { CatalogSection } from '../../widgets/CatalogSection'
 import { CatalogResults } from '../../widgets/CatalogResults'
 import { CatalogState } from '../../widgets/CatalogState'
-import { filterCatalogBySkillTitle } from '../../features/catalog/lib/filterCatalog'
+import { filterCatalog } from '../../features/catalog/lib/filterCatalog'
 import { useDebounce } from '../../shared/hooks/useDebounce'
 
 const CatalogPage = () => {
@@ -41,15 +41,15 @@ const CatalogPage = () => {
   const recommendedItems = useMemo(() => shuffleItems(catalogItems), [catalogItems])
   // Создаем отфильтрованный список
   const filteredItems = useMemo(() => {
-    return filterCatalogBySkillTitle(catalogItems, debouncedSearch)
-  }, [catalogItems, debouncedSearch])
+    return filterCatalog(catalogItems, debouncedSearch, selectedType, selectedCategory)
+  }, [catalogItems, debouncedSearch, selectedType, selectedCategory])
 
-  // Добавляем сброс пагинации
+  const hasActiveFilters =
+    debouncedSearch.trim().length > 0 || selectedType !== 'all' || selectedCategory !== 'all'
+
   useEffect(() => {
-    // Сбрасываем страницу на 1 при любом изменении debouncedSearch
-    // Если мы стираем поиск и переходим обратно к секцииям, мы гарантированно начинаем с 1 стр
     setCurrentPage(1)
-  }, [debouncedSearch])
+  }, [debouncedSearch, selectedType, selectedCategory])
 
   return (
     <div className={styles.page}>
@@ -76,16 +76,13 @@ const CatalogPage = () => {
               messages={{ error: error ?? undefined }}
               onRetry={() => dispatch(getCatalogThunk())}
             />
-          ) : // Здесь теперь стоит условие: есть поиск или нет?
-          debouncedSearch.trim().length > 0 ? (
-            // Если есть поиск -> показываем ТОЛЬКО результаты
+          ) : hasActiveFilters ? (
             <CatalogResults
               items={filteredItems}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
             />
           ) : (
-            // Если поиска нет -> показываем три привычные секции
             <>
               <CatalogSection title="Популярное" items={popularItems} />
 
