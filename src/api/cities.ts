@@ -1,21 +1,11 @@
-import type { City } from '../shared/types'; // или путь, где у тебя City
+import type { City } from '../shared/types';
 
 const CITIES_URL = '/db/cities.json';
 
 export const fetchCities = async (
   signal?: AbortSignal
 ): Promise<City[]> => {
-  const controller = signal ? new AbortController() : undefined;
-
-  if (signal) {
-    // Пробрасываем отмену внешнего сигнала в наш контроллер
-    const abort = () => controller?.abort();
-    signal.addEventListener('abort', abort, { once: true });
-  }
-
-  const response = await fetch(CITIES_URL, {
-    signal: controller?.signal ?? signal,
-  });
+  const response = await fetch(CITIES_URL, { signal });
 
   if (!response.ok) {
     throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
@@ -25,7 +15,10 @@ export const fetchCities = async (
   try {
     raw = await response.json();
   } catch (e) {
-    throw new Error('Не удалось распарсить JSON: ' + (e instanceof Error ? e.message : 'unknown error'));
+    throw new Error(
+      'Не удалось распарсить JSON: ' +
+        (e instanceof Error ? e.message : 'unknown error')
+    );
   }
 
   if (!Array.isArray(raw)) {
@@ -45,7 +38,9 @@ export const fetchCities = async (
     const typedItem = item as Record<string, unknown>;
 
     if (typeof typedItem.name !== 'string') {
-      throw new Error(`Элемент на позиции ${i}: поле "name" отсутствует или не является строкой`);
+      throw new Error(
+        `Элемент на позиции ${i}: поле "name" отсутствует или не является строкой`
+      );
     }
 
     const name = typedItem.name.trim();
