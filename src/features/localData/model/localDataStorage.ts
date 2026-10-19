@@ -1,6 +1,7 @@
 import { LOCAL_STORAGE_KEYS } from '@/shared/lib/constants'
 import type { LocalCredential, LocalDataSnapshot } from './types'
 import type { Skill, User } from '@/shared/types'
+import { assertSingleTeachPerUser } from '@/shared/lib/skillRules'
 
 const LOCAL_DATA_VERSION = 1
 const GENDERS: readonly unknown[] = ['male', 'female', 'other']
@@ -91,6 +92,8 @@ export function assertLocalDataSnapshot(value: unknown): asserts value is LocalD
   ) {
     throw new Error('У каждого локального пользователя должна быть ровно одна учётная запись')
   }
+
+  assertSingleTeachPerUser(users, skills)
 }
 
 export function readLocalDataSnapshot(): LocalDataSnapshot {
