@@ -1,16 +1,16 @@
-import type { SwapRequest } from '../../../shared/types'; // путь под твой проект
+import type { SwapRequest } from '../../../shared/types'
 
 export interface RequestNotification {
-  id: string;
-  requestId: string;          // ссылается на SwapRequest.id
-  userId: string;             // участник заявки
-  message: string;
-  createdAt: string;          // ISO
-  read: boolean;
+  id: string
+  requestId: string
+  userId: string
+  message: string
+  createdAt: string | number
+  read?: boolean
 }
 
 export interface RequestsSnapshot {
-  version: 1;
-  requests: SwapRequest[];
-  notifications: RequestNotification[];
+  version: 1
+  requests: SwapRequest[]
+  notifications: RequestNotification[]
 }
