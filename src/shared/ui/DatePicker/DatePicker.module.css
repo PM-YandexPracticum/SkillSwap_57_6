@@ -1,0 +1,296 @@
+/* Основной контейнер компонента DatePicker. */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  min-width: 0;
+  color: var(--color-text);
+}
+
+/* Контейнер поля ввода и иконки календаря. */
+.datePickerWrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Подпись над полем ввода. */
+.label {
+  font-size: var(--font-size-base);
+  line-height: 24px;
+  color: var(--color-text);
+}
+
+/* Поле ввода даты. */
+.input {
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  padding: 12px 48px 12px 20px;
+  border: 1px solid #69735d;
+  border-radius: 12px;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+}
+
+/* Подсказка внутри поля ввода. */
+.input::placeholder {
+  color: #69735d;
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  opacity: 1;
+}
+
+/* Выделение поля при управлении с клавиатуры. */
+.input:focus-visible {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Поле ввода с ошибкой валидации. */
+.input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+/* Сообщение об ошибке. */
+.error {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* Неактивное поле ввода. */
+.input:disabled {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Иконка календаря внутри поля ввода. */
+.calendarIcon {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  left: auto;
+  width: 18.14px;
+  height: 20px;
+  padding: 0;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* Внешний контейнер всплывающего календаря. */
+.calendar {
+  width: 290px;
+  margin-top: 4px;
+  border: 1px solid #69735d;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Контейнер месяца, создаваемый библиотекой react-datepicker. */
+.calendar [class~='react-datepicker__month-container'] {
+  width: 100%;
+}
+
+/* Заголовок календаря с месяцем и годом. */
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 216px;
+  height: 40px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+/* Выпадающий список месяца в заголовке. */
+.calendarHeader select {
+  border: none;
+  background-color: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Видимый фокус выпадающего списка. */
+.calendarHeader select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Контейнер с числами месяца. */
+.calendar [class~='react-datepicker__month'] {
+  margin: 0 28px;
+  margin-bottom: 16px;
+}
+
+/* Убираем дополнительные промежутки между рядами дат. */
+.calendar [class~='react-datepicker__week'] {
+  height: 32px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Общие размеры ячеек дат и названий дней недели. */
+.calendar [class~='react-datepicker__day'],
+.calendar [class~='react-datepicker__day-name'] {
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  border-radius: 40px;
+  line-height: 32px;
+  text-align: center;
+}
+
+/* Названия дней недели: Пн, Вт, Ср, Чт, Пт, Сб, Вс. */
+.calendar [class~='react-datepicker__day-name'] {
+  color: #508826;
+  font-family: Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.calendar [class~='react-datepicker__header'] {
+  padding: 16px 0 0;
+  border-bottom: none;
+  background-color: #fff;
+}
+
+.calendar [class~='react-datepicker__day-names'] {
+  margin-bottom: 0;
+}
+
+/* Цвет чисел календаря. */
+.calendar [class~='react-datepicker__day'] {
+  color: #253017;
+}
+
+/* Подтверждённая дата. */
+.calendar [class~='react-datepicker__day--selected'] {
+  background-color: #abd27a;
+  color: #253017;
+  font-weight: 400;
+}
+
+.calendar
+  [class~='react-datepicker__day--keyboard-selected']:not(
+    [class~='react-datepicker__day--selected']
+  ) {
+  background-color: transparent;
+  color: #253017;
+  font-weight: 400;
+}
+
+/* Предварительно выбранная дата — зелёный с непрозрачностью 60%. */
+.calendar .draftDay:not([class~='react-datepicker__day--selected']) {
+  background-color: rgb(171 210 122 / 60%);
+  color: #253017;
+}
+
+/* Наведение на дату в календаре. */
+.calendar [class~='react-datepicker__day']:hover {
+  background-color: rgb(171 210 122 / 35%);
+  border-radius: 50%;
+  color: #253017;
+}
+
+/* Контейнер текста месяца или года и стрелки. */
+.headerSelect {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Убираем стандартную стрелку браузера. */
+.headerSelect select {
+  appearance: none;
+  width: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #253017;
+  font-family: Roboto, sans-serif;
+  padding-right: 20px;
+  margin-right: -20px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.headerSelect img {
+  display: block;
+  width: 16px;
+  height: 8px;
+  flex-shrink: 0;
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* Контейнер кнопок «Отменить» и «Выбрать». */
+.calendarActions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  width: 290px;
+  height: 64px;
+  padding: 0 16px 16px;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+/* Общие стили кнопок календаря. */
+.calendarActions button {
+  height: 48px;
+  padding: 12px 24px;
+  border: 1px solid #abd27a;
+  border-radius: 12px;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+/* Кнопка «Отменить». */
+.calendarActions button:first-child {
+  background-color: #fff;
+}
+
+/* Кнопка «Выбрать». */
+.calendarActions button:last-child {
+  background-color: #abd27a;
+}
+
+/* Даты предыдущего и следующего месяцев. */
+.calendar [class~='react-datepicker__day--outside-month'] {
+  color: #a0a69b;
+}
+
+/* Цвет дат соседних месяцев при наведении. */
+.calendar [class~='react-datepicker__day--outside-month']:hover {
+  color: #a0a69b;
+}
