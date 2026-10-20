@@ -3,6 +3,7 @@ import { CatalogState } from '@/widgets/CatalogState'
 import Pagination from '@/shared/ui/Pagination'
 import type { CatalogItem } from '@/shared/types'
 import styles from './CatalogResults.module.css'
+import { useEffect } from 'react'
 
 const PAGE_SIZE = 9
 
@@ -13,14 +14,16 @@ export interface CatalogResultsProps {
   currentPage: number
   /** Обработчик смены страницы */
   onPageChange: (page: number) => void
+  showCount?: boolean
 }
 
-export function CatalogResults({ items, currentPage, onPageChange }: CatalogResultsProps) {
+export function CatalogResults({
+  items,
+  currentPage,
+  onPageChange,
+  showCount = true,
+}: CatalogResultsProps) {
   const totalItems = items.length
-
-  if (totalItems === 0) {
-    return <CatalogState state="empty" />
-  }
 
   // Реальное число страниц при текущем размере массива
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
@@ -30,12 +33,23 @@ export function CatalogResults({ items, currentPage, onPageChange }: CatalogResu
   // остался старым (например, 3 при 2 доступных страницах).
   const safePage = Math.min(Math.max(currentPage, 1), totalPages)
 
+  // Синхронизируем страницу с родителем, если она вышла за границы
+  useEffect(() => {
+    if (currentPage !== safePage) {
+      onPageChange(safePage)
+    }
+  }, [currentPage, safePage, onPageChange])
+
+  if (totalItems === 0) {
+    return <CatalogState state="empty" />
+  }
+
   const startIndex = (safePage - 1) * PAGE_SIZE
   const pageItems = items.slice(startIndex, startIndex + PAGE_SIZE)
 
   return (
     <section className={styles.root} aria-label="Результаты каталога">
-      <p className={styles.count}>Подходящие предложения: {totalItems}</p>
+      {showCount && <p className={styles.count}>Подходящие предложения: {totalItems}</p>}
 
       <UserCardsGrid items={pageItems} />
 
