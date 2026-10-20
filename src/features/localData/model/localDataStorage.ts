@@ -1,4 +1,5 @@
 import { LOCAL_STORAGE_KEYS } from '@/shared/lib/constants'
+import { isValidBirthDate } from '@/shared/lib/profileDate'
 import type { LocalCredential, LocalDataSnapshot } from './types'
 import type { Skill, User } from '@/shared/types'
 
@@ -34,6 +35,8 @@ function isUser(value: unknown): value is User {
     isStoredImageUrl(value.avatarUrl) &&
     isString(value.createdAt) &&
     isNonNegativeNumber(value.age) &&
+    (value.birthDate === undefined ||
+      (isString(value.birthDate) && isValidBirthDate(value.birthDate))) &&
     GENDERS.includes(value.gender) &&
     isString(value.city) &&
     isString(value.description) &&
@@ -52,6 +55,10 @@ function isSkill(value: unknown): value is Skill {
     Array.isArray(value.tags) &&
     value.tags.every(isString) &&
     isStoredImageUrl(value.imageUrl) &&
+    (value.imageUrls === undefined ||
+      (Array.isArray(value.imageUrls) &&
+        value.imageUrls.every((url) => isNonEmptyString(url) && !/^\s*blob:/i.test(url)) &&
+        value.imageUrl === (value.imageUrls[0] ?? null))) &&
     isNonEmptyString(value.authorId) &&
     isString(value.createdAt)
   )
