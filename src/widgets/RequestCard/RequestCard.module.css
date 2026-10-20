@@ -1,0 +1,129 @@
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  align-items: center;
+  background: #fff;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.link {
+  color: #1a73e8;
+  text-decoration: none;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.placeholder {
+  color: #888;
+  font-style: italic;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge--pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.badge--accepted {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge--rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.badge--inProgress {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.badge--done {
+  background-color: #d1e7ff;
+  color: #084298;
+}
+
+.date {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+  max-width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.error {
+  color: #b42318;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+@media (width <= 768px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .col {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .badge,
+  .date {
+    max-width: 100%;
+  }
+}
