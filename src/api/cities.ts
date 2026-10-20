@@ -1,61 +1,56 @@
-import type { City } from '../shared/types';
+import type { City } from '../shared/types'
 
-const CITIES_URL = '/db/cities.json';
+const CITIES_URL = '/db/cities.json'
 
-export const fetchCities = async (
-  signal?: AbortSignal
-): Promise<City[]> => {
-  const response = await fetch(CITIES_URL, { signal });
+export const fetchCities = async (signal?: AbortSignal): Promise<City[]> => {
+  const response = await fetch(CITIES_URL, { signal })
 
   if (!response.ok) {
-    throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
+    throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
   }
 
-  let raw: unknown;
+  let raw: unknown
   try {
-    raw = await response.json();
+    raw = await response.json()
   } catch (e) {
     throw new Error(
-      'Не удалось распарсить JSON: ' +
-        (e instanceof Error ? e.message : 'unknown error')
-    );
+      'Не удалось распарсить JSON: ' + (e instanceof Error ? e.message : 'unknown error'),
+    )
   }
 
   if (!Array.isArray(raw)) {
-    throw new Error('Ответ не является массивом городов');
+    throw new Error('Ответ не является массивом городов')
   }
 
-  const result: City[] = [];
-  const seenNames = new Set<string>();
+  const result: City[] = []
+  const seenNames = new Set<string>()
 
   for (let i = 0; i < raw.length; i++) {
-    const item = raw[i];
+    const item = raw[i]
 
     if (typeof item !== 'object' || item === null) {
-      throw new Error(`Элемент на позиции ${i} не является объектом`);
+      throw new Error(`Элемент на позиции ${i} не является объектом`)
     }
 
-    const typedItem = item as Record<string, unknown>;
+    const typedItem = item as Record<string, unknown>
 
     if (typeof typedItem.name !== 'string') {
-      throw new Error(
-        `Элемент на позиции ${i}: поле "name" отсутствует или не является строкой`
-      );
+      throw new Error(`Элемент на позиции ${i}: поле "name" отсутствует или не является строкой`)
     }
 
-    const name = typedItem.name.trim();
+    const name = typedItem.name.trim()
 
     if (!name) {
-      throw new Error(`Пустое название города на позиции ${i}`);
+      throw new Error(`Пустое название города на позиции ${i}`)
     }
 
     if (seenNames.has(name)) {
-      throw new Error(`Дубликат города "${name}" на позиции ${i}`);
+      throw new Error(`Дубликат города "${name}" на позиции ${i}`)
     }
 
-    seenNames.add(name);
-    result.push({ name });
+    seenNames.add(name)
+    result.push({ name })
   }
 
-  return result;
-};
+  return result
+}
