@@ -12,15 +12,11 @@ const initialState: FavoritesState = {
 }
 
 /**
-  Нормализует входящий ID:
-  - принимает только строки,
-  - обрезает пробелы по краям,
-  - отбрасывает пустые строки и строки из одних пробелов.
+ * Проверяет, что ID является валидной непустой строкой.
+ * Возвращает исходную строку, если она непустая после trim.
  */
-const normalizeId = (value: unknown): string | null => {
-  if (typeof value !== 'string') return null
-  const trimmed = value.trim()
-  return trimmed.length > 0 ? trimmed : null
+const isValidId = (value: unknown): value is string => {
+  return typeof value === 'string' && value.trim().length > 0
 }
 
 export const favoritesSlice = createSlice({
@@ -29,16 +25,16 @@ export const favoritesSlice = createSlice({
   reducers: {
     /** Добавляет skill.id в избранное. Дубликаты и пустые ID игнорируются. */
     addFavorite(state, action: PayloadAction<string>) {
-      const id = normalizeId(action.payload)
-      if (!id) return
+      const id = action.payload
+      if (!isValidId(id)) return
       if (state.ids.includes(id)) return
       state.ids.push(id)
     },
 
     /** Удаляет skill.id из избранного. Если ID нет — ничего не делает. */
     removeFavorite(state, action: PayloadAction<string>) {
-      const id = normalizeId(action.payload)
-      if (!id) return
+      const id = action.payload
+      if (!isValidId(id)) return
       if (!state.ids.includes(id)) return
       state.ids = state.ids.filter((existing) => existing !== id)
     },
@@ -51,13 +47,12 @@ export const favoritesSlice = createSlice({
       const unique: string[] = []
       const seen = new Set<string>()
 
-      // Проходим по массиву, нормализуем и оставляем только первые вхождения
+      // Проходим по массиву, оставляем только валидные первые вхождения
       for (const raw of action.payload) {
-        const id = normalizeId(raw)
-        if (!id) continue
-        if (seen.has(id)) continue
-        seen.add(id)
-        unique.push(id)
+        if (!isValidId(raw)) continue
+        if (seen.has(raw)) continue
+        seen.add(raw)
+        unique.push(raw)
       }
 
       state.ids = unique
@@ -86,7 +81,8 @@ export const {
 // Selectors
 export const selectFavoriteIds = (state: RootState): string[] => state.favorites.ids
 
-export const selectFavoritesError = (state: RootState): string | null => state.favorites.error
+export const selectFavoritesError = (state: RootState): string | null =>
+  state.favorites.error
 
 /**
  * Мемоизированный селектор: возвращает функцию `(skillId) => boolean`.
@@ -98,9 +94,8 @@ export const selectIsFavorite = createSelector(
     // Общий Set для всех проверок, пока `ids` не изменится
     const idsSet = new Set(ids)
     return (skillId: string): boolean => {
-      const normalized = normalizeId(skillId)
-      if (!normalized) return false
-      return idsSet.has(normalized)
+      if (!isValidId(skillId)) return false
+      return idsSet.has(skillId)
     }
   },
 )
