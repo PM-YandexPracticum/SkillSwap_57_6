@@ -115,17 +115,15 @@ export const selectFavoritesError = (state: RootState): string | null =>
  * Мемоизированный селектор: возвращает функцию `(skillId) => boolean`.
  * Общий `Set` пересобирается только при изменении `ids`.
  */
-export const selectIsFavorite = createSelector(
-  [(state: RootState) => state.favorites.ids],
-  (ids) => {
-    // Общий Set для всех проверок, пока `ids` не изменится
-    const idsSet = new Set(ids)
-    return (skillId: string): boolean => {
-      if (!isValidId(skillId)) return false
-      return idsSet.has(skillId)
-    }
-  },
+const selectFavoriteIdsSet = createSelector(
+  [selectFavoriteIds],
+  (ids): ReadonlySet<string> => new Set(ids),
 )
+
+export const selectIsFavorite =
+  (skillId: string) =>
+  (state: RootState): boolean =>
+    isValidId(skillId) && selectFavoriteIdsSet(state).has(skillId)
 
 export const selectLocalLikeCount =
   (skillId: string) =>
