@@ -1,4 +1,4 @@
-import type { Gender } from '@/shared/types';
+import type { Gender } from '@/shared/types'
 
 export interface RegistrationPersonalDraft {
   name: string
