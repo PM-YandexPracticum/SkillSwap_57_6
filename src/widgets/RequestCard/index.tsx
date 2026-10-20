@@ -2,7 +2,6 @@ import type { SwapRequest, User, Skill } from '@/shared/types'
 import { Link } from 'react-router-dom'
 import styles from './RequestCard.module.css'
 import { getAllowedRequestActions } from '../../entities/request/model/requestRules'
-import { ROUTES } from '@/shared/lib/constants'
 
 //Простая функция для форматирования даты (можно вынести в utils)
 const formatDate = (dateString?: string | null) => {
@@ -81,9 +80,7 @@ export const RequestCard = ({
 
       <div className={styles.col}>
         {otherUser ? (
-          <Link to={ROUTES.PROFILE} className={styles.link}>
-            {otherUser.name}
-          </Link>
+          <span className={styles.link}>{otherUser.name}</span>
         ) : (
           <span className={styles.placeholder}>Пользователь не найден</span>
         )}
