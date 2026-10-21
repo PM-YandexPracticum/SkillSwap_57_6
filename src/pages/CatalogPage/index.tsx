@@ -1,4 +1,3 @@
-// TODO: реализовать страницу CatalogPage
 import { Header } from '../../widgets/Header'
 import { Footer } from '../../widgets/Footer'
 import styles from './CatalogPage.module.css'
@@ -7,11 +6,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { getCatalogThunk } from '../../features/catalog/model/catalogSlice'
 import FiltersBar, { SkillCategoryFilter, SkillTypeFilter } from '../../widgets/FiltersBar'
 import {
-  buildCatalogItems,
-  shuffleItems,
-  sortByNewest,
-  sortByPopularity,
-} from '../../features/catalog/model/catalogData'
+  selectCatalogItems,
+  selectCatalogMergeError,
+  selectNewestItems,
+  selectPopularItems,
+  selectRecommendedItems,
+} from '../../features/catalog/model/catalogSelectors'
+import { restoreLocalData } from '../../features/localData/model/localDataSlice'
+import { restoreProfiles } from '../../features/profile/model/profileSlice'
 import { CatalogSection } from '../../widgets/CatalogSection'
 import { CatalogResults } from '../../widgets/CatalogResults'
 import { CatalogState } from '../../widgets/CatalogState'
@@ -23,7 +25,10 @@ const CatalogPage = () => {
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 300)
   const [currentPage, setCurrentPage] = useState(1)
-  const { users, skills, status, error } = useAppSelector((state) => state.catalog)
+  const { status, error } = useAppSelector((state) => state.catalog)
+  const localError = useAppSelector((state) => state.localData.readError)
+  const profileError = useAppSelector((state) => state.profile.readError)
+  const mergeError = useAppSelector(selectCatalogMergeError)
   const [selectedType, setSelectedType] = useState<SkillTypeFilter>('all')
   const [selectedCategory, setSelectedCategory] = useState<SkillCategoryFilter>('all')
 
@@ -31,14 +36,10 @@ const CatalogPage = () => {
     dispatch(getCatalogThunk())
   }, [dispatch])
 
-  /**Созданный каталог карточек */
-  const catalogItems = useMemo(() => buildCatalogItems(users, skills), [users, skills])
-  /**Каталог карточек в секции "Популярное" */
-  const popularItems = useMemo(() => sortByPopularity(catalogItems), [catalogItems])
-  /**Каталог карточек в секции "Новое" */
-  const newestItems = useMemo(() => sortByNewest(catalogItems), [catalogItems])
-  /**Каталог карточек в секции "Рекомендуем" */
-  const recommendedItems = useMemo(() => shuffleItems(catalogItems), [catalogItems])
+  const catalogItems = useAppSelector(selectCatalogItems)
+  const popularItems = useAppSelector(selectPopularItems)
+  const newestItems = useAppSelector(selectNewestItems)
+  const recommendedItems = useAppSelector(selectRecommendedItems)
   // Создаем отфильтрованный список
   const filteredItems = useMemo(() => {
     return filterCatalog(catalogItems, debouncedSearch, selectedType, selectedCategory)
@@ -68,12 +69,30 @@ const CatalogPage = () => {
         </aside>
 
         <section className={styles.user_section}>
+          {(localError || mergeError) && (
+            <CatalogState
+              state="error"
+              messages={{ error: `Ошибка локальных данных: ${localError ?? mergeError}` }}
+              retryLabel="Повторить загрузку локальных данных"
+              onRetry={() => dispatch(restoreLocalData())}
+            />
+          )}
+          {profileError && (
+            <CatalogState
+              state="error"
+              messages={{ error: `Ошибка профилей: ${profileError}` }}
+              retryLabel="Повторить загрузку профилей"
+              onRetry={() => dispatch(restoreProfiles())}
+            />
+          )}
           {status === 'loading' || status === 'idle' ? (
             <CatalogState state="loading" />
           ) : status === 'error' ? (
             <CatalogState
               state="error"
-              messages={{ error: error ?? undefined }}
+              messages={{
+                error: `Ошибка JSON-каталога: ${error ?? 'Не удалось загрузить каталог'}`,
+              }}
               onRetry={() => dispatch(getCatalogThunk())}
             />
           ) : hasActiveFilters ? (

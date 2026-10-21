@@ -31,7 +31,7 @@ export function sortByNewest(items: CatalogItem[]): CatalogItem[] {
 }
 
 /** «Рекомендуем»: случайный порядок */
-export function shuffleItems(items: CatalogItem[]): CatalogItem[] {
+export function shuffleItems<T>(items: T[]): T[] {
   const shuffled = [...items]
 
   for (let i = shuffled.length - 1; i > 0; i -= 1) {
