@@ -14,7 +14,7 @@ export const store = configureStore({
     catalog: catalogReducer,
     localData: localDataReducer,
     favorites: favoritesReducer,
-    requests: requestsReducer
+    requests: requestsReducer,
     // skills: skillsReducer,
     auth: authReducer,
   },
