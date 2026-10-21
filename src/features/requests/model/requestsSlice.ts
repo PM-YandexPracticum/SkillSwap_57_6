@@ -6,25 +6,53 @@ import type { SwapRequest, RequestStatus } from '../../../shared/types'
 import type { RequestNotification, RequestsSnapshot } from './types'
 
 import { readRequestsSnapshot, validateSnapshot } from './requestsStorage'
+import { setAuthUser } from '@/features/auth/model/authSlice'
 
 const KEY = 'requests_snapshot' // Должен совпадать с тем, что в requestsStorage.ts
+
+export interface RequestOperation {
+  userId: string
+  status: 'pending' | 'success' | 'error'
+  error: string | null
+}
 
 interface RequestsState {
   snapshot: RequestsSnapshot
   readError: string | null
   operationError: string | null
+  operations: Record<string, RequestOperation | undefined>
 }
 
 const initialState: RequestsState = {
   snapshot: { version: 1, requests: [], notifications: [] },
   readError: null,
   operationError: null,
+  operations: {},
 }
 
 const requestsSlice = createSlice({
   name: 'requests',
   initialState,
   reducers: {
+    requestOperationStarted: (
+      state,
+      { payload }: PayloadAction<{ requestId: string; userId: string }>,
+    ) => {
+      state.operations[payload.requestId] = {
+        userId: payload.userId,
+        status: 'pending',
+        error: null,
+      }
+    },
+    requestOperationFinished: (
+      state,
+      { payload }: PayloadAction<{ requestId: string; userId: string; error: string | null }>,
+    ) => {
+      const operation = state.operations[payload.requestId]
+      if (operation?.userId !== payload.userId || operation.status !== 'pending') return
+      operation.status = payload.error ? 'error' : 'success'
+      operation.error = payload.error
+    },
     setSnapshot: (state, action: PayloadAction<RequestsSnapshot>) => {
       state.snapshot = action.payload
       state.readError = null
@@ -38,6 +66,7 @@ const requestsSlice = createSlice({
     clear: (state) => {
       state.snapshot = { version: 1, requests: [], notifications: [] }
       state.operationError = null
+      state.operations = {}
       // readError не сбрасываем, чтобы сохранить историю ошибок чтения
     },
     clearReadError: (state) => {
@@ -69,6 +98,12 @@ const requestsSlice = createSlice({
       const notification = state.snapshot.notifications[index]
       state.snapshot.notifications[index] = { ...notification, read: true }
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(setAuthUser, (state) => {
+      state.operations = {}
+      state.operationError = null
+    })
   },
 })
 
@@ -205,7 +240,17 @@ export const selectUnreadNotifications = (
   })
 }
 
+export const selectRequestOperation = (
+  state: RootState,
+  requestId: string,
+): RequestOperation | undefined => {
+  const operation = state.requests.operations[requestId]
+  return operation?.userId === state.auth.user?.id ? operation : undefined
+}
+
 export const {
+  requestOperationStarted,
+  requestOperationFinished,
   setSnapshot,
   setReadError,
   setOperationError,
