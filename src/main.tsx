@@ -3,9 +3,11 @@ import { createRoot } from 'react-dom/client'
 import { App } from './app/App'
 import { store } from './store'
 import { restoreLocalData } from './features/localData/model/localDataSlice'
+import { restoreProfiles } from './features/profile/model/profileSlice'
 import { restoreRequests, startStorageSync } from './features/requests/model/requestsSlice'
 
 store.dispatch(restoreLocalData())
+store.dispatch(restoreProfiles())
 store.dispatch(restoreRequests())
 
 // Запускаем синхронизацию между вкладками
