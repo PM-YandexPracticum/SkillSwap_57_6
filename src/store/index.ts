@@ -3,6 +3,7 @@ import catalogReducer from '../features/catalog/model/catalogSlice'
 import localDataReducer from '@/features/localData/model/localDataSlice'
 import favoritesReducer from '@/features/favorites/model/favoritesSlice'
 import { restoreFavoritesThunk } from '@/features/favorites/model/favoritesThunks'
+import authReducer from '@/features/auth/model/authSlice'
 // Импортируй свои slice'ы здесь по мере их создания:
 // import skillsReducer from '@/entities/skill/model/skillsSlice'
 // import authReducer from '@/features/auth/model/authSlice'
@@ -13,7 +14,7 @@ export const store = configureStore({
     localData: localDataReducer,
     favorites: favoritesReducer,
     // skills: skillsReducer,
-    // auth: authReducer,
+    auth: authReducer,
   },
 })
 
