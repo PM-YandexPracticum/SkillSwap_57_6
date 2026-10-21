@@ -5,6 +5,8 @@ interface SkillDescriptionProps extends Pick<Skill, 'title' | 'category' | 'tags
   onExchange: () => void
   disabled?: boolean
   isPending?: boolean
+  /** Показывать кнопку «Предложить обмен». По умолчанию true. */
+  showExchange?: boolean
 }
 
 export function SkillDescription({
@@ -15,6 +17,7 @@ export function SkillDescription({
   onExchange,
   disabled = false,
   isPending = false,
+  showExchange = true,
 }: SkillDescriptionProps) {
   return (
     <section className={styles.root}>
@@ -31,14 +34,16 @@ export function SkillDescription({
 
       <p className={styles.description}>{description}</p>
 
-      <button
-        className={styles.button}
-        type="button"
-        disabled={disabled || isPending}
-        onClick={onExchange}
-      >
-        Предложить обмен
-      </button>
+      {showExchange && (
+        <button
+          className={styles.button}
+          type="button"
+          disabled={disabled || isPending}
+          onClick={onExchange}
+        >
+          Предложить обмен
+        </button>
+      )}
     </section>
   )
 }
