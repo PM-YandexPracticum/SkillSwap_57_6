@@ -14,6 +14,7 @@ interface RegistrationPersonalFieldsProps {
   errors: RegistrationPersonalErrors
   cities: readonly City[]
   disabled?: boolean
+  resetKey?: number
   onChange: (value: RegistrationPersonalDraft) => void
   onDateErrorChange: (error: string | null) => void
 }
@@ -31,6 +32,7 @@ export function RegistrationPersonalFields({
   errors,
   cities,
   disabled = false,
+  resetKey,
   onChange,
   onDateErrorChange,
 }: RegistrationPersonalFieldsProps) {
@@ -84,6 +86,7 @@ export function RegistrationPersonalFields({
         onValidationChange={handleDateErrorChange}
         error={dateError ?? errors.birthDate}
         maxDate={maxDate}
+        resetKey={resetKey}
         disabled={disabled}
         required
       />

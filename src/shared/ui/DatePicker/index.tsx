@@ -60,6 +60,8 @@ export type DatePickerProps = {
   required?: boolean
   minDate?: Date
   maxDate?: Date
+  /** Измените ключ при внешнем сбросе, даже если value остаётся null. */
+  resetKey?: number
 }
 
 export const DatePicker = ({
@@ -72,6 +74,7 @@ export const DatePicker = ({
   required = false,
   minDate,
   maxDate,
+  resetKey,
 }: DatePickerProps) => {
   const currentYear = new Date().getFullYear()
 
@@ -91,7 +94,7 @@ export const DatePicker = ({
   const [inputValue, setInputValue] = useState(formatDate(value))
   // Ошибка проверки даты, введённой вручную.
   const [inputError, setInputError] = useState('')
-  const previousValue = useRef(value?.getTime() ?? null)
+  const previousSelection = useRef({ timestamp: value?.getTime() ?? null, resetKey })
 
   // Показывает, что пользователь изменил дату вручную.
   const [isManualInput, setIsManualInput] = useState(false)
@@ -100,14 +103,16 @@ export const DatePicker = ({
   // Синхронизируем временную дату с изменениями от родителя.
   useEffect(() => {
     const timestamp = value?.getTime() ?? null
-    if (Object.is(previousValue.current, timestamp)) return
-    previousValue.current = timestamp
+    const isReset = !Object.is(previousSelection.current.resetKey, resetKey)
+    if (Object.is(previousSelection.current.timestamp, timestamp) && !isReset) return
+    previousSelection.current = { timestamp, resetKey }
     setDraftDate(value)
     setInputValue(formatDate(value))
     setInputError('')
     setIsManualInput(false)
+    if (isReset) setIsOpen(false)
     onValidationChange?.(null)
-  }, [value, onValidationChange])
+  }, [value, onValidationChange, resetKey])
 
   // Закрываем календарь, если компонент становится недоступным.
   useEffect(() => {
