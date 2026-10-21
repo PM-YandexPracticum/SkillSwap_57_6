@@ -126,7 +126,7 @@ export const selectIsFavorite =
 
 export const selectLocalLikeCount =
   (skillId: string) =>
-  (state: RootState): number => {
+  (state: { favorites: Pick<FavoritesState, 'localLikeCounts'> }): number => {
     const count = state.favorites.localLikeCounts[skillId]
     return typeof count === 'number' ? count : 0
   }

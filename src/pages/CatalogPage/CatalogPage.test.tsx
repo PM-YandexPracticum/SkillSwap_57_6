@@ -7,6 +7,9 @@ import { MemoryRouter } from 'react-router-dom'
 import { fetchUsers } from '@/api/users'
 import { fetchSkills } from '@/api/skills'
 import catalogReducer from '@/features/catalog/model/catalogSlice'
+import localDataReducer from '@/features/localData/model/localDataSlice'
+import profileReducer from '@/features/profile/model/profileSlice'
+import favoritesReducer from '@/features/favorites/model/favoritesSlice'
 import type { Skill, User } from '@/shared/types'
 import CatalogPage from '.'
 
@@ -61,7 +64,14 @@ afterEach(() => {
 })
 
 async function renderCatalog() {
-  const store = configureStore({ reducer: { catalog: catalogReducer } })
+  const store = configureStore({
+    reducer: {
+      catalog: catalogReducer,
+      localData: localDataReducer,
+      profile: profileReducer,
+      favorites: favoritesReducer,
+    },
+  })
   render(
     <Provider store={store}>
       <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
