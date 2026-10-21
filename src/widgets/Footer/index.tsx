@@ -1,5 +1,6 @@
 import styles from './Footer.module.css'
 import { APP_TITLE } from '@/shared/lib/appTitle'
+import { AllSkillsMenu } from '@/widgets/AllSkillsMenu'
 
 export const Footer = () => {
   return (
@@ -10,7 +11,7 @@ export const Footer = () => {
       </div>
       <div className={styles.column}>
         <span>О проекте</span>
-        <span>Все навыки</span>
+        <AllSkillsMenu placement="top" />
       </div>
       <div className={styles.column}>
         <span>Контакты</span>

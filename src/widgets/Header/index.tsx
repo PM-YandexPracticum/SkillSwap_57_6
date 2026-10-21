@@ -3,6 +3,7 @@ import { ROUTES } from '@/shared/lib/constants'
 import styles from './Header.module.css'
 import { APP_TITLE } from '@/shared/lib/appTitle'
 import { SearchInput } from '@/shared/ui/SearchInput'
+import { AllSkillsMenu } from '@/widgets/AllSkillsMenu'
 
 type HeaderProps = {
   searchValue: string
@@ -12,6 +13,7 @@ export const Header = ({ searchValue, onSearchChange }: HeaderProps) => {
   return (
     <header className={styles.header}>
       <div className={styles.logo}>{APP_TITLE}</div>
+      <AllSkillsMenu />
       <div className={styles.search}>
         <SearchInput value={searchValue} onChange={onSearchChange} />
       </div>

@@ -12,6 +12,7 @@ export interface Skill {
   category: string
   tags: string[]
   imageUrl: string | null
+  imageUrls?: string[]
   authorId: string
   createdAt: string
 }
@@ -26,6 +27,7 @@ export interface User {
   avatarUrl: string | null
   createdAt: string
   age: number
+  birthDate?: string
   gender: Gender
   city: string
   description: string

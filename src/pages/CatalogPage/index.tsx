@@ -15,10 +15,13 @@ import {
 import { CatalogSection } from '../../widgets/CatalogSection'
 import { CatalogResults } from '../../widgets/CatalogResults'
 import { CatalogState } from '../../widgets/CatalogState'
+import { filterCatalog } from '../../features/catalog/lib/filterCatalog'
+import { useDebounce } from '../../shared/hooks/useDebounce'
 
 const CatalogPage = () => {
   const dispatch = useAppDispatch()
   const [searchValue, setSearchValue] = useState('')
+  const debouncedSearch = useDebounce(searchValue, 300)
   const [currentPage, setCurrentPage] = useState(1)
   const { users, skills, status, error } = useAppSelector((state) => state.catalog)
   const [selectedType, setSelectedType] = useState<SkillTypeFilter>('all')
@@ -36,6 +39,17 @@ const CatalogPage = () => {
   const newestItems = useMemo(() => sortByNewest(catalogItems), [catalogItems])
   /**Каталог карточек в секции "Рекомендуем" */
   const recommendedItems = useMemo(() => shuffleItems(catalogItems), [catalogItems])
+  // Создаем отфильтрованный список
+  const filteredItems = useMemo(() => {
+    return filterCatalog(catalogItems, debouncedSearch, selectedType, selectedCategory)
+  }, [catalogItems, debouncedSearch, selectedType, selectedCategory])
+
+  const hasActiveFilters =
+    debouncedSearch.trim().length > 0 || selectedType !== 'all' || selectedCategory !== 'all'
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch, selectedType, selectedCategory])
 
   return (
     <div className={styles.page}>
@@ -61,6 +75,12 @@ const CatalogPage = () => {
               state="error"
               messages={{ error: error ?? undefined }}
               onRetry={() => dispatch(getCatalogThunk())}
+            />
+          ) : hasActiveFilters ? (
+            <CatalogResults
+              items={filteredItems}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
             />
           ) : (
             <>
