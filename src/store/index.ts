@@ -4,7 +4,8 @@ import localDataReducer from '@/features/localData/model/localDataSlice'
 import favoritesReducer from '@/features/favorites/model/favoritesSlice'
 import { restoreFavoritesThunk } from '@/features/favorites/model/favoritesThunks'
 import authReducer from '@/features/auth/model/authSlice'
-import requestsReducer from '@/features/requests/model/requestsSlice';
+import profileReducer from '@/features/profile/model/profileSlice'
+import requestsReducer from '@/features/requests/model/requestsSlice'
 // Импортируй свои slice'ы здесь по мере их создания:
 // import skillsReducer from '@/entities/skill/model/skillsSlice'
 // import authReducer from '@/features/auth/model/authSlice'
@@ -17,6 +18,7 @@ export const store = configureStore({
     requests: requestsReducer,
     // skills: skillsReducer,
     auth: authReducer,
+    profile: profileReducer,
   },
 })
 

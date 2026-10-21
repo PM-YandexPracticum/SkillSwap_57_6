@@ -94,4 +94,5 @@ export const LOCAL_STORAGE_KEYS = {
   REQUESTS: 'skillswap_requests',
   THEME: 'skillswap_theme',
   PROJECT_DATA: 'skillswap_project_data',
+  PROFILE_OVERRIDES: 'skillswap_profile_overrides',
 } as const
