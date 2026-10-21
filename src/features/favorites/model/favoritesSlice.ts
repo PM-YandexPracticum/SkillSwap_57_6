@@ -108,8 +108,7 @@ export const {
 // Selectors
 export const selectFavoriteIds = (state: RootState): string[] => state.favorites.ids
 
-export const selectFavoritesError = (state: RootState): string | null =>
-  state.favorites.error
+export const selectFavoritesError = (state: RootState): string | null => state.favorites.error
 
 /**
  * Мемоизированный селектор: возвращает функцию `(skillId) => boolean`.

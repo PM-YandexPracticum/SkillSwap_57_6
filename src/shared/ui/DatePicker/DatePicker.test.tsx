@@ -300,6 +300,25 @@ describe('DatePicker manual validation', () => {
     expect(callback).toHaveBeenLastCalledWith(null)
   })
 
+  it('clears invalid manual text on an explicit reset while value remains null', async () => {
+    const { input, props, rerender } = setup({ value: null, resetKey: 0 })
+    await userEvent.click(input)
+    fireEvent.change(input, { target: { value: '31.02.2024' } })
+    fireEvent.blur(input)
+    expect(screen.getByText('Такой даты не существует')).toBeInTheDocument()
+    props.onValidationChange.mockClear()
+
+    rerender(<DatePicker {...props} value={null} resetKey={1} />)
+
+    expect(input).toHaveValue('')
+    expect(input).toHaveAttribute('aria-invalid', 'false')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(props.onValidationChange).toHaveBeenCalledTimes(1)
+    expect(props.onValidationChange).toHaveBeenLastCalledWith(null)
+    expect(props.onChange).not.toHaveBeenCalled()
+  })
+
   it('does not replace invalid text with the calendar preselection on Enter', async () => {
     const { input, props } = setup()
     await userEvent.click(input)
