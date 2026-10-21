@@ -1,22 +1,37 @@
-import ReactDatePicker, { CalendarContainer, registerLocale } from 'react-datepicker'
+import ReactDatePicker, { registerLocale } from 'react-datepicker'
 import { ru } from 'date-fns/locale'
 import 'react-datepicker/dist/react-datepicker.css'
 import styles from './DatePicker.module.css'
 
 import { shift } from '@floating-ui/dom'
 
-import { format, isValid, parse } from 'date-fns'
+import { format, isValid, parse, startOfDay } from 'date-fns'
 import calendarIcon from './assets/calendar.svg'
 import chevronDown from './assets/chevron-down.svg'
 
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 registerLocale('ru', ru)
 
 const DATE_FORMAT = 'dd.MM.yyyy'
 
 const formatDate = (date: Date | null): string => {
-  return date ? format(date, DATE_FORMAT) : ''
+  return date && isValid(date) ? format(date, DATE_FORMAT) : ''
+}
+
+const parseInput = (text: string, minDate?: Date, maxDate?: Date) => {
+  if (!text.trim()) return { date: null, error: null }
+  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(text.trim())) {
+    return { date: null, error: 'Введите дату в формате дд.мм.гггг' }
+  }
+  const date = parse(text.trim(), DATE_FORMAT, new Date())
+  if (!isValid(date) || formatDate(date) !== text.trim()) {
+    return { date: null, error: 'Такой даты не существует' }
+  }
+  if ((minDate && date < startOfDay(minDate)) || (maxDate && date > startOfDay(maxDate))) {
+    return { date: null, error: 'Дата выходит за допустимый диапазон' }
+  }
+  return { date, error: null }
 }
 
 // Названия месяцев для выпадающего списка календаря.
@@ -35,38 +50,10 @@ const months = [
   'Декабрь',
 ]
 
-// Контейнер для календаря с дополнительными элементами.
-const CustomCalendarContainer = ({
-  className,
-  children,
-  onConfirm,
-  onCancel,
-}: {
-  className?: string
-  children: ReactNode
-  onConfirm: () => void
-  onCancel: () => void
-}) => {
-  return (
-    <CalendarContainer className={className}>
-      {children}
-
-      <div className={styles.calendarActions}>
-        <button type="button" onClick={onCancel}>
-          Отменить
-        </button>
-
-        <button type="button" onClick={onConfirm}>
-          Выбрать
-        </button>
-      </div>
-    </CalendarContainer>
-  )
-}
-
 export type DatePickerProps = {
   value: Date | null
   onChange: (date: Date | null) => void
+  onValidationChange?: (error: string | null) => void
   label: string
   error?: string
   disabled?: boolean
@@ -78,6 +65,7 @@ export type DatePickerProps = {
 export const DatePicker = ({
   value,
   onChange,
+  onValidationChange,
   label,
   error,
   disabled = false,
@@ -103,6 +91,7 @@ export const DatePicker = ({
   const [inputValue, setInputValue] = useState(formatDate(value))
   // Ошибка проверки даты, введённой вручную.
   const [inputError, setInputError] = useState('')
+  const previousValue = useRef(value?.getTime() ?? null)
 
   // Показывает, что пользователь изменил дату вручную.
   const [isManualInput, setIsManualInput] = useState(false)
@@ -110,9 +99,15 @@ export const DatePicker = ({
   const [isOpen, setIsOpen] = useState(false)
   // Синхронизируем временную дату с изменениями от родителя.
   useEffect(() => {
+    const timestamp = value?.getTime() ?? null
+    if (Object.is(previousValue.current, timestamp)) return
+    previousValue.current = timestamp
     setDraftDate(value)
     setInputValue(formatDate(value))
-  }, [value])
+    setInputError('')
+    setIsManualInput(false)
+    onValidationChange?.(null)
+  }, [value, onValidationChange])
 
   // Закрываем календарь, если компонент становится недоступным.
   useEffect(() => {
@@ -121,57 +116,29 @@ export const DatePicker = ({
     }
   }, [disabled])
 
+  const validateManualInput = (text: string) => {
+    const result = parseInput(text, minDate, maxDate)
+    setInputError(result.error ?? '')
+    onValidationChange?.(result.error)
+    if (!result.error) {
+      setDraftDate(result.date)
+      onChange(result.date)
+    }
+    return !result.error
+  }
+
   const handleConfirm = () => {
-    // Запрещаем подтверждение даты, если компонент отключён.
     if (disabled) return
-    // При ручном вводе проверяем текст из поля.
     if (isManualInput) {
-      const text = inputValue.trim()
-
-      // Пустое поле означает сброс даты.
-      if (!text) {
-        onChange(null)
-        setDraftDate(null)
-        setInputValue('')
-        closeCalendar()
-        return
-      }
-
-      // Проверяем формат даты.
-      if (!/^\d{2}\.\d{2}\.\d{4}$/.test(text)) {
-        setInputError('Введите дату в формате дд.мм.гггг')
-        return
-      }
-
-      const parsedDate = parse(text, DATE_FORMAT, new Date())
-
-      // Проверяем существование даты.
-      if (!isValid(parsedDate)) {
-        setInputError('Такой даты не существует')
-        return
-      }
-
-      // Проверяем ограничения диапазона.
-      if ((minDate && parsedDate < minDate) || (maxDate && parsedDate > maxDate)) {
-        setInputError('Дата выходит за допустимый диапазон')
-        return
-      }
-
-      onChange(parsedDate)
-      setDraftDate(parsedDate)
-      setInputValue(formatDate(parsedDate))
+      if (!validateManualInput(inputValue)) return
     } else {
-      // При выборе мышью используем предварительную дату.
-      onChange(draftDate)
+      if (!validateManualInput(formatDate(draftDate))) return
       setInputValue(formatDate(draftDate))
     }
-
-    // Общие действия после успешного подтверждения.
     closeCalendar()
   }
 
   const closeCalendar = () => {
-    setInputError('')
     setIsManualInput(false)
     setIsOpen(false)
   }
@@ -180,27 +147,28 @@ export const DatePicker = ({
   const handleCancel = () => {
     setDraftDate(value)
     setInputValue(formatDate(value))
+    setInputError('')
+    onValidationChange?.(null)
     closeCalendar()
   }
 
-  const CalendarWithActions = ({
-    className,
-    children,
-  }: {
-    className?: string
-    children: ReactNode
-  }) => (
-    <CustomCalendarContainer
-      className={className}
-      onConfirm={handleConfirm}
-      onCancel={handleCancel}
-    >
-      {children}
-    </CustomCalendarContainer>
-  )
-
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      onBlurCapture={(event) => {
+        if (!disabled && event.target.id === id && isManualInput) validateManualInput(inputValue)
+      }}
+      onKeyDownCapture={(event) => {
+        if (disabled || !(event.target instanceof HTMLInputElement) || event.target.id !== id)
+          return
+        if (event.key === 'Escape' || (event.key === 'Enter' && isManualInput)) {
+          event.preventDefault()
+          event.stopPropagation()
+          if (event.key === 'Escape') handleCancel()
+          else handleConfirm()
+        }
+      }}
+    >
       <label className={styles.label} htmlFor={id}>
         {label}
         {required && <span aria-hidden="true"> *</span>}
@@ -276,35 +244,39 @@ export const DatePicker = ({
           return ''
         }}
         value={inputValue}
-        onChangeRaw={(event) => {
-          if (event && 'target' in event) {
-            setInputValue((event.target as HTMLInputElement).value)
+        onChangeRaw={(event, selection) => {
+          if (!disabled && !selection && event?.target instanceof HTMLInputElement) {
+            const text = event.target.value
+            setInputValue(text)
             setIsManualInput(true)
-            setInputError('')
             event.preventDefault()
+            if (!text.trim() || !parseInput(text, minDate, maxDate).error) validateManualInput(text)
           }
         }}
-        onChange={(date: Date | null) => {
+        onSelect={(date: Date | null) => {
           setDraftDate(date)
           setIsManualInput(false)
           setInputError('')
+          setInputValue(formatDate(date))
+          onValidationChange?.(null)
         }}
         open={isOpen}
         onInputClick={() => setIsOpen(true)}
-        onClickOutside={handleCancel}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') {
-            handleCancel()
-            return
+        onClickOutside={() => {
+          if (isManualInput) validateManualInput(inputValue)
+          else {
+            setDraftDate(value)
+            setInputValue(formatDate(value))
           }
-
+          setIsOpen(false)
+        }}
+        onKeyDown={(event) => {
           if (!disabled && !isOpen && (event.key === 'Enter' || event.key === 'ArrowDown')) {
             event.preventDefault()
             setIsOpen(true)
           }
         }}
         shouldCloseOnSelect={false}
-        calendarContainer={CalendarWithActions}
         locale="ru"
         fixedHeight
         dateFormat={DATE_FORMAT}
@@ -315,7 +287,16 @@ export const DatePicker = ({
         maxDate={maxDate}
         aria-invalid={inputError || error ? 'true' : 'false'}
         aria-describedby={inputError || error ? errorId : undefined}
-      />
+      >
+        <div className={styles.calendarActions}>
+          <button type="button" onClick={handleCancel}>
+            Отменить
+          </button>
+          <button type="button" onClick={handleConfirm}>
+            Выбрать
+          </button>
+        </div>
+      </ReactDatePicker>
 
       {(inputError || error) && (
         <p id={errorId} className={styles.error} role="alert">

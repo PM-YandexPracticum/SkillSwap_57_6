@@ -249,6 +249,12 @@
 }
 
 /* Контейнер кнопок «Отменить» и «Выбрать». */
+.calendar [class~='react-datepicker__children-container'] {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .calendarActions {
   display: flex;
   align-items: flex-start;
