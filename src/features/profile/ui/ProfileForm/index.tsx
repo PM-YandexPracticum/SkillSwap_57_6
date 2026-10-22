@@ -3,6 +3,7 @@ import type { User, City } from '@/shared/types'
 import { FormInput } from '@/shared/ui/FormInput'
 import { DatePicker } from '@/shared/ui/DatePicker'
 import { Select } from '@/shared/ui/Select'
+import { ImagePicker } from '@/shared/ui/ImagePicker'
 import { validateRegistrationPersonalDraft } from '@/features/auth/model/registrationValidation'
 import { validateCredentials } from '@/features/auth/model/Credentials'
 import styles from './ProfileForm.module.css'
@@ -43,8 +44,9 @@ export function ProfileForm({
 
   // Аватар
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [validatedAvatar, setValidatedAvatar] = useState<File | null>(null)
   const [avatarError, setAvatarError] = useState<string | null>(null)
+  const isAvatarPending = avatarFile !== null && avatarFile !== validatedAvatar
 
   // Пароль
   const [showPassword, setShowPassword] = useState(false)
@@ -62,34 +64,10 @@ export function ProfileForm({
   const today = new Date()
   const cityNames = cities.map((c) => c.name)
 
-  // --- Обработчик выбора аватара (с проверкой на повреждение) ---
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // Проверка MIME-типа
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      setAvatarError('Допустимы только форматы JPEG и PNG')
-      return
-    }
-
-    // Проверка на то, что файл реально открывается как картинка
-    const img = new Image()
-    img.onload = () => {
-      setAvatarError(null)
-      setAvatarFile(file)
-      setAvatarPreview(URL.createObjectURL(file))
-    }
-    img.onerror = () => {
-      setAvatarError('Файл поврежден или не является изображением')
-    }
-    img.src = URL.createObjectURL(file)
-  }
-
   // --- Отправка формы ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (disabled || isSubmitting) return
+    if (disabled || isSubmitting || isAvatarPending) return
 
     const newErrors: Record<string, string> = {}
 
@@ -257,61 +235,38 @@ export function ProfileForm({
 
           {externalError && <p className={styles.externalError}>{externalError}</p>}
 
-          <button type="submit" className={styles.submitButton} disabled={isFormDisabled}>
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={isFormDisabled || isAvatarPending}
+          >
             {isSubmitting ? 'Сохранение...' : 'Сохранить'}
           </button>
         </div>
 
         {/* Правая колонка с аватаром */}
         <div className={styles.avatarColumn}>
-          <div className={styles.avatarWrapper}>
-            {avatarPreview ? (
-              <img src={avatarPreview} alt="Новый аватар" className={styles.avatarPreview} />
-            ) : initialValues.avatarUrl ? (
-              <img
-                src={initialValues.avatarUrl}
-                alt="Текущий аватар"
-                className={styles.avatarPreview}
-              />
-            ) : (
-              <div className={styles.avatarPlaceholder}>{initialValues.name.charAt(0)}</div>
-            )}
-
-            <label className={styles.avatarUpload}>
-              <input
-                type="file"
-                accept="image/jpeg, image/png"
-                onChange={handleAvatarChange}
-                disabled={isFormDisabled}
-                className={styles.fileInput}
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M9.206 10.84a2.556 2.556 0 0 1-2.558-2.558 2.556 2.556 0 0 1 2.558-2.557 2.556 2.556 0 0 1 2.558 2.557 2.556 2.556 0 0 1-2.558 2.558m0-3.72a1.163 1.163 0 1 0 0 2.326 1.163 1.163 0 0 0 0-2.326"
+          <ImagePicker
+            value={avatarFile}
+            onChange={setAvatarFile}
+            acceptedTypes={['image/jpeg', 'image/png']}
+            disabled={isFormDisabled}
+            error={avatarError ?? undefined}
+            onValidationChange={setAvatarError}
+            onPreviewLoad={setValidatedAvatar}
+            previewClassName={styles.avatarWrapper}
+            placeholder={
+              initialValues.avatarUrl ? (
+                <img
+                  src={initialValues.avatarUrl}
+                  alt="Текущий аватар"
+                  className={styles.avatarPreview}
                 />
-                <path
-                  fill="currentColor"
-                  d="M14.788 22h-5.58C4.158 22 2 19.842 2 14.792v-5.58c0-5.05 2.158-7.207 7.208-7.207h3.72c.38 0 .697.316.697.697a.703.703 0 0 1-.697.698h-3.72c-4.288 0-5.813 1.525-5.813 5.812v5.58c0 4.288 1.525 5.813 5.813 5.813h5.58c4.287 0 5.812-1.525 5.812-5.813v-4.65c0-.38.316-.697.698-.697.38 0 .697.316.697.697v4.65c0 5.05-2.158 7.208-7.208 7.208"
-                />
-                <path
-                  fill="currentColor"
-                  d="M15.412 9.91c-.363 0-.698-.13-.94-.381a1.35 1.35 0 0 1-.362-1.154l.186-1.292c.046-.326.241-.726.483-.958l3.376-3.376c1.348-1.349 2.52-.577 3.097 0 .549.549.8 1.125.744 1.72-.047.475-.288.93-.744 1.377l-3.376 3.376a1.96 1.96 0 0 1-.958.483l-1.293.186c-.074.019-.148.019-.213.019m3.72-6.166L15.756 7.12a.5.5 0 0 0-.084.177l-.177 1.209 1.219-.168a.5.5 0 0 0 .176-.093l3.376-3.376c.205-.204.326-.39.335-.53.018-.195-.177-.437-.335-.595-.483-.484-.707-.428-1.134 0"
-                />
-                <path
-                  fill="currentColor"
-                  d="M20.275 6.543a.6.6 0 0 1-.186-.027 3.79 3.79 0 0 1-2.595-2.595.69.69 0 0 1 .484-.856.69.69 0 0 1 .855.484 2.4 2.4 0 0 0 1.637 1.637.697.697 0 0 1 .484.855.735.735 0 0 1-.679.502M3.32 19.164a.699.699 0 0 1-.39-1.274l4.584-3.079c1.005-.67 2.39-.595 3.302.177l.307.27c.465.4 1.255.4 1.711 0l3.869-3.32c.986-.847 2.539-.847 3.534 0l1.516 1.301a.703.703 0 0 1 .074.986.703.703 0 0 1-.986.075l-1.515-1.302c-.466-.4-1.256-.4-1.712 0l-3.869 3.32c-.985.846-2.538.846-3.534 0l-.306-.27c-.428-.363-1.135-.4-1.61-.074L3.72 19.052a.8.8 0 0 1-.4.112"
-                />
-              </svg>
-            </label>
-          </div>
-          {avatarError && <p className={styles.avatarError}>{avatarError}</p>}
+              ) : (
+                <div className={styles.avatarPlaceholder}>{initialValues.name.charAt(0)}</div>
+              )
+            }
+          />
         </div>
       </div>
     </form>

@@ -132,7 +132,11 @@
   padding-top: 20px;
 }
 
-.avatarWrapper {
+.avatarColumn > div {
+  flex-direction: column-reverse;
+}
+
+.avatarColumn .avatarWrapper {
   position: relative;
   width: 240px;
   height: 240px;
@@ -144,7 +148,8 @@
   overflow: visible;
 }
 
-.avatarPreview {
+.avatarPreview,
+.avatarWrapper > img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -157,42 +162,6 @@
   color: #9ca3af;
 }
 
-/* Кнопка с карандашом */
-.avatarUpload {
-  position: absolute;
-  right: 5px;
-  bottom: 10px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: #deebc5;
-  color: #253017;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
-  transition:
-    background-color 0.2s,
-    color 0.2s;
-}
-
-.avatarUpload:hover {
-  background-color: #abd27a;
-}
-
-/* Скрываем стандартный инпут */
-.fileInput {
-  display: none;
-}
-
-.avatarError {
-  color: var(--color-error, #ef4444);
-  font-size: 12px;
-  text-align: center;
-  margin: 0;
-}
-
 @media (width < 768px) {
   .layout {
     grid-template-columns: 1fr;
@@ -202,7 +171,7 @@
     order: -1;
   }
 
-  .avatarWrapper {
+  .avatarColumn .avatarWrapper {
     width: 160px;
     height: 160px;
   }

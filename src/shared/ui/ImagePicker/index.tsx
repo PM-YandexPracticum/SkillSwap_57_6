@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { FilePicker, type FilePickerProps } from '../FilePicker'
 import styles from './ImagePicker.module.css'
 
-export type ImagePickerProps = FilePickerProps
+export interface ImagePickerProps extends FilePickerProps {
+  placeholder?: ReactNode
+  previewClassName?: string
+  onPreviewLoad?: (file: File) => void
+}
 
 const IMAGE_ERROR =
   'Не удалось отобразить изображение: файл повреждён или имеет неподдерживаемый формат'
 export function ImagePicker(props: ImagePickerProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [preview, setPreview] = useState<{ url: string; file: File } | null>(null)
+  const previewUrl = preview?.url ?? null
   const [erroredUrl, setErroredUrl] = useState<string | null>(null)
   const hasError = previewUrl !== null && erroredUrl === previewUrl
 
@@ -15,7 +21,7 @@ export function ImagePicker(props: ImagePickerProps) {
     const src = e.currentTarget.getAttribute('src')
     /* Защита от запоздалого события старого <img>
     реагируем только если это всё ещё актуальный previewUrl*/
-    if (!src || src !== previewUrl) return
+    if (!src || src !== previewUrl || preview?.file !== props.value) return
 
     setErroredUrl(src)
     props.onValidationChange?.(IMAGE_ERROR)
@@ -24,12 +30,12 @@ export function ImagePicker(props: ImagePickerProps) {
   useEffect(() => {
     /*Обнуление предыдущего и ошибочного url при отсутствии значения props.value */
     if (!props.value) {
-      setPreviewUrl(null)
+      setPreview(null)
       setErroredUrl(null)
       return
     }
     const url = URL.createObjectURL(props.value)
-    setPreviewUrl(url)
+    setPreview({ url, file: props.value })
 
     /* Очистка url перед следующим запуском или размонтировании
      чтобы не загрязнять память браузера */
@@ -40,11 +46,13 @@ export function ImagePicker(props: ImagePickerProps) {
     <div className={styles.wrapper}>
       <FilePicker {...props} />
 
-      <div className={styles.preview}>
+      <div className={[styles.preview, props.previewClassName].filter(Boolean).join(' ')}>
         {!previewUrl ? (
-          <div className={styles.placeholder} aria-hidden="true">
-            Нет изображения
-          </div>
+          (props.placeholder ?? (
+            <div className={styles.placeholder} aria-hidden="true">
+              Нет изображения
+            </div>
+          ))
         ) : hasError ? (
           <div className={`${styles.placeholder} ${styles.placeholderError}`} role="alert">
             {IMAGE_ERROR}
@@ -56,6 +64,9 @@ export function ImagePicker(props: ImagePickerProps) {
             alt={props.value?.name ?? 'Предпросмотр изображения'}
             className={styles.image}
             onError={handleImageError}
+            onLoad={() => {
+              if (preview?.file === props.value) props.onPreviewLoad?.(preview.file)
+            }}
           />
         )}
       </div>
