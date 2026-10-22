@@ -1,5 +1,4 @@
-import { Header } from '../../widgets/Header'
-import { Footer } from '../../widgets/Footer'
+import { PageLayout } from '../../widgets/PageLayout'
 import styles from './CatalogPage.module.css'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { useEffect, useMemo, useState } from 'react'
@@ -32,10 +31,6 @@ const CatalogPage = () => {
   const [selectedType, setSelectedType] = useState<SkillTypeFilter>('all')
   const [selectedCategory, setSelectedCategory] = useState<SkillCategoryFilter>('all')
 
-  useEffect(() => {
-    dispatch(getCatalogThunk())
-  }, [dispatch])
-
   const catalogItems = useAppSelector(selectCatalogItems)
   const popularItems = useAppSelector(selectPopularItems)
   const newestItems = useAppSelector(selectNewestItems)
@@ -53,75 +48,74 @@ const CatalogPage = () => {
   }, [debouncedSearch, selectedType, selectedCategory])
 
   return (
-    <div className={styles.page}>
-      <Header searchValue={searchValue} onSearchChange={setSearchValue} />
+    <PageLayout
+      searchValue={searchValue}
+      onSearchChange={setSearchValue}
+      mainClassName={styles.main}
+    >
+      <aside className={styles.filters}>
+        <h2>Фильтры</h2>
 
-      <main className={styles.main}>
-        <aside className={styles.filters}>
-          <h2>Фильтры</h2>
+        <FiltersBar
+          selectedType={selectedType}
+          selectedCategory={selectedCategory}
+          onTypeChange={setSelectedType}
+          onCategoryChange={setSelectedCategory}
+        />
+      </aside>
 
-          <FiltersBar
-            selectedType={selectedType}
-            selectedCategory={selectedCategory}
-            onTypeChange={setSelectedType}
-            onCategoryChange={setSelectedCategory}
+      <section className={styles.user_section}>
+        {(localError || mergeError) && (
+          <CatalogState
+            state="error"
+            messages={{ error: `Ошибка локальных данных: ${localError ?? mergeError}` }}
+            retryLabel="Повторить загрузку локальных данных"
+            onRetry={() => dispatch(restoreLocalData())}
           />
-        </aside>
+        )}
+        {profileError && (
+          <CatalogState
+            state="error"
+            messages={{ error: `Ошибка профилей: ${profileError}` }}
+            retryLabel="Повторить загрузку профилей"
+            onRetry={() => dispatch(restoreProfiles())}
+          />
+        )}
+        {status === 'loading' || status === 'idle' ? (
+          <CatalogState state="loading" />
+        ) : status === 'error' ? (
+          <CatalogState
+            state="error"
+            messages={{
+              error: `Ошибка JSON-каталога: ${error ?? 'Не удалось загрузить каталог'}`,
+            }}
+            onRetry={() => dispatch(getCatalogThunk())}
+          />
+        ) : hasActiveFilters ? (
+          <CatalogResults
+            items={filteredItems}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        ) : (
+          <>
+            <CatalogSection title="Популярное" items={popularItems} />
 
-        <section className={styles.user_section}>
-          {(localError || mergeError) && (
-            <CatalogState
-              state="error"
-              messages={{ error: `Ошибка локальных данных: ${localError ?? mergeError}` }}
-              retryLabel="Повторить загрузку локальных данных"
-              onRetry={() => dispatch(restoreLocalData())}
-            />
-          )}
-          {profileError && (
-            <CatalogState
-              state="error"
-              messages={{ error: `Ошибка профилей: ${profileError}` }}
-              retryLabel="Повторить загрузку профилей"
-              onRetry={() => dispatch(restoreProfiles())}
-            />
-          )}
-          {status === 'loading' || status === 'idle' ? (
-            <CatalogState state="loading" />
-          ) : status === 'error' ? (
-            <CatalogState
-              state="error"
-              messages={{
-                error: `Ошибка JSON-каталога: ${error ?? 'Не удалось загрузить каталог'}`,
-              }}
-              onRetry={() => dispatch(getCatalogThunk())}
-            />
-          ) : hasActiveFilters ? (
-            <CatalogResults
-              items={filteredItems}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
-          ) : (
-            <>
-              <CatalogSection title="Популярное" items={popularItems} />
+            <CatalogSection title="Новое" items={newestItems} />
 
-              <CatalogSection title="Новое" items={newestItems} />
+            <section>
+              <h2>Рекомендуем</h2>
 
-              <section>
-                <h2>Рекомендуем</h2>
-
-                <CatalogResults
-                  items={recommendedItems}
-                  currentPage={currentPage}
-                  onPageChange={setCurrentPage}
-                />
-              </section>
-            </>
-          )}
-        </section>
-      </main>
-      <Footer />
-    </div>
+              <CatalogResults
+                items={recommendedItems}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </section>
+          </>
+        )}
+      </section>
+    </PageLayout>
   )
 }
 export default CatalogPage

@@ -38,7 +38,7 @@
   grid-auto-rows: max-content;
   align-content: start;
   gap: 20px;
-  width: min(560px, calc(100vw - 24px));
+  width: min(560px, calc(100vw - 48px));
   height: min(70vh, 600px);
   padding: 20px;
   box-sizing: border-box;

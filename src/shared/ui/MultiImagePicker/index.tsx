@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react'
 import { ImagePicker } from '../ImagePicker'
 import styles from './MultiImagePicker.module.css'
@@ -51,10 +50,7 @@ export function MultiImagePicker({
       Object.fromEntries(
         Object.entries(current)
           .filter(([key]) => Number(key) !== index)
-          .map(([key, message]) => [
-            Number(key) > index ? Number(key) - 1 : Number(key),
-            message,
-          ]),
+          .map(([key, message]) => [Number(key) > index ? Number(key) - 1 : Number(key), message]),
       ),
     )
   }
