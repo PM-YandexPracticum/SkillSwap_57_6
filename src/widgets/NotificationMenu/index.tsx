@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useStore } from 'react-redux'
 import { generatePath, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/shared/lib/constants'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -6,13 +7,18 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
 } from '@/features/requests/model/requestThunks'
-import { selectUnreadNotifications } from '@/features/requests/model/requestsSlice'
+import { restoreRequests } from '@/features/requests/model/requestsSlice'
+import { selectCatalogData } from '@/features/catalog/model/catalogSelectors'
+import { getCatalogThunk } from '@/features/catalog/model/catalogSlice'
+import { restoreLocalData } from '@/features/localData/model/localDataSlice'
+import type { RootState } from '@/store'
 import type { RequestNotification } from '@/features/requests/model/types'
 
 import styles from './NotificationMenu.module.css'
 
 type FailedAction =
   | { type: 'notification'; notification: RequestNotification }
+  | { type: 'target'; notification: RequestNotification }
   | { type: 'all' }
   | null
 
@@ -44,13 +50,11 @@ const getDateTime = (value: string | number): string | undefined => {
 
 export const NotificationMenu = () => {
   const dispatch = useAppDispatch()
+  const store = useStore<RootState>()
   const navigate = useNavigate()
   const user = useAppSelector((state) => state.auth.user)
-  const requests = useAppSelector((state) => state.requests.snapshot.requests)
   const allNotifications = useAppSelector((state) => state.requests.snapshot.notifications)
-  const unreadNotifications = useAppSelector((state) =>
-    selectUnreadNotifications(state, state.auth.user?.id ?? ''),
-  )
+  const readError = useAppSelector((state) => state.requests.readError)
 
   const [isOpen, setIsOpen] = useState(false)
   const [actionError, setActionError] = useState('')
@@ -64,11 +68,9 @@ export const NotificationMenu = () => {
     .filter((notification) => notification.userId === user?.id)
     .sort((a, b) => getTimestamp(b.createdAt) - getTimestamp(a.createdAt))
 
-  const unreadIds = new Set(unreadNotifications.map((notification) => notification.id))
-
-  const readNotifications = userNotifications.filter(
-    (notification) => !unreadIds.has(notification.id),
-  )
+  const unreadNotifications = userNotifications.filter((notification) => notification.read !== true)
+  const readNotifications = userNotifications.filter((notification) => notification.read === true)
+  const menuError = actionError || (readError ? 'Не удалось прочитать уведомления.' : '')
 
   const closeMenu = useCallback(() => {
     setIsOpen(false)
@@ -107,14 +109,36 @@ export const NotificationMenu = () => {
 
   const handleOpenNotification = useCallback(
     (notification: RequestNotification) => {
+      const state = store.getState()
+      if (notification.userId !== state.auth.user?.id) return
+
       setActionError('')
       setFailedAction(null)
 
-      const request = requests.find((entry) => entry.id === notification.requestId)
+      const request = state.requests.snapshot.requests.find(
+        (entry) => entry.id === notification.requestId,
+      )
 
       if (!request) {
         setActionError('Не удалось найти заявку. Попробуйте ещё раз.')
         setFailedAction({ type: 'notification', notification })
+        return
+      }
+
+      const { users, skills, mergeError } = selectCatalogData(state)
+      const skill = skills.find((entry) => entry.id === request.skillId)
+      const author = users.find((entry) => entry.id === skill?.authorId)
+      if (
+        state.catalog.status !== 'success' ||
+        state.localData.readError ||
+        mergeError ||
+        !skill ||
+        skill.type !== 'teach' ||
+        !author ||
+        author.id !== request.toUserId
+      ) {
+        setActionError('Не удалось загрузить навык или его автора. Повторите попытку.')
+        setFailedAction({ type: 'target', notification })
         return
       }
 
@@ -127,9 +151,9 @@ export const NotificationMenu = () => {
       }
 
       closeMenu()
-      navigate(generatePath(ROUTES.SKILL, { id: request.skillId }))
+      navigate(generatePath(ROUTES.SKILL, { id: skill.id }))
     },
-    [dispatch, requests, navigate, closeMenu],
+    [dispatch, store, navigate, closeMenu],
   )
 
   const handleMarkAllRead = useCallback(() => {
@@ -144,16 +168,24 @@ export const NotificationMenu = () => {
     }
   }, [dispatch])
 
-  const handleRetry = useCallback(() => {
-    if (!failedAction) return
+  const handleRetry = useCallback(async () => {
+    if (!failedAction) {
+      await dispatch(restoreRequests())
+      return
+    }
 
     if (failedAction.type === 'all') {
       handleMarkAllRead()
       return
     }
 
+    if (failedAction.type === 'target') {
+      await dispatch(getCatalogThunk())
+      dispatch(restoreLocalData())
+    }
+    if (!(await dispatch(restoreRequests()))) return
     handleOpenNotification(failedAction.notification)
-  }, [failedAction, handleMarkAllRead, handleOpenNotification])
+  }, [dispatch, failedAction, handleMarkAllRead, handleOpenNotification])
 
   if (!user) return null
 
@@ -201,49 +233,47 @@ export const NotificationMenu = () => {
             )}
           </div>
 
-          {actionError && (
+          {menuError && (
             <div className={styles.error} role="alert">
-              <p>{actionError}</p>
+              <p>{menuError}</p>
               <button type="button" onClick={handleRetry}>
                 Повторить
               </button>
             </div>
           )}
 
-          {userNotifications.length === 0 ? (
-            <p className={styles.empty}>Уведомлений пока нет</p>
-          ) : (
+          {!readError && (
             <>
-              {unreadNotifications.length > 0 && (
-                <div className={styles.section}>
-                  <h3>Новые</h3>
+              <div className={styles.section}>
+                <h3>Новые</h3>
 
+                {unreadNotifications.length > 0 ? (
                   <ul className={styles.list}>
-                    {userNotifications
-                      .filter((notification) => unreadIds.has(notification.id))
-                      .map((notification) => (
-                        <li className={styles.notification} key={notification.id}>
-                          <p>{notification.message}</p>
-                          <time dateTime={getDateTime(notification.createdAt)}>
-                            {formatDate(notification.createdAt)}
-                          </time>
-                          <button
-                            className={styles.goTo}
-                            type="button"
-                            onClick={() => handleOpenNotification(notification)}
-                          >
-                            Перейти
-                          </button>
-                        </li>
-                      ))}
+                    {unreadNotifications.map((notification) => (
+                      <li className={styles.notification} key={notification.id}>
+                        <p>{notification.message}</p>
+                        <time dateTime={getDateTime(notification.createdAt)}>
+                          {formatDate(notification.createdAt)}
+                        </time>
+                        <button
+                          className={styles.goTo}
+                          type="button"
+                          onClick={() => handleOpenNotification(notification)}
+                        >
+                          Перейти
+                        </button>
+                      </li>
+                    ))}
                   </ul>
-                </div>
-              )}
+                ) : (
+                  <p className={styles.empty}>Новых уведомлений нет</p>
+                )}
+              </div>
 
-              {readNotifications.length > 0 && (
-                <div className={styles.section}>
-                  <h3>Прочитанные</h3>
+              <div className={styles.section}>
+                <h3>Прочитанные</h3>
 
+                {readNotifications.length > 0 ? (
                   <ul className={styles.list}>
                     {readNotifications.map((notification) => (
                       <li className={`${styles.notification} ${styles.read}`} key={notification.id}>
@@ -254,8 +284,10 @@ export const NotificationMenu = () => {
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
+                ) : (
+                  <p className={styles.empty}>Прочитанных уведомлений нет</p>
+                )}
+              </div>
             </>
           )}
         </section>

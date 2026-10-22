@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -8,9 +8,27 @@ import requestsReducer, {
   addNotification,
   addRequest,
   clear,
+  restoreRequests,
+  setSnapshot,
+  startStorageSync,
+  stopStorageSync,
 } from '@/features/requests/model/requestsSlice'
 import { NotificationMenu } from './index'
-import { writeRequestsSnapshot } from '@/features/requests/model/requestsStorage'
+import {
+  readRequestsSnapshot,
+  writeRequestsSnapshot,
+} from '@/features/requests/model/requestsStorage'
+import catalogReducer, { getCatalogThunk } from '@/features/catalog/model/catalogSlice'
+import localDataReducer from '@/features/localData/model/localDataSlice'
+import profileReducer from '@/features/profile/model/profileSlice'
+import favoritesReducer from '@/features/favorites/model/favoritesSlice'
+import { LOCAL_STORAGE_KEYS } from '@/shared/lib/constants'
+import { fetchUsers } from '@/api/users'
+import { fetchSkills } from '@/api/skills'
+import type { Skill, User } from '@/shared/types'
+
+vi.mock('@/api/users', () => ({ fetchUsers: vi.fn() }))
+vi.mock('@/api/skills', () => ({ fetchSkills: vi.fn() }))
 
 const mockNavigate = vi.fn()
 
@@ -46,15 +64,42 @@ const request = {
   updatedAt: '2026-10-01T10:00:00.000Z',
 }
 
+const catalogUsers: User[] = [user, otherUser].map((entry) => ({
+  ...entry,
+  city: 'Москва',
+  age: 30,
+  gender: 'female',
+  avatarUrl: null,
+  description: '',
+  likesCount: 0,
+  createdAt: '2026-10-01',
+}))
+const catalogSkills: Skill[] = catalogUsers.map((entry, index) => ({
+  id: index === 1 ? request.skillId : 'own-skill',
+  authorId: entry.id,
+  title: 'Фотография',
+  type: 'teach',
+  category: 'Творчество и искусство',
+  tags: ['Фотография'],
+  description: '',
+  imageUrl: null,
+  createdAt: '2026-10-01',
+}))
+
 const makeStore = (loggedIn = true) => {
   const store = configureStore({
     reducer: {
       auth: authReducer,
       requests: requestsReducer,
+      catalog: catalogReducer,
+      localData: localDataReducer,
+      profile: profileReducer,
+      favorites: favoritesReducer,
     },
   })
 
   localStorage.clear()
+  store.dispatch(getCatalogThunk.fulfilled({ users: catalogUsers, skills: catalogSkills }, 'test'))
 
   writeRequestsSnapshot({
     version: 1,
@@ -132,7 +177,10 @@ const renderMenu = (loggedIn = true) => {
 
   render(
     <Provider store={store}>
-      <MemoryRouter initialEntries={['/']}>
+      <MemoryRouter
+        initialEntries={['/']}
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <Routes>
           <Route path="/" element={<NotificationMenu />} />
         </Routes>
@@ -146,10 +194,15 @@ const renderMenu = (loggedIn = true) => {
 describe('NotificationMenu', () => {
   beforeEach(() => {
     mockNavigate.mockClear()
+    vi.mocked(fetchUsers).mockResolvedValue(catalogUsers)
+    vi.mocked(fetchSkills).mockResolvedValue(catalogSkills)
   })
 
   afterEach(() => {
     cleanup()
+    stopStorageSync()
+    vi.restoreAllMocks()
+    localStorage.clear()
   })
 
   it('не отображается для гостя', () => {
@@ -237,4 +290,124 @@ describe('NotificationMenu', () => {
     expect(screen.queryByRole('region', { name: 'Уведомления' })).not.toBeInTheDocument()
     expect(trigger).toHaveFocus()
   })
+
+  it('показывает ошибку чтения вместо пустого списка и повторно загружает очередь', async () => {
+    const store = renderMenu()
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.REQUESTS)!
+    act(() => {
+      store.dispatch(setSnapshot({ version: 1, requests: [], notifications: [] }))
+    })
+    localStorage.setItem(LOCAL_STORAGE_KEYS.REQUESTS, 'broken')
+    await act(async () => {
+      await store.dispatch(restoreRequests())
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Уведомления' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Не удалось прочитать уведомления.')
+    expect(screen.queryByText('Новых уведомлений нет')).not.toBeInTheDocument()
+    expect(localStorage.getItem(LOCAL_STORAGE_KEYS.REQUESTS)).toBe('broken')
+    localStorage.setItem(LOCAL_STORAGE_KEYS.REQUESTS, saved)
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+    })
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByText('Новое уведомление')).toBeInTheDocument()
+  })
+
+  it('обновляет read по событию реального ключа storage и обрабатывает очистку', () => {
+    const store = renderMenu()
+    startStorageSync(store.dispatch)
+    fireEvent.click(screen.getByRole('button', { name: /уведомления/i }))
+    const next = readRequestsSnapshot()
+    next.notifications = next.notifications.map((entry) => ({ ...entry, read: true }))
+    writeRequestsSnapshot(next)
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: LOCAL_STORAGE_KEYS.REQUESTS,
+          newValue: JSON.stringify(next),
+          storageArea: localStorage,
+        }),
+      )
+    })
+    expect(screen.queryByRole('button', { name: 'Перейти' })).not.toBeInTheDocument()
+    expect(screen.getByText('Новых уведомлений нет')).toBeInTheDocument()
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: null }))
+    })
+    expect(store.getState().requests.snapshot.notifications).toEqual([])
+    expect(screen.getByText('Прочитанных уведомлений нет')).toBeInTheDocument()
+  })
+
+  it('при ошибке каталога сохраняет read=false, а после повтора проверяет свежие данные и переходит', async () => {
+    const store = renderMenu()
+    act(() => {
+      store.dispatch(getCatalogThunk.fulfilled({ users: [], skills: [] }, 'fresh-load'))
+      store.dispatch(getCatalogThunk.rejected(new Error('network'), 'test'))
+    })
+    fireEvent.click(screen.getByRole('button', { name: /уведомления/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Перейти' }))
+    expect(mockNavigate).not.toHaveBeenCalled()
+    expect(readRequestsSnapshot().notifications[0].read).toBe(false)
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Не удалось загрузить навык или его автора.',
+    )
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+    })
+    expect(mockNavigate).toHaveBeenCalledWith('/skill/skill-1')
+    expect(readRequestsSnapshot().notifications[0].read).toBe(true)
+  })
+
+  it.each(['skill', 'type', 'author'] as const)(
+    'не помечает сообщение при недоступной цели: %s',
+    (invalid) => {
+      const store = renderMenu()
+      act(() => {
+        store.dispatch(
+          getCatalogThunk.fulfilled(
+            {
+              users: invalid === 'author' ? [catalogUsers[0]] : catalogUsers,
+              skills:
+                invalid === 'skill'
+                  ? [catalogSkills[0]]
+                  : catalogSkills.map((entry) => ({
+                      ...entry,
+                      type:
+                        invalid === 'type' && entry.id === request.skillId ? 'learn' : entry.type,
+                    })),
+            },
+            'test',
+          ),
+        )
+      })
+      fireEvent.click(screen.getByRole('button', { name: /уведомления/i }))
+      fireEvent.click(screen.getByRole('button', { name: 'Перейти' }))
+      expect(mockNavigate).not.toHaveBeenCalled()
+      expect(readRequestsSnapshot().notifications[0].read).toBe(false)
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+    },
+  )
+
+  it.each(['Перейти', 'Прочитать всё'])(
+    'повторяет действие после отказа записи: %s',
+    async (action) => {
+      renderMenu()
+      fireEvent.click(screen.getByRole('button', { name: /уведомления/i }))
+      const failedWrite = vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+        throw new Error('quota')
+      })
+      fireEvent.click(screen.getByRole('button', { name: action }))
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(readRequestsSnapshot().notifications[0].read).toBe(false)
+      expect(mockNavigate).not.toHaveBeenCalled()
+      failedWrite.mockRestore()
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+      })
+      expect(readRequestsSnapshot().notifications[0].read).toBe(true)
+      expect(readRequestsSnapshot().notifications[2].read).toBe(false)
+      if (action === 'Перейти') expect(mockNavigate).toHaveBeenCalledWith('/skill/skill-1')
+      else expect(screen.getByText('Новых уведомлений нет')).toBeInTheDocument()
+    },
+  )
 })

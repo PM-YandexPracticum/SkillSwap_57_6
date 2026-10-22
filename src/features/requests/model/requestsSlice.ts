@@ -7,8 +7,9 @@ import type { RequestNotification, RequestsSnapshot } from './types'
 
 import { readRequestsSnapshot, validateSnapshot } from './requestsStorage'
 import { setAuthUser } from '@/features/auth/model/authSlice'
+import { LOCAL_STORAGE_KEYS } from '@/shared/lib/constants'
 
-const KEY = 'requests_snapshot' // Должен совпадать с тем, что в requestsStorage.ts
+const KEY = LOCAL_STORAGE_KEYS.REQUESTS
 
 export interface RequestOperation {
   userId: string
@@ -118,7 +119,7 @@ export const startStorageSync = (dispatch: AppDispatch): (() => void) => {
   }
 
   const handleStorageEvent = (e: StorageEvent) => {
-    if (e.key !== KEY) return
+    if (e.key !== KEY && e.key !== null) return
 
     // Сценарий 1: ключ удалён (removeItem) или хранилище очищено (clear)
     if (!e.newValue) {
