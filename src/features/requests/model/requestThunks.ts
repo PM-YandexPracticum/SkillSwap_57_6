@@ -1,5 +1,6 @@
 import type { ThunkAction, UnknownAction } from '@reduxjs/toolkit'
 import {
+  createRequest as createRequestRule,
   acceptRequest as accept,
   rejectRequest as reject,
   completeRequest as complete,
@@ -12,8 +13,11 @@ import {
   selectRequestOperation,
   setReadError,
   setSnapshot,
+  setOperationError,
 } from './requestsSlice'
-import type { RequestsSnapshot } from './types'
+import type { RequestsSnapshot, RequestNotification } from './types'
+import { generateId } from '@/shared/lib/helpers'
+import { readLocalDataSnapshot } from '@/features/localData/model/localDataStorage'
 
 type RequestThunk = ThunkAction<boolean, RootState, unknown, UnknownAction>
 
@@ -59,3 +63,194 @@ const changeRequest =
 export const acceptRequest = (id: string): RequestThunk => changeRequest(id, accept)
 export const rejectRequest = (id: string): RequestThunk => changeRequest(id, reject)
 export const completeRequest = (id: string): RequestThunk => changeRequest(id, complete)
+
+const readErrorMessage = 'Не удалось прочитать данные. Повторите попытку.'
+const operationErrorMessage = 'Не удалось выполнить операцию. Повторите попытку.'
+
+export const createRequest =
+  (skillId: string): RequestThunk =>
+  (dispatch, getState) => {
+    const userId = getState().auth.user?.id
+
+    if (!userId || !skillId) {
+      dispatch(setOperationError('Войдите в аккаунт и выберите навык.'))
+      return false
+    }
+
+    let snapshot: RequestsSnapshot
+    let localData
+
+    try {
+      snapshot = readRequestsSnapshot()
+      localData = readLocalDataSnapshot()
+      dispatch(setReadError(null))
+    } catch {
+      dispatch(setReadError(readErrorMessage))
+      return false
+    }
+
+    // За время чтения аккаунт мог измениться.
+    if (getState().auth.user?.id !== userId) return false
+
+    const skill = localData.skills.find((entry) => entry.id === skillId && entry.type === 'teach')
+
+    const ownerExists = skill ? localData.users.some((user) => user.id === skill.authorId) : false
+
+    if (!skill || !ownerExists) {
+      dispatch(setOperationError('Навык не найден или недоступен для обмена.'))
+      return false
+    }
+
+    const now = new Date().toISOString()
+    const requestId = generateId()
+
+    const request = createRequestRule(skill, userId, requestId, now, now, snapshot.requests)
+
+    if (!request) {
+      dispatch(
+        setOperationError(
+          'Нельзя отправить заявку на собственный навык или создать повторную активную заявку.',
+        ),
+      )
+      return false
+    }
+
+    const notification: RequestNotification = {
+      id: generateId(),
+      requestId: request.id,
+      userId,
+      message: `Вы предложили обмен ${skill.title}`,
+      createdAt: now,
+      read: false,
+    }
+
+    const next: RequestsSnapshot = {
+      ...snapshot,
+      requests: [...snapshot.requests, request],
+      notifications: [...snapshot.notifications, notification],
+    }
+
+    if (getState().auth.user?.id !== userId) return false
+
+    try {
+      writeRequestsSnapshot(next)
+    } catch {
+      dispatch(setOperationError(operationErrorMessage))
+      return false
+    }
+
+    dispatch(setSnapshot(next))
+    dispatch(setOperationError(null))
+    return true
+  }
+
+export const markNotificationRead =
+  (id: string): RequestThunk =>
+  (dispatch, getState) => {
+    const userId = getState().auth.user?.id
+
+    if (!userId || !id) {
+      dispatch(setOperationError('Войдите в аккаунт, чтобы изменить уведомление.'))
+      return false
+    }
+
+    let snapshot: RequestsSnapshot
+
+    try {
+      snapshot = readRequestsSnapshot()
+      dispatch(setReadError(null))
+    } catch {
+      dispatch(setReadError(readErrorMessage))
+      return false
+    }
+
+    if (getState().auth.user?.id !== userId) return false
+
+    const notification = snapshot.notifications.find((entry) => entry.id === id)
+
+    if (!notification || notification.userId !== userId) {
+      dispatch(setOperationError('Уведомление не найдено или недоступно.'))
+      return false
+    }
+
+    // Повторное действие безопасно и не требует записи.
+    if (notification.read === true) {
+      dispatch(setSnapshot(snapshot))
+      dispatch(setOperationError(null))
+      return true
+    }
+
+    const next: RequestsSnapshot = {
+      ...snapshot,
+      notifications: snapshot.notifications.map((entry) =>
+        entry.id === id && entry.userId === userId ? { ...entry, read: true } : entry,
+      ),
+    }
+
+    if (getState().auth.user?.id !== userId) return false
+
+    try {
+      writeRequestsSnapshot(next)
+    } catch {
+      dispatch(setOperationError(operationErrorMessage))
+      return false
+    }
+
+    dispatch(setSnapshot(next))
+    dispatch(setOperationError(null))
+    return true
+  }
+
+export const markAllNotificationsRead = (): RequestThunk => (dispatch, getState) => {
+  const userId = getState().auth.user?.id
+
+  if (!userId) {
+    dispatch(setOperationError('Войдите в аккаунт, чтобы изменить уведомления.'))
+    return false
+  }
+
+  let snapshot: RequestsSnapshot
+
+  try {
+    snapshot = readRequestsSnapshot()
+    dispatch(setReadError(null))
+  } catch {
+    dispatch(setReadError(readErrorMessage))
+    return false
+  }
+
+  if (getState().auth.user?.id !== userId) return false
+
+  const hasUnread = snapshot.notifications.some(
+    (notification) => notification.userId === userId && notification.read !== true,
+  )
+
+  // Если непрочитанных нет, сохранять снимок повторно не нужно.
+  if (!hasUnread) {
+    dispatch(setSnapshot(snapshot))
+    dispatch(setOperationError(null))
+    return true
+  }
+
+  const next: RequestsSnapshot = {
+    ...snapshot,
+    notifications: snapshot.notifications.map((notification) =>
+      notification.userId === userId && notification.read !== true
+        ? { ...notification, read: true }
+        : notification,
+    ),
+  }
+
+  if (getState().auth.user?.id !== userId) return false
+
+  try {
+    writeRequestsSnapshot(next)
+  } catch {
+    dispatch(setOperationError(operationErrorMessage))
+    return false
+  }
+
+  dispatch(setSnapshot(next))
+  dispatch(setOperationError(null))
+  return true
+}
