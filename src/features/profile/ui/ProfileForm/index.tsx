@@ -4,6 +4,7 @@ import { FormInput } from '@/shared/ui/FormInput'
 import { DatePicker } from '@/shared/ui/DatePicker'
 import { Select } from '@/shared/ui/Select'
 import { validateRegistrationPersonalDraft } from '@/features/auth/model/registrationValidation'
+import { validateCredentials } from '@/features/auth/model/Credentials'
 import styles from './ProfileForm.module.css'
 
 export interface ProfileDraft {
@@ -50,6 +51,9 @@ export function ProfileForm({
   const [password, setPassword] = useState('')
   const [passwordError, setPasswordError] = useState<string | null>(null)
 
+  // Ошибки валидации DatePicker (внутренние)
+  const [dateValidationError, setDateValidationError] = useState<string | null>(null)
+
   // Ошибки формы
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -58,19 +62,28 @@ export function ProfileForm({
   const today = new Date()
   const cityNames = cities.map((c) => c.name)
 
-  // --- Обработчик выбора аватара ---
+  // --- Обработчик выбора аватара (с проверкой на повреждение) ---
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Проверка MIME-типа
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
       setAvatarError('Допустимы только форматы JPEG и PNG')
       return
     }
 
-    setAvatarError(null)
-    setAvatarFile(file)
-    setAvatarPreview(URL.createObjectURL(file))
+    // Проверка на то, что файл реально открывается как картинка
+    const img = new Image()
+    img.onload = () => {
+      setAvatarError(null)
+      setAvatarFile(file)
+      setAvatarPreview(URL.createObjectURL(file))
+    }
+    img.onerror = () => {
+      setAvatarError('Файл поврежден или не является изображением')
+    }
+    img.src = URL.createObjectURL(file)
   }
 
   // --- Отправка формы ---
@@ -97,14 +110,24 @@ export function ProfileForm({
 
     Object.assign(newErrors, personalErrors)
 
-    // 2. Валидация email (базовая)
-    if (!email.includes('@')) newErrors.email = 'Введите корректный email'
+    // Проверка на внутреннюю ошибку DatePicker (например, 31.02.2024)
+    if (dateValidationError) {
+      newErrors.birthDate = dateValidationError
+    }
 
-    // 3. Валидация пароля (если введен)
+    // 2. Валидация email (режим 'login' не требует пароль)
+    const emailErrors = validateCredentials({ email }, 'login')
+    if (emailErrors.email) {
+      newErrors.email = emailErrors.email
+    }
+
+    // 3. Валидация пароля (только если пользователь его меняет)
     if (showPassword && password) {
-      if (password.length < 6) {
-        setPasswordError('Пароль должен быть не менее 6 символов')
-        newErrors.password = 'Ошибка пароля'
+      // Режим 'register' требует минимум 8 символов
+      const passwordErrors = validateCredentials({ email, password }, 'register')
+      if (passwordErrors.password) {
+        setPasswordError(passwordErrors.password)
+        newErrors.password = passwordErrors.password
       } else {
         setPasswordError(null)
       }
@@ -119,6 +142,7 @@ export function ProfileForm({
 
     setErrors(newErrors)
 
+    // Если есть ошибки — блокируем отправку
     if (Object.keys(newErrors).length > 0) {
       return
     }
@@ -196,6 +220,7 @@ export function ProfileForm({
               maxDate={today}
               disabled={isFormDisabled}
               error={errors.birthDate}
+              onValidationChange={setDateValidationError}
             />
             <Select
               label="Пол"
@@ -260,8 +285,30 @@ export function ProfileForm({
                 disabled={isFormDisabled}
                 className={styles.fileInput}
               />
-              {/* Иконка "Изображение с карандашом" из макета */}
-              <EditAvatarIcon />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M9.206 10.84a2.556 2.556 0 0 1-2.558-2.558 2.556 2.556 0 0 1 2.558-2.557 2.556 2.556 0 0 1 2.558 2.557 2.556 2.556 0 0 1-2.558 2.558m0-3.72a1.163 1.163 0 1 0 0 2.326 1.163 1.163 0 0 0 0-2.326"
+                />
+                <path
+                  fill="currentColor"
+                  d="M14.788 22h-5.58C4.158 22 2 19.842 2 14.792v-5.58c0-5.05 2.158-7.207 7.208-7.207h3.72c.38 0 .697.316.697.697a.703.703 0 0 1-.697.698h-3.72c-4.288 0-5.813 1.525-5.813 5.812v5.58c0 4.288 1.525 5.813 5.813 5.813h5.58c4.287 0 5.812-1.525 5.812-5.813v-4.65c0-.38.316-.697.698-.697.38 0 .697.316.697.697v4.65c0 5.05-2.158 7.208-7.208 7.208"
+                />
+                <path
+                  fill="currentColor"
+                  d="M15.412 9.91c-.363 0-.698-.13-.94-.381a1.35 1.35 0 0 1-.362-1.154l.186-1.292c.046-.326.241-.726.483-.958l3.376-3.376c1.348-1.349 2.52-.577 3.097 0 .549.549.8 1.125.744 1.72-.047.475-.288.93-.744 1.377l-3.376 3.376a1.96 1.96 0 0 1-.958.483l-1.293.186c-.074.019-.148.019-.213.019m3.72-6.166L15.756 7.12a.5.5 0 0 0-.084.177l-.177 1.209 1.219-.168a.5.5 0 0 0 .176-.093l3.376-3.376c.205-.204.326-.39.335-.53.018-.195-.177-.437-.335-.595-.483-.484-.707-.428-1.134 0"
+                />
+                <path
+                  fill="currentColor"
+                  d="M20.275 6.543a.6.6 0 0 1-.186-.027 3.79 3.79 0 0 1-2.595-2.595.69.69 0 0 1 .484-.856.69.69 0 0 1 .855.484 2.4 2.4 0 0 0 1.637 1.637.697.697 0 0 1 .484.855.735.735 0 0 1-.679.502M3.32 19.164a.699.699 0 0 1-.39-1.274l4.584-3.079c1.005-.67 2.39-.595 3.302.177l.307.27c.465.4 1.255.4 1.711 0l3.869-3.32c.986-.847 2.539-.847 3.534 0l1.516 1.301a.703.703 0 0 1 .074.986.703.703 0 0 1-.986.075l-1.515-1.302c-.466-.4-1.256-.4-1.712 0l-3.869 3.32c-.985.846-2.538.846-3.534 0l-.306-.27c-.428-.363-1.135-.4-1.61-.074L3.72 19.052a.8.8 0 0 1-.4.112"
+                />
+              </svg>
             </label>
           </div>
           {avatarError && <p className={styles.avatarError}>{avatarError}</p>}
@@ -271,7 +318,7 @@ export function ProfileForm({
   )
 }
 
-// --- Иконки ---
+// --- Иконка карандаша для полей ввода ---
 const EditIcon = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -280,31 +327,6 @@ const EditIcon = () => (
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const EditAvatarIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M9.20595 10.84C7.79234 10.84 6.64844 9.69609 6.64844 8.28248C6.64844 6.86888 7.79234 5.72498 9.20595 5.72498C10.6195 5.72498 11.7635 6.86888 11.7635 8.28248C11.7635 9.69609 10.6195 10.84 9.20595 10.84ZM9.20595 7.11998C8.56424 7.11998 8.04344 7.64078 8.04344 8.28248C8.04344 8.92419 8.56424 9.44499 9.20595 9.44499C9.84765 9.44499 10.3684 8.92419 10.3684 8.28248C10.3684 7.64078 9.84765 7.11998 9.20595 7.11998Z"
-      fill="#253017"
-    />
-    <path
-      d="M14.7875 21.9999H9.20752C4.15761 21.9999 2 19.8423 2 14.7924V9.21241C2 4.16249 4.15761 2.00488 9.20752 2.00488H12.9275C13.3088 2.00488 13.625 2.32108 13.625 2.70238C13.625 3.08369 13.3088 3.39989 12.9275 3.39989H9.20752C4.92021 3.39989 3.395 4.92509 3.395 9.21241V14.7924C3.395 19.0797 4.92021 20.6049 9.20752 20.6049H14.7875C19.0749 20.6049 20.6001 19.0797 20.6001 14.7924V10.1424C20.6001 9.76111 20.9163 9.44491 21.2976 9.44491C21.6789 9.44491 21.9951 9.76111 21.9951 10.1424V14.7924C21.9951 19.8423 19.8375 21.9999 14.7875 21.9999Z"
-      fill="#253017"
-    />
-    <path
-      d="M15.4115 9.90996C15.0488 9.90996 14.714 9.77976 14.4722 9.52866C14.1839 9.24036 14.0444 8.81256 14.1095 8.37546L14.2955 7.08275C14.342 6.75725 14.5373 6.35735 14.7791 6.12485L18.155 2.74894C19.5035 1.40044 20.6753 2.17234 21.2519 2.74894C21.8006 3.29764 22.0517 3.87424 21.9959 4.46945C21.9494 4.94375 21.7076 5.39945 21.2519 5.84585L17.876 9.22176C17.6435 9.45426 17.2436 9.64956 16.9181 9.70536L15.6254 9.89136C15.551 9.90996 15.4766 9.90996 15.4115 9.90996ZM19.1315 3.74404L15.7556 7.11995C15.7277 7.14785 15.6812 7.25015 15.6719 7.29665L15.4952 8.50566L16.7135 8.33826C16.7507 8.32896 16.853 8.28246 16.8902 8.24526L20.2661 4.86935C20.4707 4.66475 20.5916 4.47875 20.6009 4.33925C20.6195 4.14394 20.4242 3.90214 20.2661 3.74404C19.7825 3.26044 19.5593 3.31624 19.1315 3.74404Z"
-      fill="#253017"
-    />
-    <path
-      d="M20.275 6.54342C20.2099 6.54342 20.1448 6.53412 20.089 6.51552C18.8428 6.16212 17.8477 5.16702 17.4943 3.92081C17.392 3.54881 17.6059 3.16751 17.9779 3.06521C18.3499 2.96291 18.7312 3.17681 18.8335 3.54881C19.0567 4.33001 19.6798 4.96242 20.4703 5.18562C20.8423 5.28792 21.0562 5.67852 20.9539 6.04122C20.8516 6.33882 20.5726 6.54342 20.275 6.54342Z"
-      fill="#253017"
-    />
-    <path
-      d="M3.32012 19.1636C3.09692 19.1636 2.87372 19.052 2.74352 18.8567C2.52962 18.5405 2.61332 18.1034 2.92952 17.8895L7.51444 14.8112C8.51884 14.1416 9.90454 14.216 10.8159 14.9879L11.1228 15.2576C11.5878 15.6575 12.3783 15.6575 12.8341 15.2576L16.7029 11.9375C17.6887 11.0912 19.2418 11.0912 20.2369 11.9375L21.7528 13.2395C22.0411 13.4906 22.0783 13.9277 21.8272 14.2253C21.5761 14.5136 21.139 14.5508 20.8414 14.2997L19.3255 12.9977C18.8605 12.5978 18.07 12.5978 17.6143 12.9977L13.7455 16.3178C12.7597 17.1641 11.2065 17.1641 10.2114 16.3178L9.90454 16.0481C9.47674 15.6854 8.76994 15.6482 8.29564 15.9737L3.72002 19.052C3.58982 19.1264 3.45032 19.1636 3.32012 19.1636Z"
-      fill="#253017"
     />
   </svg>
 )
