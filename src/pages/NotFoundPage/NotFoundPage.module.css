@@ -1,0 +1,62 @@
+.main {
+  background: #f9faf7;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 84px;
+  text-align: center;
+}
+
+.illustration {
+  width: min(100%, 460px);
+  height: auto;
+  margin-bottom: 40px;
+}
+
+.title {
+  margin: 0 0 4px;
+  color: #253017;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.description {
+  max-width: 460px;
+  color: #253017;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  width: min(100%, 460px);
+  margin-top: 32px;
+}
+
+.reportButton,
+.homeButton {
+  display: inline-flex;
+  min-height: 48px;
+  flex: 1 1 200px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 26.5px;
+  border: 1px solid #a9d277;
+  border-radius: 12px;
+  color: #253017;
+  line-height: 1.4;
+}
+
+.reportButton {
+  background: #fff;
+}
+
+.homeButton {
+  background: #a9d277;
+}
