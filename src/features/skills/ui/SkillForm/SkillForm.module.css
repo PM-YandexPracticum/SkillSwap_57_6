@@ -1,0 +1,187 @@
+/* Основной контейнер формы */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Предотвращаем переполнение дочерних элементов */
+.form > * {
+  min-width: 0;
+}
+
+/* Контейнер поля описания */
+.descriptionField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Подпись поля описания */
+.label {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #253017;
+}
+
+/* Многострочное поле описания навыка */
+.textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 16px;
+  border: 1px solid #c4c4c4;
+  border-radius: 12px;
+  background-color: #fff;
+  color: #253017;
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  resize: vertical;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+/* Подсказка внутри textarea */
+.textarea::placeholder {
+  color: #929292;
+}
+
+/* Выделение поля при получении фокуса */
+.textarea:focus-visible {
+  outline: 2px solid #abd27a;
+  outline-offset: 2px;
+  border-color: #abd27a;
+}
+
+/* Поле описания с ошибкой */
+.textarea[aria-invalid='true'] {
+  border-color: #d64545;
+}
+
+/* Заблокированное поле описания */
+.textarea:disabled {
+  background-color: #f5f5f5;
+  color: #929292;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Сообщения об ошибках */
+.error {
+  margin: 0;
+  color: #d64545;
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* Контейнер кнопок */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+}
+
+/* Общие стили кнопок */
+.button {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 1 208px;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 48px;
+  padding: 12px 24px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+/* Кнопка «Назад» */
+.backButton {
+  background-color: #fff;
+  border-color: #abd27a;
+  color: #253017;
+}
+
+.backButton:hover:not(:disabled) {
+  background-color: #e4e9dc;
+}
+
+/* Кнопка «Продолжить» */
+.submitButton {
+  background-color: #abd27a;
+  color: #253017;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #9ac36a;
+}
+
+/* Видимый фокус при навигации с клавиатуры */
+.button:focus-visible {
+  outline: 2px solid #648c36;
+  outline-offset: 3px;
+}
+
+/* Заблокированные кнопки */
+.button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Отправка формы */
+.submitButton[aria-busy='true'] {
+  cursor: wait;
+}
+
+/* Адаптация под мобильные устройства */
+@media (width <= 767px) {
+  .form {
+    gap: 20px;
+  }
+
+  .textarea {
+    min-height: 112px;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .button {
+    width: 100%;
+  }
+}
+
+/* Дополнительная адаптация для экранов шириной 320 px */
+@media (width <= 360px) {
+  .form {
+    gap: 16px;
+  }
+
+  .button {
+    padding: 10px 12px;
+  }
+}
