@@ -116,6 +116,24 @@ describe('filterCatalog', () => {
     expect(filterCatalog(unfiltered, '   ', 'all', 'all')).toBe(unfiltered)
   })
 
+  it('matches the subcategory on the same skill as the other conditions', () => {
+    const tagged: CatalogItem = {
+      user,
+      skills: [
+        { ...guitar, tags: ['Музыка и звук'] },
+        { ...english, tags: ['Английский'] },
+      ],
+    }
+    const list = [tagged, boris]
+    expect(filterCatalog(list, '', 'all', 'all', 'Музыка и звук')).toEqual([tagged])
+    expect(
+      filterCatalog(list, 'гитар', 'teach', 'Творчество и искусство', 'Музыка и звук'),
+    ).toEqual([tagged])
+    expect(filterCatalog(list, 'гитар', 'all', 'all', 'Английский')).toEqual([])
+    expect(filterCatalog(list, '', 'teach', 'Иностранные языки', 'Английский')).toEqual([])
+    expect(filterCatalog(list, '', 'all', 'all', '')).toBe(list)
+  })
+
   it('returns an empty result for no matches, no skills or no users', () => {
     expect(filterCatalog(items, 'несуществующий навык')).toEqual([])
     expect(filterCatalog(items, '', 'all', 'Здоровье и лайфстайл')).toEqual([])

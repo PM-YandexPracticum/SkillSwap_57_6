@@ -5,10 +5,11 @@ export function filterCatalog(
   query: string,
   type: SkillType | 'all' = 'all',
   category: SkillCategory | 'all' = 'all',
+  subcategory = '',
 ): CatalogItem[] {
   const normalizedQuery = query.trim().toLowerCase()
 
-  if (!normalizedQuery && type === 'all' && category === 'all') {
+  if (!normalizedQuery && type === 'all' && category === 'all' && !subcategory) {
     return items
   }
 
@@ -22,12 +23,12 @@ export function filterCatalog(
       continue
     }
 
-    // Все активные условия должны совпасть у одного навыка.
     const hasMatchingSkill = item.skills.some(
       (skill) =>
         (!normalizedQuery || skill.title.toLowerCase().includes(normalizedQuery)) &&
         (type === 'all' || skill.type === type) &&
-        (category === 'all' || skill.category === category),
+        (category === 'all' || skill.category === category) &&
+        (!subcategory || skill.tags.includes(subcategory)),
     )
 
     if (hasMatchingSkill) {

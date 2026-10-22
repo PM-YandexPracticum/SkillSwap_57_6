@@ -12,6 +12,8 @@ import profileReducer from '@/features/profile/model/profileSlice'
 import favoritesReducer from '@/features/favorites/model/favoritesSlice'
 import authReducer from '@/features/auth/model/authSlice'
 import type { Skill, User } from '@/shared/types'
+import { getSubcategories } from '@/shared/lib/skillCategories'
+import FiltersBar from '@/widgets/FiltersBar'
 import CatalogPage from '.'
 
 vi.mock('@/api/users', () => ({ fetchUsers: vi.fn() }))
@@ -225,4 +227,120 @@ describe('CatalogPage filters', () => {
     expect(vi.mocked(fetchUsers)).toHaveBeenCalledTimes(1)
     expect(vi.mocked(fetchSkills)).toHaveBeenCalledTimes(1)
   })
+})
+
+const taggedSkills: Skill[] = skills.map((skill) => ({
+  ...skill,
+  tags:
+    skill.type === 'learn'
+      ? ['Английский']
+      : skill.category === 'Творчество и искусство'
+        ? ['Музыка и звук']
+        : ['Маркетинг и реклама'],
+}))
+
+const chipNames = () =>
+  within(screen.getByRole('list', { name: 'Выбранные фильтры' }))
+    .getAllByRole('button')
+    .map((chip) => chip.getAttribute('aria-label'))
+
+describe('CatalogPage subcategory and filter chips', () => {
+  beforeEach(() => {
+    vi.mocked(fetchSkills).mockResolvedValue(taggedSkills)
+  })
+
+  it('hides the count in recommendations and shows it in filtered results', async () => {
+    const user = userEvent.setup()
+    await renderCatalog()
+    expect(screen.queryByText(/Подходящие предложения/)).not.toBeInTheDocument()
+    await user.click(screen.getByRole('radio', { name: 'Могу научить' }))
+    expect(screen.getByText('Подходящие предложения: 20')).toBeInTheDocument()
+  })
+
+  it('offers subcategories of the category and resets an incompatible one', async () => {
+    const user = userEvent.setup()
+    await renderCatalog()
+    const category = screen.getByRole('combobox', { name: 'Категория' })
+    const subcategory = screen.getByRole('combobox', { name: 'Подкатегория' })
+    await user.selectOptions(category, 'Творчество и искусство')
+    expect(
+      within(subcategory)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['Все подкатегории', ...getSubcategories('Творчество и искусство')])
+    await user.selectOptions(subcategory, 'Музыка и звук')
+    expect(screen.getByText('Подходящие предложения: 10')).toBeInTheDocument()
+
+    await user.selectOptions(category, 'Бизнес и карьера')
+    expect(subcategory).toHaveValue('')
+    await user.selectOptions(subcategory, 'Маркетинг и реклама')
+    await user.selectOptions(category, 'all')
+    expect(subcategory).toHaveValue('Маркетинг и реклама')
+    expect(screen.getByText('Подходящие предложения: 10')).toBeInTheDocument()
+  })
+
+  it('applies type, category, subcategory and a learn search to the same skill', async () => {
+    const user = userEvent.setup()
+    await renderCatalog()
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Категория' }),
+      'Иностранные языки',
+    )
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Подкатегория' }), 'Английский')
+    await user.click(screen.getByRole('radio', { name: 'Могу научить' }))
+    expect(screen.getByText('По вашему запросу ничего не найдено.')).toBeInTheDocument()
+    await user.click(screen.getByRole('radio', { name: 'Хочу научиться' }))
+    expect(screen.getByText('Подходящие предложения: 20')).toBeInTheDocument()
+    await user.type(screen.getByRole('searchbox'), 'Английский 3')
+    expect(await screen.findByText('Подходящие предложения: 1')).toBeInTheDocument()
+  })
+
+  it('removes one chip at a time and resets the search and all filters', async () => {
+    const user = userEvent.setup()
+    await renderCatalog()
+    const category = screen.getByRole('combobox', { name: 'Категория' })
+    const subcategory = screen.getByRole('combobox', { name: 'Подкатегория' })
+    await user.click(screen.getByRole('radio', { name: 'Могу научить' }))
+    await user.selectOptions(category, 'Творчество и искусство')
+    await user.selectOptions(subcategory, 'Музыка и звук')
+    await user.type(screen.getByRole('searchbox'), 'Гитара 1')
+    await screen.findByText('Подходящие предложения: 2')
+    expect(screen.getByRole('heading', { name: 'Фильтры (4)' })).toBeInTheDocument()
+    expect(chipNames()).toEqual([
+      'Снять фильтр: Гитара 1',
+      'Снять фильтр: Могу научить',
+      'Снять фильтр: Творчество и искусство',
+      'Снять фильтр: Музыка и звук',
+    ])
+
+    await user.click(screen.getByRole('button', { name: 'Снять фильтр: Творчество и искусство' }))
+    expect(category).toHaveValue('all')
+    expect(subcategory).toHaveValue('Музыка и звук')
+    expect(screen.getByRole('radio', { name: 'Могу научить' })).toBeChecked()
+    expect(screen.getByRole('searchbox')).toHaveValue('Гитара 1')
+    expect(screen.getByText('Подходящие предложения: 2')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Снять фильтр: Гитара 1' }))
+    expect(screen.getByRole('searchbox')).toHaveValue('')
+    expect(await screen.findByText('Подходящие предложения: 10')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Сбросить/ }))
+    await waitFor(() => expectSections(true))
+    expect(screen.getByRole('radio', { name: 'Все' })).toBeChecked()
+    expect(subcategory).toHaveValue('')
+    expect(screen.queryByRole('list', { name: 'Выбранные фильтры' })).not.toBeInTheDocument()
+  })
+})
+
+it('keeps old FiltersBar calls without the subcategory field', () => {
+  render(
+    <FiltersBar
+      selectedType="all"
+      selectedCategory="all"
+      onTypeChange={vi.fn()}
+      onCategoryChange={vi.fn()}
+    />,
+  )
+  expect(screen.getByRole('combobox', { name: 'Категория' })).toBeInTheDocument()
+  expect(screen.queryByRole('combobox', { name: 'Подкатегория' })).not.toBeInTheDocument()
 })
