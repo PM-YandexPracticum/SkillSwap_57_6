@@ -70,7 +70,7 @@ export function RegistrationPersonalFields({
       <FormInput
         id={`${generatedId}-name`}
         label="Имя"
-        placeholder="Введите имя"
+        placeholder="Введите ваше имя"
         value={value.name}
         onChange={(event) => updateField('name', event.target.value)}
         error={errors.name}
@@ -94,11 +94,12 @@ export function RegistrationPersonalFields({
       <Select
         id={`${generatedId}-gender`}
         label="Пол"
-        placeholder="Выберите пол"
+        placeholder="Не указан"
         options={GENDER_OPTIONS}
         getOptionLabel={(gender) => GENDER_LABELS[gender as Gender]}
         value={value.gender}
         onChange={(gender) => updateField('gender', gender as Gender | '')}
+        customDropdown
         error={errors.gender}
         disabled={disabled}
         required
@@ -107,10 +108,12 @@ export function RegistrationPersonalFields({
       <Select
         id={`${generatedId}-city`}
         label="Город"
-        placeholder="Выберите город"
+        placeholder="Не указан"
         options={cityOptions}
         value={value.city}
         onChange={(city) => updateField('city', city)}
+        customDropdown
+        searchable
         error={errors.city}
         disabled={disabled}
         required
