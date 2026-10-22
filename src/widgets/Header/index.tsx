@@ -6,6 +6,7 @@ import styles from './Header.module.css'
 import { APP_TITLE } from '@/shared/lib/appTitle'
 import { SearchInput } from '@/shared/ui/SearchInput'
 import { AllSkillsMenu } from '@/widgets/AllSkillsMenu'
+import { NotificationMenu } from '@/widgets/NotificationMenu'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { selectAuthError, selectAuthUser } from '@/features/auth/model/authSlice'
 import { logout } from '@/features/auth/model/authThunks'
@@ -67,6 +68,7 @@ export const Header = ({ variant = 'default', searchValue, onSearchChange }: Hea
           )}
           <nav className={styles.nav} aria-label="Основная навигация">
             <Link to={ROUTES.FAVORITES}>Избранное</Link>
+            {user && <NotificationMenu />}
             {user ? (
               <details className={styles.profile} ref={menuRef} key={user.id}>
                 <summary className={styles.trigger}>
