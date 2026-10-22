@@ -5,6 +5,7 @@ export const ROUTES = {
   SKILL: '/skill/:id',
   PROFILE: '/profile',
   FAVORITES: '/favorites',
+  ABOUT: '/about',
   CREATE: '/create',
   LOGIN: '/login',
   REGISTER: '/register',

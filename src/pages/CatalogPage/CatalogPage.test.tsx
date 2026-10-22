@@ -10,6 +10,7 @@ import catalogReducer from '@/features/catalog/model/catalogSlice'
 import localDataReducer from '@/features/localData/model/localDataSlice'
 import profileReducer from '@/features/profile/model/profileSlice'
 import favoritesReducer from '@/features/favorites/model/favoritesSlice'
+import authReducer from '@/features/auth/model/authSlice'
 import type { Skill, User } from '@/shared/types'
 import CatalogPage from '.'
 
@@ -70,6 +71,7 @@ async function renderCatalog() {
       localData: localDataReducer,
       profile: profileReducer,
       favorites: favoritesReducer,
+      auth: authReducer,
     },
   })
   render(
