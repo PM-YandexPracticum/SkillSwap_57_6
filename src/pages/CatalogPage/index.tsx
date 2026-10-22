@@ -18,6 +18,14 @@ import { CatalogResults } from '../../widgets/CatalogResults'
 import { CatalogState } from '../../widgets/CatalogState'
 import { filterCatalog } from '../../features/catalog/lib/filterCatalog'
 import { useDebounce } from '../../shared/hooks/useDebounce'
+import { FavoriteToggle } from '../../features/favorites/ui/FavoriteToggle'
+import type { CatalogItem } from '../../shared/types'
+
+const renderFavoriteAction = ({ skills }: CatalogItem) => {
+  const target =
+    skills.find((skill) => skill.type === 'teach') ?? skills.find((skill) => skill.type === 'learn')
+  return target ? <FavoriteToggle skillId={target.id} /> : null
+}
 
 const CatalogPage = () => {
   const dispatch = useAppDispatch()
@@ -96,12 +104,17 @@ const CatalogPage = () => {
             items={filteredItems}
             currentPage={currentPage}
             onPageChange={setCurrentPage}
+            renderAction={renderFavoriteAction}
           />
         ) : (
           <>
-            <CatalogSection title="Популярное" items={popularItems} />
+            <CatalogSection
+              title="Популярное"
+              items={popularItems}
+              renderAction={renderFavoriteAction}
+            />
 
-            <CatalogSection title="Новое" items={newestItems} />
+            <CatalogSection title="Новое" items={newestItems} renderAction={renderFavoriteAction} />
 
             <section>
               <h2>Рекомендуем</h2>
@@ -110,6 +123,7 @@ const CatalogPage = () => {
                 items={recommendedItems}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
+                renderAction={renderFavoriteAction}
               />
             </section>
           </>
