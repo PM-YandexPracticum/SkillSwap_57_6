@@ -16,6 +16,7 @@ import {
 import { clear, restoreRequests, selectRequestOperation, setSnapshot } from './requestsSlice'
 import { readRequestsSnapshot, writeRequestsSnapshot } from './requestsStorage'
 import type { RequestsSnapshot } from './types'
+import { getCatalogThunk } from '@/features/catalog/model/catalogSlice'
 
 const request: SwapRequest = {
   id: 'request',
@@ -208,6 +209,49 @@ it('creates a request and one notification for the sender', () => {
   })
 
   expect(saved.notifications).toHaveLength(snapshot.notifications.length + 1)
+  expect(saved.notifications).toContainEqual(
+    expect.objectContaining({
+      requestId: createdRequest?.id,
+      userId: 'requester',
+      message: 'Вы предложили обмен Английский язык',
+      read: false,
+    }),
+  )
+
+  expect(store.getState().requests.snapshot).toEqual(saved)
+})
+
+it('creates a request for a skill available only in the JSON catalog', () => {
+  const requesterOnlyData: LocalDataSnapshot = {
+    ...localData,
+    users: localData.users.filter((user) => user.id === 'requester'),
+    skills: [requesterSkill],
+    credentials: localData.credentials.filter((credential) => credential.userId === 'requester'),
+  }
+
+  writeLocalDataSnapshot(requesterOnlyData)
+
+  // Загружаем навык и его автора только в Redux-каталог.
+  store.dispatch(
+    getCatalogThunk.fulfilled({ users: testUsers, skills: [testSkill] }, 'test-request'),
+  )
+
+  login('requester')
+
+  expect(store.dispatch(createRequest('skill'))).toBe(true)
+
+  const saved = readRequestsSnapshot()
+  const createdRequest = saved.requests.find(
+    (entry) => entry.fromUserId === 'requester' && entry.skillId === 'skill',
+  )
+
+  expect(createdRequest).toMatchObject({
+    skillId: 'skill',
+    fromUserId: 'requester',
+    toUserId: 'receiver',
+    status: 'pending',
+  })
+
   expect(saved.notifications).toContainEqual(
     expect.objectContaining({
       requestId: createdRequest?.id,

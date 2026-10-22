@@ -92,11 +92,23 @@ export const createRequest =
     // За время чтения аккаунт мог измениться.
     if (getState().auth.user?.id !== userId) return false
 
-    const skill = localData.skills.find((entry) => entry.id === skillId && entry.type === 'teach')
+    const catalog = getState().catalog
 
-    const ownerExists = skill ? localData.users.some((user) => user.id === skill.authorId) : false
+    // Сначала ищем навык в локальных данных.
+    const skill =
+      localData.skills.find((entry) => entry.id === skillId) ??
+      catalog.skills.find((entry) => entry.id === skillId)
 
-    if (!skill || !ownerExists) {
+    // Локальная запись имеет приоритет, в том числе если её тип отличается.
+    const isTeachSkill = skill?.type === 'teach'
+
+    // Автора также ищем сначала в локальных данных, затем в каталоге.
+    const owner = skill
+      ? (localData.users.find((user) => user.id === skill.authorId) ??
+        catalog.users.find((user) => user.id === skill.authorId))
+      : undefined
+
+    if (!skill || !isTeachSkill || !owner) {
       dispatch(setOperationError('Навык не найден или недоступен для обмена.'))
       return false
     }
