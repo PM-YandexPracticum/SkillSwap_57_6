@@ -4,6 +4,7 @@ import Pagination from '@/shared/ui/Pagination'
 import type { CatalogItem } from '@/shared/types'
 import styles from './CatalogResults.module.css'
 import { useEffect } from 'react'
+import type { ReactNode } from 'react'
 
 const PAGE_SIZE = 9
 
@@ -15,6 +16,7 @@ export interface CatalogResultsProps {
   /** Обработчик смены страницы */
   onPageChange: (page: number) => void
   showCount?: boolean
+  renderAction?: (item: CatalogItem) => ReactNode
 }
 
 export function CatalogResults({
@@ -22,6 +24,7 @@ export function CatalogResults({
   currentPage,
   onPageChange,
   showCount = true,
+  renderAction,
 }: CatalogResultsProps) {
   const totalItems = items.length
 
@@ -51,7 +54,7 @@ export function CatalogResults({
     <section className={styles.root} aria-label="Результаты каталога">
       {showCount && <p className={styles.count}>Подходящие предложения: {totalItems}</p>}
 
-      <UserCardsGrid items={pageItems} />
+      <UserCardsGrid items={pageItems} renderAction={renderAction} />
 
       <Pagination
         currentPage={safePage}

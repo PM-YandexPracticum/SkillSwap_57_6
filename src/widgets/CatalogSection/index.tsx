@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import type { CatalogItem } from '@/shared/types'
 import { UserCardsGrid } from '@/widgets/UserCardsGrid'
 import styles from './CatalogSection.module.css'
@@ -9,9 +10,10 @@ const MAX_VISIBLE_ITEMS = 9
 interface CatalogSectionProps {
   title: string
   items: CatalogItem[]
+  renderAction?: (item: CatalogItem) => ReactNode
 }
 
-export function CatalogSection({ title, items }: CatalogSectionProps) {
+export function CatalogSection({ title, items, renderAction }: CatalogSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const visibleItems = items.slice(0, isExpanded ? MAX_VISIBLE_ITEMS : INITIAL_VISIBLE_ITEMS)
@@ -35,7 +37,7 @@ export function CatalogSection({ title, items }: CatalogSectionProps) {
           </button>
         )}
       </div>
-      <UserCardsGrid items={visibleItems} />
+      <UserCardsGrid items={visibleItems} renderAction={renderAction} />
     </section>
   )
 }

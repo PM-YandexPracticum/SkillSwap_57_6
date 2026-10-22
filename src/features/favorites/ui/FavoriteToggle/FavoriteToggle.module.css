@@ -1,0 +1,45 @@
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.button {
+  display: flex;
+  border-radius: 4px;
+  color: #253017;
+}
+
+.button[aria-pressed='true'] {
+  color: #abd27a;
+}
+
+.button:focus-visible {
+  outline: 2px solid #508826;
+  outline-offset: 2px;
+}
+
+.count {
+  font-size: 12px;
+  line-height: 16px;
+  color: #253017;
+}
+
+.error {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  right: 0;
+  width: 160px;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-error);
+  overflow-wrap: anywhere;
+  background-color: #fff;
+  box-shadow: var(--shadow-md);
+}
