@@ -1,12 +1,22 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { store } from '@/store'
 import { setAuthUser } from '@/features/auth/model/authSlice'
-import type { SwapRequest } from '@/shared/types'
+import type { Skill, User, SwapRequest } from '@/shared/types'
+import type { LocalDataSnapshot } from '@/features/localData/model/types'
+import { writeLocalDataSnapshot } from '@/features/localData/model/localDataStorage'
 import { LOCAL_STORAGE_KEYS } from '@/shared/lib/constants'
-import { acceptRequest, rejectRequest, completeRequest } from './requestThunks'
+import {
+  acceptRequest,
+  rejectRequest,
+  completeRequest,
+  createRequest,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from './requestThunks'
 import { clear, restoreRequests, selectRequestOperation, setSnapshot } from './requestsSlice'
 import { readRequestsSnapshot, writeRequestsSnapshot } from './requestsStorage'
 import type { RequestsSnapshot } from './types'
+import { getCatalogThunk } from '@/features/catalog/model/catalogSlice'
 
 const request: SwapRequest = {
   id: 'request',
@@ -31,6 +41,63 @@ const snapshot: RequestsSnapshot = {
     },
   ],
 }
+
+const testUsers: User[] = [
+  {
+    id: 'requester',
+    name: 'Отправитель',
+    email: 'requester@test.ru',
+    avatarUrl: null,
+    createdAt: '2026-10-01T10:00:00.000Z',
+    age: 25,
+    gender: 'other',
+    city: 'Москва',
+    description: '',
+    likesCount: 0,
+  },
+  {
+    id: 'receiver',
+    name: 'Автор навыка',
+    email: 'receiver@test.ru',
+    avatarUrl: null,
+    createdAt: '2026-10-01T10:00:00.000Z',
+    age: 30,
+    gender: 'other',
+    city: 'Москва',
+    description: '',
+    likesCount: 0,
+  },
+]
+
+const testSkill: Skill = {
+  id: 'skill',
+  title: 'Английский язык',
+  description: 'Помощь с английским',
+  type: 'teach',
+  category: 'Языки',
+  tags: [],
+  imageUrl: null,
+  authorId: 'receiver',
+  createdAt: '2026-10-01T10:00:00.000Z',
+}
+
+const requesterSkill: Skill = {
+  ...testSkill,
+  id: 'requester-skill',
+  title: 'Рисование',
+  authorId: 'requester',
+}
+
+const localData: LocalDataSnapshot = {
+  version: 1,
+  users: testUsers,
+  skills: [testSkill, requesterSkill],
+  credentials: [
+    { userId: 'requester', password: 'test-password' },
+    { userId: 'receiver', password: 'test-password' },
+  ],
+}
+
 const login = (id: string | null) =>
   store.dispatch(setAuthUser(id ? { id, name: id, email: `${id}@test.ru`, token: 'test' } : null))
 const operation = () => selectRequestOperation(store.getState(), request.id)
@@ -121,4 +188,169 @@ it('blocks a duplicate dispatch while pending and clears operation results on ac
   expect(store.dispatch(rejectRequest(request.id))).toBe(false)
   login('receiver')
   expect(operation()).toBeUndefined()
+})
+
+it('creates a request and one notification for the sender', () => {
+  writeLocalDataSnapshot(localData)
+  login('requester')
+
+  expect(store.dispatch(createRequest('skill'))).toBe(true)
+
+  const saved = readRequestsSnapshot()
+  const createdRequest = saved.requests.find(
+    (entry) => entry.fromUserId === 'requester' && entry.skillId === 'skill',
+  )
+
+  expect(createdRequest).toMatchObject({
+    skillId: 'skill',
+    fromUserId: 'requester',
+    toUserId: 'receiver',
+    status: 'pending',
+  })
+
+  expect(saved.notifications).toHaveLength(snapshot.notifications.length + 1)
+  expect(saved.notifications).toContainEqual(
+    expect.objectContaining({
+      requestId: createdRequest?.id,
+      userId: 'requester',
+      message: 'Вы предложили обмен Английский язык',
+      read: false,
+    }),
+  )
+
+  expect(store.getState().requests.snapshot).toEqual(saved)
+})
+
+it('creates a request for a skill available only in the JSON catalog', () => {
+  const requesterOnlyData: LocalDataSnapshot = {
+    ...localData,
+    users: localData.users.filter((user) => user.id === 'requester'),
+    skills: [requesterSkill],
+    credentials: localData.credentials.filter((credential) => credential.userId === 'requester'),
+  }
+
+  writeLocalDataSnapshot(requesterOnlyData)
+
+  // Загружаем навык и его автора только в Redux-каталог.
+  store.dispatch(
+    getCatalogThunk.fulfilled({ users: testUsers, skills: [testSkill] }, 'test-request'),
+  )
+
+  login('requester')
+
+  expect(store.dispatch(createRequest('skill'))).toBe(true)
+
+  const saved = readRequestsSnapshot()
+  const createdRequest = saved.requests.find(
+    (entry) => entry.fromUserId === 'requester' && entry.skillId === 'skill',
+  )
+
+  expect(createdRequest).toMatchObject({
+    skillId: 'skill',
+    fromUserId: 'requester',
+    toUserId: 'receiver',
+    status: 'pending',
+  })
+
+  expect(saved.notifications).toContainEqual(
+    expect.objectContaining({
+      requestId: createdRequest?.id,
+      userId: 'requester',
+      message: 'Вы предложили обмен Английский язык',
+      read: false,
+    }),
+  )
+
+  expect(store.getState().requests.snapshot).toEqual(saved)
+})
+
+it('rejects guests, own skills, unknown skills and duplicate active requests', () => {
+  writeLocalDataSnapshot(localData)
+  login(null)
+
+  const write = vi.spyOn(Storage.prototype, 'setItem')
+
+  expect(store.dispatch(createRequest('skill'))).toBe(false)
+  expect(write).not.toHaveBeenCalled()
+
+  login('receiver')
+  expect(store.dispatch(createRequest('skill'))).toBe(false)
+  expect(write).not.toHaveBeenCalled()
+
+  login('requester')
+  expect(store.dispatch(createRequest('unknown-skill'))).toBe(false)
+  expect(write).not.toHaveBeenCalled()
+
+  write.mockRestore()
+
+  writeRequestsSnapshot({
+    ...snapshot,
+    requests: [{ ...request, fromUserId: 'requester' }, ...snapshot.requests.slice(1)],
+  })
+
+  const duplicateWrite = vi.spyOn(Storage.prototype, 'setItem')
+
+  expect(store.dispatch(createRequest('skill'))).toBe(false)
+  expect(duplicateWrite).not.toHaveBeenCalled()
+})
+
+it('allows users to mark only their own notifications as read', () => {
+  login('receiver')
+
+  expect(store.dispatch(markNotificationRead('notice'))).toBe(false)
+  expect(readRequestsSnapshot().notifications[0].read).toBe(false)
+
+  login('sender')
+
+  expect(store.dispatch(markNotificationRead('notice'))).toBe(true)
+  expect(readRequestsSnapshot().notifications[0].read).toBe(true)
+
+  // Повторное действие безопасно.
+  expect(store.dispatch(markNotificationRead('notice'))).toBe(true)
+})
+
+it('marks all notifications read only for the current user', () => {
+  writeRequestsSnapshot({
+    ...snapshot,
+    notifications: [
+      ...snapshot.notifications,
+      {
+        id: 'receiver-notice',
+        requestId: 'other',
+        userId: 'receiver',
+        message: 'Уведомление получателю',
+        createdAt: request.createdAt,
+        read: false,
+      },
+    ],
+  })
+
+  login('sender')
+
+  expect(store.dispatch(markAllNotificationsRead())).toBe(true)
+
+  const saved = readRequestsSnapshot()
+
+  expect(saved.notifications.find((entry) => entry.id === 'notice')?.read).toBe(true)
+  expect(saved.notifications.find((entry) => entry.id === 'receiver-notice')?.read).toBe(false)
+
+  // Повторный вызов не должен ломать данные.
+  expect(store.dispatch(markAllNotificationsRead())).toBe(true)
+})
+
+it('preserves the Redux and storage snapshots when creating a request fails to save', () => {
+  writeLocalDataSnapshot(localData)
+  login('requester')
+
+  const beforeStorage = localStorage.getItem(LOCAL_STORAGE_KEYS.REQUESTS)
+  const beforeRedux = store.getState().requests.snapshot
+
+  vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+    throw new Error('storage unavailable')
+  })
+
+  expect(store.dispatch(createRequest('skill'))).toBe(false)
+  expect(localStorage.getItem(LOCAL_STORAGE_KEYS.REQUESTS)).toBe(beforeStorage)
+  expect(store.getState().requests.snapshot).toEqual(beforeRedux)
+  expect(store.getState().requests.operationError).toBeTruthy()
 })
