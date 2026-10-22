@@ -12,6 +12,7 @@ export interface FilePickerProps {
   disabled?: boolean
   error?: string
   onValidationChange?: (error: string | null) => void
+  avatarLayout?: boolean
 }
 
 export function FilePicker({
@@ -22,6 +23,7 @@ export function FilePicker({
   disabled,
   error,
   onValidationChange,
+  avatarLayout = false,
 }: FilePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const previousValue = useRef(value)
@@ -63,14 +65,19 @@ export function FilePicker({
     <FormInput
       ref={inputRef}
       type="file"
-      label="Изображение"
+      label={avatarLayout ? undefined : 'Изображение'}
       accept={acceptedTypes.join(',')}
       disabled={disabled}
       error={localError ?? error}
       hint={value?.name}
+      wrapperClassName={avatarLayout ? styles.avatarLayout : undefined}
+      controlClassName={avatarLayout ? styles.avatarControl : undefined}
+      className={avatarLayout ? styles.avatarInput : undefined}
+      adornmentClassName={avatarLayout ? styles.avatarAdornment : undefined}
       onChange={handleChange}
       endAdornment={
-        value && (
+        value &&
+        !avatarLayout && (
           <button
             className={styles.removeButton}
             type="button"

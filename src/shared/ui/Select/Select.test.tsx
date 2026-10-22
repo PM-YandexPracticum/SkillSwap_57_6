@@ -137,6 +137,77 @@ describe('Select', () => {
     expect(onChange).toHaveBeenCalledWith('male')
   })
 
+  it('renders a styled dropdown when requested and lets the parent control its value', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    const { rerender } = render(
+      <Select label="Город" options={options} value="" onChange={onChange} customDropdown />,
+    )
+    const trigger = screen.getByRole('button', { name: 'Город' })
+    await user.click(trigger)
+    expect(screen.getByRole('listbox', { name: 'Город' })).toBeInTheDocument()
+    await user.click(screen.getByRole('option', { name: 'Санкт-Петербург' }))
+    expect(onChange).toHaveBeenCalledWith('Санкт-Петербург')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+
+    rerender(
+      <Select
+        label="Город"
+        options={options}
+        value="Санкт-Петербург"
+        onChange={onChange}
+        customDropdown
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Город' })).toHaveTextContent('Санкт-Петербург')
+  })
+
+  it('supports keyboard opening, selection, and Escape in the styled dropdown', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <Select
+        label="Пол"
+        options={['female', 'male']}
+        value=""
+        onChange={onChange}
+        getOptionLabel={(value) => (value === 'female' ? 'Женский' : 'Мужской')}
+        customDropdown
+      />,
+    )
+    const trigger = screen.getByRole('button', { name: 'Пол' })
+    trigger.focus()
+    await user.keyboard('{ArrowDown}')
+    expect(screen.getByRole('listbox', { name: 'Пол' })).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
+  it('filters searchable dropdown options as the query changes', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <Select
+        label="Город"
+        placeholder="Не указан"
+        options={['Санкт-Петербург', 'Самара', 'Саратов']}
+        value=""
+        onChange={onChange}
+        customDropdown
+        searchable
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Город' }))
+    await user.type(screen.getByRole('textbox', { name: 'Город' }), 'сам')
+
+    expect(screen.queryByRole('option', { name: 'Санкт-Петербург' })).not.toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Самара' })).toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'Саратов' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('option', { name: 'Самара' }))
+    expect(onChange).toHaveBeenCalledWith('Самара')
+  })
+
   it('associates errors with the field and preserves external ARIA attributes', () => {
     const onChange = vi.fn()
     const { rerender } = render(

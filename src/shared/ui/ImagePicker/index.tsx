@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { FilePicker, type FilePickerProps } from '../FilePicker'
 import styles from './ImagePicker.module.css'
+import addIcon from './assets/add.svg'
+import userCircleIcon from './assets/user-circle.svg'
 
 export interface ImagePickerProps extends FilePickerProps {
+  variant?: 'default' | 'avatar'
   placeholder?: ReactNode
   previewClassName?: string
   onPreviewLoad?: (file: File) => void
@@ -11,7 +14,7 @@ export interface ImagePickerProps extends FilePickerProps {
 
 const IMAGE_ERROR =
   'Не удалось отобразить изображение: файл повреждён или имеет неподдерживаемый формат'
-export function ImagePicker(props: ImagePickerProps) {
+export function ImagePicker({ variant = 'default', ...props }: ImagePickerProps) {
   const [preview, setPreview] = useState<{ url: string; file: File } | null>(null)
   const previewUrl = preview?.url ?? null
   const [erroredUrl, setErroredUrl] = useState<string | null>(null)
@@ -19,8 +22,7 @@ export function ImagePicker(props: ImagePickerProps) {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const src = e.currentTarget.getAttribute('src')
-    /* Защита от запоздалого события старого <img>
-    реагируем только если это всё ещё актуальный previewUrl*/
+    /* Защита от запоздалого события старого <img>. */
     if (!src || src !== previewUrl || preview?.file !== props.value) return
 
     setErroredUrl(src)
@@ -28,7 +30,7 @@ export function ImagePicker(props: ImagePickerProps) {
   }
 
   useEffect(() => {
-    /*Обнуление предыдущего и ошибочного url при отсутствии значения props.value */
+    /* Сбрасываем предыдущий preview и ошибку, если значение удалено. */
     if (!props.value) {
       setPreview(null)
       setErroredUrl(null)
@@ -42,10 +44,44 @@ export function ImagePicker(props: ImagePickerProps) {
     return () => URL.revokeObjectURL(url)
   }, [props.value])
 
+  if (variant === 'avatar') {
+    return (
+      <div className={`${styles.wrapper} ${styles.avatarWrapper}`}>
+        <div className={styles.avatar}>
+          {previewUrl && !hasError ? (
+            <img
+              key={previewUrl}
+              src={previewUrl}
+              alt={props.value?.name ?? 'Предпросмотр аватара'}
+              className={styles.avatarImage}
+              onError={handleImageError}
+            />
+          ) : (
+            <img className={styles.avatarPlaceholder} src={userCircleIcon} alt="" />
+          )}
+          <img className={styles.avatarAdd} src={addIcon} alt="" />
+        </div>
+        <FilePicker {...props} avatarLayout />
+        {props.value && (
+          <button
+            type="button"
+            className={styles.avatarRemove}
+            onClick={() => {
+              props.onValidationChange?.(null)
+              props.onChange(null)
+            }}
+            disabled={props.disabled}
+          >
+            Удалить аватар
+          </button>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className={styles.wrapper}>
       <FilePicker {...props} />
-
       <div className={[styles.preview, props.previewClassName].filter(Boolean).join(' ')}>
         {!previewUrl ? (
           (props.placeholder ?? (

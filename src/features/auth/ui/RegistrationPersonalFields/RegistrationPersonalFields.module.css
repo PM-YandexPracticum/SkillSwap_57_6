@@ -1,18 +1,23 @@
 .fields {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
   width: 100%;
   min-width: 0;
 }
 
-.fields > * {
-  width: 100%;
-  min-width: 0;
+.fields > :first-child,
+.fields > :last-child {
+  grid-column: 1 / -1;
 }
 
 @media (width <= 767px) {
   .fields {
-    gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .fields > * {
+    grid-column: 1;
   }
 }
