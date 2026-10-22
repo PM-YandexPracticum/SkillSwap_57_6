@@ -7,6 +7,7 @@ const CatalogPage = lazy(() => import('@/pages/CatalogPage'))
 const SkillPage = lazy(() => import('@/pages/SkillPage'))
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
 const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'))
+const AboutPage = lazy(() => import('@/pages/AboutPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 
@@ -17,6 +18,7 @@ export function AppRoutes() {
         <Route path={ROUTES.HOME} element={<CatalogPage />} />
         <Route path={ROUTES.SKILL} element={<SkillPage />} />
         <Route path={ROUTES.FAVORITES} element={<FavoritesPage />} />
+        <Route path={ROUTES.ABOUT} element={<AboutPage />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={ROUTES.REGISTER} element={<LoginPage />} />
 

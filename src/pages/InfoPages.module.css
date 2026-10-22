@@ -1,0 +1,55 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  padding: 32px max(16px, calc((100% - 1368px) / 2));
+  color: #253017;
+  overflow-wrap: anywhere;
+  background: #f9faf7;
+}
+
+.main h1,
+.main h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.team {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
+  gap: 24px;
+  margin-top: 24px;
+  list-style: none;
+}
+
+.member {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 24px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.member a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.empty {
+  text-align: center;
+}
+
+.catalogLink {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: #abd27a;
+}
+
+.main a:focus-visible {
+  outline: 2px solid #508826;
+  outline-offset: 4px;
+}
