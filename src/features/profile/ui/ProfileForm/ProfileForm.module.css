@@ -1,0 +1,182 @@
+.form {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Open Sans', var(--font-sans);
+  color: #253017;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 40px;
+  align-items: start;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.passwordBlock {
+  display: flex;
+  align-items: center;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
+.changePasswordBtn {
+  background: none;
+  border: none;
+  color: #253017;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.changePasswordBtn:hover {
+  color: #508826;
+}
+
+.changePasswordBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.textareaWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: #253017;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.textarea:focus {
+  outline: 2px solid #abd27a;
+  outline-offset: -2px;
+}
+
+.textarea:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.externalError {
+  color: var(--color-error, #ef4444);
+  font-size: 14px;
+  margin: 0;
+  padding: 8px;
+  background: #fee2e2;
+  border-radius: 8px;
+}
+
+.submitButton {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #abd27a;
+  color: #253017;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #deebc5;
+}
+
+.submitButton:active:not(:disabled) {
+  background-color: #508826;
+  color: #fff;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --- Правая колонка с аватаром --- */
+.avatarColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-top: 20px;
+}
+
+.avatarColumn > div {
+  flex-direction: column-reverse;
+}
+
+.avatarColumn .avatarWrapper {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.avatarPreview,
+.avatarWrapper > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatarPlaceholder {
+  font-size: 64px;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+@media (width < 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .avatarColumn {
+    order: -1;
+  }
+
+  .avatarColumn .avatarWrapper {
+    width: 160px;
+    height: 160px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
