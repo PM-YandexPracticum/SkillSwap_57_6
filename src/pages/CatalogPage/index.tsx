@@ -21,6 +21,13 @@ import { useDebounce } from '../../shared/hooks/useDebounce'
 import { FavoriteToggle } from '../../features/favorites/ui/FavoriteToggle'
 import type { CatalogItem } from '../../shared/types'
 
+type FilterChip = { key: string; label: string; onRemove: () => void }
+
+const TYPE_LABELS: Record<Exclude<SkillTypeFilter, 'all'>, string> = {
+  teach: 'Могу научить',
+  learn: 'Хочу научиться',
+}
+
 const renderFavoriteAction = ({ skills }: CatalogItem) => {
   const target =
     skills.find((skill) => skill.type === 'teach') ?? skills.find((skill) => skill.type === 'learn')
@@ -38,6 +45,7 @@ const CatalogPage = () => {
   const mergeError = useAppSelector(selectCatalogMergeError)
   const [selectedType, setSelectedType] = useState<SkillTypeFilter>('all')
   const [selectedCategory, setSelectedCategory] = useState<SkillCategoryFilter>('all')
+  const [selectedSubcategory, setSelectedSubcategory] = useState('')
 
   const catalogItems = useAppSelector(selectCatalogItems)
   const popularItems = useAppSelector(selectPopularItems)
@@ -45,15 +53,48 @@ const CatalogPage = () => {
   const recommendedItems = useAppSelector(selectRecommendedItems)
   // Создаем отфильтрованный список
   const filteredItems = useMemo(() => {
-    return filterCatalog(catalogItems, debouncedSearch, selectedType, selectedCategory)
-  }, [catalogItems, debouncedSearch, selectedType, selectedCategory])
+    return filterCatalog(
+      catalogItems,
+      debouncedSearch,
+      selectedType,
+      selectedCategory,
+      selectedSubcategory,
+    )
+  }, [catalogItems, debouncedSearch, selectedType, selectedCategory, selectedSubcategory])
 
-  const hasActiveFilters =
-    debouncedSearch.trim().length > 0 || selectedType !== 'all' || selectedCategory !== 'all'
+  const appliedSearch = debouncedSearch.trim()
+  // Чип для каждого выбранного фильтра; крестик снимает только его
+  const chips = [
+    appliedSearch && { key: 'search', label: appliedSearch, onRemove: () => setSearchValue('') },
+    selectedType !== 'all' && {
+      key: 'type',
+      label: TYPE_LABELS[selectedType],
+      onRemove: () => setSelectedType('all'),
+    },
+    selectedCategory !== 'all' && {
+      key: 'category',
+      label: selectedCategory,
+      onRemove: () => setSelectedCategory('all'),
+    },
+    selectedSubcategory && {
+      key: 'subcategory',
+      label: selectedSubcategory,
+      onRemove: () => setSelectedSubcategory(''),
+    },
+  ].filter((chip): chip is FilterChip => Boolean(chip))
+
+  const hasActiveFilters = chips.length > 0
+
+  const resetFilters = () => {
+    setSearchValue('')
+    setSelectedType('all')
+    setSelectedCategory('all')
+    setSelectedSubcategory('')
+  }
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [debouncedSearch, selectedType, selectedCategory])
+  }, [debouncedSearch, selectedType, selectedCategory, selectedSubcategory])
 
   return (
     <PageLayout
@@ -62,17 +103,44 @@ const CatalogPage = () => {
       mainClassName={styles.main}
     >
       <aside className={styles.filters}>
-        <h2>Фильтры</h2>
+        <div className={styles.filtersHeader}>
+          <h2>Фильтры{hasActiveFilters && ` (${chips.length})`}</h2>
+          {(hasActiveFilters || searchValue) && (
+            <button className={styles.reset} type="button" onClick={resetFilters}>
+              Сбросить
+              <span aria-hidden="true">×</span>
+            </button>
+          )}
+        </div>
 
         <FiltersBar
           selectedType={selectedType}
           selectedCategory={selectedCategory}
           onTypeChange={setSelectedType}
           onCategoryChange={setSelectedCategory}
+          selectedSubcategory={selectedSubcategory}
+          onSubcategoryChange={setSelectedSubcategory}
         />
       </aside>
 
       <section className={styles.user_section}>
+        {hasActiveFilters && (
+          <ul className={styles.chips} aria-label="Выбранные фильтры">
+            {chips.map(({ key, label, onRemove }) => (
+              <li key={key}>
+                <button
+                  className={styles.chip}
+                  type="button"
+                  aria-label={`Снять фильтр: ${label}`}
+                  onClick={onRemove}
+                >
+                  {label}
+                  <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
         {(localError || mergeError) && (
           <CatalogState
             state="error"
@@ -124,6 +192,7 @@ const CatalogPage = () => {
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 renderAction={renderFavoriteAction}
+                showCount={false}
               />
             </section>
           </>

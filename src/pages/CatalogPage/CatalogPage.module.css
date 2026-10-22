@@ -18,10 +18,56 @@
   gap: 40px;
 }
 
+.filtersHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #508826;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  padding: 10px 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  color: #253017;
+  overflow-wrap: anywhere;
+  background-color: #fff;
+}
+
+.chip:hover {
+  background-color: #deebc5;
+}
+
+.reset:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid #508826;
+  outline-offset: 2px;
+}
+
 .user_section {
   display: flex;
   flex-direction: column;
   gap: 40px;
+  min-width: 0;
 }
 
 @media (width < 768px) {
