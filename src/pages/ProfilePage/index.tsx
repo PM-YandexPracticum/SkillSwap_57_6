@@ -5,13 +5,21 @@ import { PageLayout } from '@/widgets/PageLayout'
 import { ProfileForm, type ProfileDraft } from '@/features/profile/ui/ProfileForm'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
+  restoreProfiles,
   saveProfileChanges,
   selectCurrentProfile,
+  selectProfileReadError,
   selectProfileWriteError,
 } from '@/features/profile/model/profileSlice'
+import {
+  restoreLocalData,
+  selectLocalDataReadError,
+} from '@/features/localData/model/localDataSlice'
+import { getCatalogThunk } from '@/features/catalog/model/catalogSlice'
 import { fetchCities } from '@/api/cities'
 import type { City } from '@/shared/types'
 import { ROUTES } from '@/shared/lib/constants'
+import { formatBirthDate } from '@/shared/lib/profileDate'
 import styles from './ProfilePage.module.css'
 
 export default function ProfilePage() {
@@ -19,10 +27,27 @@ export default function ProfilePage() {
   const user = useAppSelector(selectCurrentProfile)
   const authUser = useAppSelector((state) => state.auth.user)
   const writeError = useAppSelector(selectProfileWriteError)
+  const localDataError = useAppSelector(selectLocalDataReadError)
+  const profileError = useAppSelector(selectProfileReadError)
+  const { status: catalogStatus, error: catalogError } = useAppSelector((state) => state.catalog)
+  const [dataRestored, setDataRestored] = useState(false)
+  const [profileLoaded, setProfileLoaded] = useState(false)
+  const isDataReady = catalogStatus === 'success' && !localDataError && !profileError
+  const canLoadForm = dataRestored && isDataReady && user !== null
 
   const [cities, setCities] = useState<City[]>([])
   const [isLoadingCities, setIsLoadingCities] = useState(true)
   const [citiesError, setCitiesError] = useState<string | null>(null)
+
+  useEffect(() => {
+    dispatch(restoreLocalData())
+    dispatch(restoreProfiles())
+    setDataRestored(true)
+  }, [dispatch])
+
+  useEffect(() => {
+    if (canLoadForm) setProfileLoaded(true)
+  }, [canLoadForm])
 
   useEffect(() => {
     let isMounted = true
@@ -45,10 +70,32 @@ export default function ProfilePage() {
     return <Navigate to={ROUTES.LOGIN} replace />
   }
 
-  if (!user) {
+  const dataErrors = [
+    { error: catalogError, label: 'каталога', retry: () => dispatch(getCatalogThunk()) },
+    {
+      error: localDataError,
+      label: 'локальных данных',
+      retry: () => dispatch(restoreLocalData()),
+    },
+    { error: profileError, label: 'профилей', retry: () => dispatch(restoreProfiles()) },
+  ].filter(({ error }) => error)
+  const dataFeedback = dataErrors.map(({ error, label, retry }) => (
+    <div className={styles.error} role="alert" key={label}>
+      <p>{error}</p>
+      <button type="button" onClick={retry}>
+        Повторить загрузку {label}
+      </button>
+    </div>
+  ))
+
+  if (!user || !profileLoaded) {
     return (
       <PageLayout>
-        <div className={styles.loader}>Загрузка профиля...</div>
+        {dataErrors.length > 0 ? (
+          dataFeedback
+        ) : (
+          <div className={styles.loader}>Загрузка профиля...</div>
+        )}
       </PageLayout>
     )
   }
@@ -64,13 +111,14 @@ export default function ProfilePage() {
       })
     }
 
+    const birthDate = draft.birthDate ? formatBirthDate(draft.birthDate) : null
     const patch = {
       name: draft.name,
       email: draft.email,
-      birthDate: draft.birthDate ? draft.birthDate.toISOString() : undefined,
+      ...(birthDate ? { birthDate } : {}),
       city: draft.city,
       description: draft.about,
-      avatarUrl: newAvatarUrl ?? user.avatarUrl ?? undefined,
+      avatarUrl: newAvatarUrl ?? user.avatarUrl,
     }
 
     await dispatch(saveProfileChanges(user.id, patch, draft.password))
@@ -219,6 +267,7 @@ export default function ProfilePage() {
         </aside>
 
         <main className={styles.content}>
+          {dataFeedback}
           <Routes>
             <Route
               index
@@ -234,6 +283,7 @@ export default function ProfilePage() {
                       cities={cities}
                       onSubmit={handleSave}
                       externalError={writeError ?? undefined}
+                      disabled={!isDataReady}
                     />
                   )}
                 </>
