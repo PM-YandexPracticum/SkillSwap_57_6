@@ -1,0 +1,172 @@
+.root {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.trigger {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #222;
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: #eceee8;
+}
+
+.trigger:focus-visible,
+.menu button:focus-visible {
+  outline: 2px solid #526b4a;
+  outline-offset: 2px;
+}
+
+.bell {
+  width: 24px;
+  height: 24px;
+}
+
+.badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #f9faf7;
+  border-radius: 50%;
+  background: #e53935;
+}
+
+.menu {
+  position: absolute;
+  z-index: 1100;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  gap: 16px;
+  width: min(360px, calc(100vw - 32px));
+  max-height: min(480px, calc(100vh - 100px));
+  padding: 16px;
+  overflow-y: auto;
+  border: 1px solid #e4e6df;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.heading h2,
+.section h3 {
+  margin: 0;
+  color: #222;
+}
+
+.heading h2 {
+  font-size: 18px;
+}
+
+.section {
+  display: grid;
+  gap: 10px;
+}
+
+.section h3 {
+  font-size: 14px;
+}
+
+.markAll,
+.error button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #526b4a;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notification {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f5f6f3;
+  overflow-wrap: anywhere;
+}
+
+.notification p,
+.error p,
+.empty {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.notification time {
+  color: #6b6b6b;
+  font-size: 12px;
+}
+
+.read {
+  background: #fafaf9;
+}
+
+.goTo {
+  justify-self: start;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: #526b4a;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.goTo:hover {
+  background: #40553a;
+}
+
+.error {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fff0ef;
+}
+
+.error p {
+  color: #b42318;
+}
+
+@media (width < 768px) {
+  .menu {
+    right: 0;
+    width: min(360px, calc(100vw - 32px));
+    max-height: calc(100vh - 120px);
+  }
+}
