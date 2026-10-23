@@ -6,6 +6,7 @@ import { ProtectedRoute } from '@/features/auth/ui/ProtectedRoute'
 const CatalogPage = lazy(() => import('@/pages/CatalogPage'))
 const SkillPage = lazy(() => import('@/pages/SkillPage'))
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
+const RequestsPage = lazy(() => import('@/pages/RequestsPage'))
 const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'))
 const AboutPage = lazy(() => import('@/pages/AboutPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
@@ -25,6 +26,7 @@ export function AppRoutes() {
 
         <Route element={<ProtectedRoute />}>
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+          <Route path={ROUTES.REQUESTS} element={<RequestsPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
