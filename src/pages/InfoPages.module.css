@@ -41,6 +41,11 @@
   text-align: center;
 }
 
+.profileLink {
+  align-self: flex-start;
+  text-decoration: underline;
+}
+
 .catalogLink {
   display: inline-block;
   margin-top: 16px;

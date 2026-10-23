@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { selectAuthUser } from '@/features/auth/model/authSlice'
 import { selectCatalogMergeError } from '@/features/catalog/model/catalogSelectors'
 import { getCatalogThunk } from '@/features/catalog/model/catalogSlice'
 import { selectFavoriteEntries } from '@/features/favorites/model/favoritesSelectors'
@@ -16,6 +17,7 @@ import styles from '../InfoPages.module.css'
 
 export default function FavoritesPage() {
   const dispatch = useAppDispatch()
+  const user = useAppSelector(selectAuthUser)
   const { status, error } = useAppSelector((state) => state.catalog)
   const localError = useAppSelector((state) => state.localData.readError)
   const profileError = useAppSelector((state) => state.profile.readError)
@@ -47,6 +49,11 @@ export default function FavoritesPage() {
 
   return (
     <PageLayout mainClassName={styles.main}>
+      {user && (
+        <Link className={styles.profileLink} to={ROUTES.PROFILE}>
+          Личный кабинет
+        </Link>
+      )}
       <h1>Избранное</h1>
       {status === 'idle' || status === 'loading' ? (
         <CatalogState state="loading" messages={{ loading: 'Загружаем избранное…' }} />
