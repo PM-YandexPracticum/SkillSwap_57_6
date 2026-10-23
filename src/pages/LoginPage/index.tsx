@@ -42,7 +42,7 @@ export default function LoginPage() {
 
     dispatch(restoreLocalData())
     dispatch(restoreProfiles())
-  }, [dispatch])
+  }, [dispatch, catalogStatus])
 
   useEffect(() => {
     if (user) {

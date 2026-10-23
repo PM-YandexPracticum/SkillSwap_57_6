@@ -1,0 +1,13 @@
+[
+  { "name": "Кристина", "github": "asamishinatsu", "role": "Тимлид" },
+  { "name": "Владимир", "github": "Karloph1", "role": "Помощник тимлида" },
+  { "name": "Екатерина", "github": "katringram27-lab", "role": "Разработчик" },
+  { "name": "Виктория", "github": "axenovavictoria", "role": "Разработчик" },
+  { "name": "Александр", "github": "Tavansev", "role": "Разработчик" },
+  { "name": "Антон", "github": "stolenstolen", "role": "Разработчик" },
+  { "name": "Андрей", "github": "Asfandrey", "role": "Разработчик" },
+  { "name": "Андрей", "github": "nata3552-hub", "role": "Разработчик" },
+  { "name": "Егор", "github": "egorvolkov26021-max", "role": "Разработчик" },
+  { "name": "Дмитрий", "github": "popov09", "role": "Разработчик" },
+  { "name": "Евгений", "github": "johnny91-web", "role": "Разработчик" }
+]

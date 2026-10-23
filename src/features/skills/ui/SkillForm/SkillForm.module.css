@@ -109,7 +109,9 @@
   line-height: 24px;
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition: background-color 0.2s, opacity 0.2s;
+  transition:
+    background-color 0.2s,
+    opacity 0.2s;
 }
 
 /* Кнопка «Назад» */
