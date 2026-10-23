@@ -4,6 +4,7 @@ export const ROUTES = {
   HOME: '/',
   SKILL: '/skill/:id',
   PROFILE: '/profile',
+  REQUESTS: '/requests',
   FAVORITES: '/favorites',
   ABOUT: '/about',
   CREATE: '/create',

@@ -129,8 +129,7 @@ export default function ProfilePage() {
       <div className={styles.container}>
         <aside className={styles.sidebar}>
           <nav className={styles.nav}>
-            {/* Заглушки для будущих страниц (по AC #125) */}
-            <span className={styles.navLinkDisabled}>
+            <NavLink to={ROUTES.REQUESTS} className={styles.navLink}>
               <svg
                 width="20"
                 height="20"
@@ -154,7 +153,7 @@ export default function ProfilePage() {
                 />
               </svg>
               Заявки
-            </span>
+            </NavLink>
             <span className={styles.navLinkDisabled}>
               <svg
                 width="20"
