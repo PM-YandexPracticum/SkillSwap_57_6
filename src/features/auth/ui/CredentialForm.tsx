@@ -7,6 +7,8 @@ import styles from './CredentialForm.module.css'
 import { FormInput } from '@/shared/ui/FormInput'
 import { PasswordInput } from '@/shared/ui/PasswordInput'
 import { Link, useLocation } from 'react-router-dom'
+import appleIcon from './CredentialForm/assets/apple.svg'
+import googleIcon from './CredentialForm/assets/google.svg'
 
 interface CredentialFormProps {
   mode: AuthMode
@@ -15,6 +17,7 @@ interface CredentialFormProps {
   externalError?: string | null
   returnTo?: string
   disabled?: boolean
+  submitLabel?: string
   // Опционально: если родителю нужно знать об ошибках отправки
   onError?: (error: unknown) => void
 }
@@ -26,6 +29,7 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
   externalError,
   returnTo,
   disabled = false,
+  submitLabel,
   onError,
 }) => {
   const location = useLocation()
@@ -100,6 +104,26 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onValidSubmit)} noValidate>
+      {mode === 'register' && (
+        <>
+          <div className={styles.alternativeActions}>
+            <button className={styles.alternativeButton} type="button">
+              <img src={googleIcon} alt="" aria-hidden="true" />
+              <span>Продолжить с Google</span>
+            </button>
+            <button className={styles.alternativeButton} type="button">
+              <img src={appleIcon} alt="" aria-hidden="true" />
+              <span>Продолжить с Apple</span>
+            </button>
+          </div>
+          <div className={styles.divider} aria-label="Или">
+            <span />
+            <span className={styles.dividerText}>или</span>
+            <span />
+          </div>
+        </>
+      )}
+
       <div className={styles.formGroup}>
         <FormInput
           label="Email"
@@ -116,8 +140,11 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
 
       <div className={styles.formGroup}>
         <PasswordInput
-          label={mode === 'login' ? 'Пароль' : 'Придумайте пароль'}
-          placeholder={mode === 'login' ? 'Введите пароль' : 'Минимум 8 символов'}
+          label="Пароль"
+          placeholder={mode === 'login' ? 'Введите пароль' : 'Придумайте надёжный пароль'}
+          hint={
+            mode === 'register' ? 'Пароль должен содержать не\u00a0менее 8\u00a0знаков' : undefined
+          }
           disabled={disabled}
           error={errors.password?.message}
           autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
@@ -147,10 +174,14 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
         aria-busy={isProcessing || isSubmitting}
         className={styles.submitButton}
       >
-        {isProcessing || isSubmitting ? 'Отправка...' : mode === 'login' ? 'Войти' : 'Далее'}
+        {isProcessing || isSubmitting
+          ? 'Отправка...'
+          : (submitLabel ?? (mode === 'login' ? 'Войти' : 'Далее'))}
       </button>
 
-      <p className={styles.switchLinkBlock}>
+      <p
+        className={`${styles.switchLinkBlock} ${mode === 'register' ? styles.registerSwitch : ''}`}
+      >
         {mode === 'login' ? (
           <>
             Нет аккаунта?{' '}

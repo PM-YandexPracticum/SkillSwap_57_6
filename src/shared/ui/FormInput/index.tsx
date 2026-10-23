@@ -7,6 +7,9 @@ export interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string
   error?: string
   endAdornment?: ReactNode
+  wrapperClassName?: string
+  controlClassName?: string
+  adornmentClassName?: string
 }
 
 export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(function FormInput(
@@ -17,6 +20,9 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(function F
     endAdornment,
     id,
     className,
+    wrapperClassName,
+    controlClassName,
+    adornmentClassName,
     disabled,
     'aria-describedby': describedBy,
     'aria-invalid': ariaInvalid,
@@ -34,7 +40,7 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(function F
     .join(' ')
 
   return (
-    <div className={styles.wrapper}>
+    <div className={[styles.wrapper, wrapperClassName].filter(Boolean).join(' ')}>
       {label && (
         <label className={styles.label} htmlFor={inputId}>
           {label}
@@ -42,7 +48,7 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(function F
       )}
 
       <div
-        className={styles.control}
+        className={[styles.control, controlClassName].filter(Boolean).join(' ')}
         data-error={hasError || undefined}
         data-disabled={disabled || undefined}
       >
@@ -55,7 +61,11 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(function F
           aria-describedby={descriptionIds || undefined}
           aria-invalid={hasError ? true : ariaInvalid}
         />
-        {endAdornment != null && <div className={styles.adornment}>{endAdornment}</div>}
+        {endAdornment != null && (
+          <div className={[styles.adornment, adornmentClassName].filter(Boolean).join(' ')}>
+            {endAdornment}
+          </div>
+        )}
       </div>
 
       {hint && (

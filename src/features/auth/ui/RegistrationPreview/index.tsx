@@ -1,11 +1,10 @@
-import type { Skill, User } from '@/shared/types'
-import { SkillDescription } from '@/entities/skill/ui/SkillDescription'
-import { SkillGallery, type SkillGalleryImage } from '@/entities/skill/ui/SkillGallery'
-import { formatAge } from '@/shared/lib/helpers'
+import { useState } from 'react'
+import type { Skill } from '@/shared/types'
+import type { SkillGalleryImage } from '@/entities/skill/ui/SkillGallery'
+import editIcon from './assets/Icon right.svg'
 import styles from './RegistrationPreview.module.css'
 
 interface RegistrationPreviewProps {
-  author: User
   skill: Pick<Skill, 'title' | 'category' | 'tags' | 'description'>
   images: SkillGalleryImage[]
   onEdit: () => void
@@ -15,7 +14,6 @@ interface RegistrationPreviewProps {
 }
 
 export function RegistrationPreview({
-  author,
   skill,
   images,
   onEdit,
@@ -23,10 +21,14 @@ export function RegistrationPreview({
   disabled = false,
   error,
 }: RegistrationPreviewProps) {
-  const metaParts: string[] = []
-  if (author.city) metaParts.push(author.city)
-  if (author.age > 0) metaParts.push(formatAge(author.age))
-  const metaText = metaParts.join(', ')
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const activeImage = images[activeImageIndex]
+  const thumbnails = images
+    .map((image, index) => ({ image, index }))
+    .filter(({ index }) => index !== activeImageIndex)
+  const visibleThumbnails = thumbnails.slice(0, 3)
+  const hiddenThumbnailCount = Math.max(0, thumbnails.length - visibleThumbnails.length)
+  const tagsText = skill.tags.length > 0 ? ` / ${skill.tags.join(', ')}` : ''
 
   return (
     <div className={styles.overlay}>
@@ -46,40 +48,67 @@ export function RegistrationPreview({
         </header>
 
         <div className={styles.layout}>
-          {/* Левая колонка */}
-          <div className={styles.content}>
-            {/* Блок автора (строго по AC) */}
-            <div className={styles.author}>
-              {author.avatarUrl ? (
-                <img className={styles.avatar} src={author.avatarUrl} alt={author.name} />
-              ) : (
-                <div
-                  className={`${styles.avatar} ${styles['avatar--placeholder']}`}
-                  aria-hidden="true"
-                >
-                  {author.name.charAt(0)}
-                </div>
-              )}
-              <div className={styles.authorInfo}>
-                <span className={styles.authorName}>{author.name}</span>
-                {metaText && <span className={styles.authorMeta}>{metaText}</span>}
-              </div>
+          <section className={styles.content} aria-label="Данные предложения">
+            <div className={styles.skillInfo}>
+              <h3 className={styles.skillTitle}>{skill.title}</h3>
+              <p className={styles.category}>
+                {skill.category}
+                {tagsText}
+              </p>
+              {skill.description && <p className={styles.description}>{skill.description}</p>}
             </div>
 
-            {/* Заголовок, категория, описание (без кнопки обмена) */}
-            <SkillDescription
-              title={skill.title}
-              category={skill.category}
-              tags={skill.tags}
-              description={skill.description}
-              onExchange={() => {}}
-              showExchange={false}
-            />
-          </div>
+            <footer className={styles.footer}>
+              <button
+                className={styles.buttonSecondary}
+                type="button"
+                onClick={onEdit}
+                disabled={disabled}
+              >
+                Редактировать
+                <img className={styles.editIcon} src={editIcon} alt="" aria-hidden="true" />
+              </button>
+              <button
+                className={styles.buttonPrimary}
+                type="button"
+                onClick={onConfirm}
+                disabled={disabled}
+              >
+                Готово
+              </button>
+            </footer>
+          </section>
 
-          {/* Правая колонка (Галерея Swiper) */}
-          <div className={styles.galleryWrapper}>
-            <SkillGallery images={images} />
+          <div
+            className={`${styles.gallery} ${thumbnails.length === 0 ? styles.gallerySingle : ''}`}
+            aria-label="Фотографии навыка"
+          >
+            {activeImage ? (
+              <>
+                <img className={styles.mainImage} src={activeImage.src} alt={activeImage.alt} />
+                {visibleThumbnails.length > 0 && (
+                  <div className={styles.thumbnails}>
+                    {visibleThumbnails.map(({ image, index }, thumbnailIndex) => (
+                      <button
+                        className={styles.thumbnail}
+                        type="button"
+                        key={`${image.src}-${index}`}
+                        onClick={() => setActiveImageIndex(index)}
+                        aria-label={`Показать изображение ${index + 1}`}
+                      >
+                        <img src={image.src} alt="" />
+                        {thumbnailIndex === visibleThumbnails.length - 1 &&
+                          hiddenThumbnailCount > 0 && (
+                            <span className={styles.moreImages}>+{hiddenThumbnailCount}</span>
+                          )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className={styles.emptyGallery} aria-label="Фотографии не добавлены" />
+            )}
           </div>
         </div>
 
@@ -88,26 +117,6 @@ export function RegistrationPreview({
             {error}
           </p>
         )}
-
-        {/* Кнопки прижаты влево (как на макете) */}
-        <footer className={styles.footer}>
-          <button
-            className={styles.buttonSecondary}
-            type="button"
-            onClick={onEdit}
-            disabled={disabled}
-          >
-            Редактировать
-          </button>
-          <button
-            className={styles.buttonPrimary}
-            type="button"
-            onClick={onConfirm}
-            disabled={disabled}
-          >
-            Готово
-          </button>
-        </footer>
       </div>
     </div>
   )

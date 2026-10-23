@@ -9,6 +9,7 @@ const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
 const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'))
 const AboutPage = lazy(() => import('@/pages/AboutPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
+const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 
 export function AppRoutes() {
@@ -20,7 +21,7 @@ export function AppRoutes() {
         <Route path={ROUTES.FAVORITES} element={<FavoritesPage />} />
         <Route path={ROUTES.ABOUT} element={<AboutPage />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-        <Route path={ROUTES.REGISTER} element={<LoginPage />} />
+        <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
