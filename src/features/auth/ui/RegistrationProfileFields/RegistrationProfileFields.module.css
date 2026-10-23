@@ -1,64 +1,28 @@
 .container {
-  --color-primary: #abd27a;
-  --color-primary-hover: #9bc56b;
-  --color-text: #253017;
-  --color-text-secondary: #69735d;
-  --color-border: #69735d;
-
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-  min-width: 0;
+  composes: form from '../../../../shared/styles/formControls.module.css';
 }
 
 .fields {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 16px;
-  width: 100%;
   min-width: 0;
 }
 
 .fields > * {
-  width: 100%;
   min-width: 0;
 }
 
 .actions {
-  display: flex;
-  gap: 20px;
-}
-
-.backButton,
-.continueButton {
-  flex: 1;
-  min-height: 56px;
-  padding: 14px 32px;
-  color: #253017;
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  cursor: pointer;
+  composes: actions from '../../../../shared/styles/formControls.module.css';
 }
 
 .backButton {
-  background: transparent;
+  composes: secondaryButton from '../../../../shared/styles/formControls.module.css';
 }
 
 .continueButton {
-  background: var(--color-primary);
+  composes: primaryButton from '../../../../shared/styles/formControls.module.css';
 }
-
-.continueButton:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.backButton:disabled,
-.continueButton:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
 @media (width <= 767px) {
   .container {
     gap: 24px;

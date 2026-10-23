@@ -120,7 +120,7 @@ export default function RegistrationPage() {
   }[step]
 
   const feedback = (
-    <>
+    <div className={styles.feedback}>
       {(catalogStatus === 'loading' || citiesLoading) && <p role="status">Загружаем данные...</p>}
       {[
         { error: catalogError, label: 'каталога', retry: () => dispatch(getCatalogThunk()) },
@@ -142,7 +142,7 @@ export default function RegistrationPage() {
             </div>
           ),
       )}
-    </>
+    </div>
   )
 
   return (
@@ -171,7 +171,7 @@ export default function RegistrationPage() {
               feedback={feedback}
             />
             {registeredAccount && !registrationComplete && (
-              <div role="alert">
+              <div className={styles.feedback} role="alert">
                 <p>Аккаунт сохранён. {authError}</p>
                 <button type="button" onClick={() => beginSession(registeredAccount)}>
                   Повторить вход

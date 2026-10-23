@@ -57,6 +57,7 @@ function SkillGroup({ title, skills, hideEmpty }: SkillGroupProps) {
 
 interface UserCardProps {
   user: User
+  children?: ReactNode
   /** Все навыки пользователя: teach и learn */
   skills: Skill[]
   /**
@@ -69,7 +70,13 @@ interface UserCardProps {
   hideEmptyGroups?: boolean
 }
 
-export function UserCard({ user, skills, action, hideEmptyGroups = false }: UserCardProps) {
+export function UserCard({
+  user,
+  skills,
+  action,
+  children,
+  hideEmptyGroups = false,
+}: UserCardProps) {
   const [avatarFailed, setAvatarFailed] = useState(false)
 
   // При смене URL аватара сбрасываем флаг ошибки загрузки.
@@ -114,6 +121,8 @@ export function UserCard({ user, skills, action, hideEmptyGroups = false }: User
           action !== null && <div className="user-card__action">{action}</div>
         )}
       </div>
+
+      {children}
 
       <div className="user-card__skills">
         <SkillGroup title="Может научить:" skills={teachSkills} hideEmpty={hideEmptyGroups} />

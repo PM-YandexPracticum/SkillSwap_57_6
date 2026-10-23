@@ -7,8 +7,8 @@ import styles from './CredentialForm.module.css'
 import { FormInput } from '@/shared/ui/FormInput'
 import { PasswordInput } from '@/shared/ui/PasswordInput'
 import { Link, useLocation } from 'react-router-dom'
-import appleIcon from './CredentialForm/assets/apple.svg'
-import googleIcon from './CredentialForm/assets/google.svg'
+import appleIcon from '@/shared/assets/icons/apple.svg'
+import googleIcon from '@/shared/assets/icons/google.svg'
 
 interface CredentialFormProps {
   mode: AuthMode
@@ -103,7 +103,7 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit(onValidSubmit)} noValidate>
+    <form className={styles.form} onSubmit={handleSubmit(onValidSubmit)} noValidate>
       {mode === 'register' && (
         <>
           <div className={styles.alternativeActions}>
@@ -117,9 +117,7 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
             </button>
           </div>
           <div className={styles.divider} aria-label="Или">
-            <span />
-            <span className={styles.dividerText}>или</span>
-            <span />
+            <span>или</span>
           </div>
         </>
       )}

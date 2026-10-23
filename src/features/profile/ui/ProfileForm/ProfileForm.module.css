@@ -1,182 +1,170 @@
 .form {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  font-family: 'Open Sans', var(--font-sans);
-  color: #253017;
+  composes: form from '../../../../shared/styles/formControls.module.css';
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 40px;
+  grid-template-columns: minmax(0, 460px) 244px;
+  justify-content: space-between;
   align-items: start;
+  gap: 40px;
+  min-width: 0;
 }
 
 .fields {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.credentials {
+  display: grid;
+  gap: 4px;
 }
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
 }
 
 .passwordBlock {
-  display: flex;
-  align-items: center;
-  margin-top: -10px;
-  margin-bottom: 10px;
+  min-width: 0;
 }
 
 .changePasswordBtn {
-  background: none;
-  border: none;
-  color: #253017;
-  font-size: 14px;
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0;
+  color: var(--color-accent);
+  font: inherit;
+  text-align: left;
 }
 
 .changePasswordBtn:hover {
-  color: #508826;
+  text-decoration: underline;
+}
+
+.changePasswordBtn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .changePasswordBtn:disabled {
-  opacity: 0.5;
+  color: var(--color-text-secondary);
   cursor: not-allowed;
 }
 
 .textareaWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+.label {
+  line-height: 24px;
 }
 
 .textareaContainer {
   position: relative;
+  min-width: 0;
+}
+
+.textarea {
+  display: block;
   width: 100%;
+  min-height: 120px;
+  padding: 11px 48px 11px 20px;
+  border: 1px solid var(--color-text-secondary);
+  border-radius: 12px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  font: inherit;
+  letter-spacing: inherit;
+  resize: vertical;
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.textarea:disabled {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  cursor: not-allowed;
 }
 
 .textareaIcon {
   position: absolute;
   top: 12px;
-  right: 12px;
+  right: 20px;
   pointer-events: none;
 }
 
-.label {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 20px;
-  color: #253017;
-  resize: vertical;
-  min-height: 100px;
-  padding-right: 40px;
-}
-
-.textarea:focus {
-  outline: 2px solid #abd27a;
-  outline-offset: -2px;
-}
-
-.textarea:disabled {
-  background-color: #f3f4f6;
-  cursor: not-allowed;
-}
-
 .externalError {
-  color: var(--color-error, #ef4444);
-  font-size: 14px;
-  margin: 0;
-  padding: 8px;
-  background: #fee2e2;
-  border-radius: 8px;
+  composes: error from '../../../../shared/styles/formControls.module.css';
 }
 
 .submitButton {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 10px;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  background-color: #abd27a;
-  color: #253017;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  composes: primaryButton from '../../../../shared/styles/formControls.module.css';
+  margin-top: 16px;
 }
 
-.submitButton:hover:not(:disabled) {
-  background-color: #deebc5;
-}
-
-.submitButton:active:not(:disabled) {
-  background-color: #508826;
-  color: #fff;
-}
-
-.submitButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* --- Правая колонка с аватаром --- */
 .avatarColumn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding-top: 20px;
+  min-width: 0;
+  width: 244px;
+  justify-self: end;
+}
+
+.avatarColumn > div {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.avatarColumn > div > :first-child {
+  min-width: 0;
+}
+
+.avatarColumn input[type='file'] {
+  font-size: 12px;
+}
+
+.avatarColumn input::file-selector-button {
+  padding: 4px 8px;
+  margin-right: 8px;
+  border: 0;
+  border-radius: 4px;
+  color: var(--color-text);
+  background: var(--color-primary-hover);
+  font: inherit;
+  cursor: pointer;
 }
 
 .avatarWrapper {
-  position: relative;
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background-color: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-row: 1;
+  place-items: center;
+  width: 244px;
+  max-width: 100%;
+  height: 244px;
   overflow: hidden;
+  border: 0;
+  border-radius: 50%;
+  background: #e8ecf7;
 }
 
-.avatarPreview {
+.avatarWrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
 }
 
 .avatarPlaceholder {
+  color: var(--color-text-secondary);
+  font-family: var(--font-heading);
   font-size: 64px;
-  font-weight: 500;
-  color: #9ca3af;
+  line-height: 1;
 }
-
-.avatarError {
-  color: var(--color-error, #ef4444);
-  font-size: 12px;
-  text-align: center;
-  margin: 0;
-}
-
 @media (width < 768px) {
   .layout {
     grid-template-columns: 1fr;

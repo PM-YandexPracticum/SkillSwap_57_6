@@ -103,6 +103,7 @@ export default function LoginPage() {
               returnTo={returnTo}
             />
 
+            <div className={styles.feedback}>
             {catalogStatus === 'loading' && <p>Загружаем каталог...</p>}
 
             {catalogStatus === 'error' && (
@@ -131,14 +132,16 @@ export default function LoginPage() {
                 </button>
               </div>
             )}
+            </div>
           </div>
 
           <div className={styles.illustrationCard}>
             <img src={lightBulb} alt="Лампочка SkillSwap" className={styles.illustration} />
 
-            <h2 className={styles.welcomeTitle}>С возвращением в SkillSwap!</h2>
-
-            <p className={styles.welcomeText}>Обменивайтесь знаниями и навыками с другими людьми</p>
+            <div className={styles.infoCopy}>
+              <h2 className={styles.welcomeTitle}>С возвращением в SkillSwap!</h2>
+              <p className={styles.welcomeText}>Обменивайтесь знаниями и навыками с другими людьми</p>
+            </div>
           </div>
         </div>
       </section>

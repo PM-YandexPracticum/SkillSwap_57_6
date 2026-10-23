@@ -152,12 +152,16 @@ export default function SkillPage() {
             <UserCard
               user={author}
               skills={skills.filter((entry) => entry.authorId === author.id)}
-              action={<FavoriteToggle skillId={skill.id} />}
-            />
-            {author.description && <p className={styles.about}>{author.description}</p>}
+              action={null}
+            >
+              {author.description && <p className={styles.about}>{author.description}</p>}
+            </UserCard>
           </div>
           <div className={styles.skill}>
-            <div>
+            <div className={styles.actions}>
+              <FavoriteToggle skillId={skill.id} />
+            </div>
+            <div className={styles.content}>
               <SkillDescription
                 title={skill.title}
                 category={skill.category}
@@ -168,9 +172,13 @@ export default function SkillPage() {
                 isPending={isPending}
                 exchangeLabel={activeRequest ? 'Обмен предложен' : undefined}
               />
-              {exchangeError?.key === actionKey && <p role="alert">{exchangeError.message}</p>}
+              {exchangeError?.key === actionKey && (
+                <p className={styles.feedback} role="alert">
+                  {exchangeError.message}
+                </p>
+              )}
               {requestsError && (
-                <div role="alert">
+                <div className={styles.feedback} role="alert">
                   <p>Не удалось прочитать заявки. Повторите загрузку перед обменом.</p>
                   <button type="button" onClick={() => void dispatch(restoreRequests())}>
                     Повторить загрузку заявок
@@ -178,14 +186,16 @@ export default function SkillPage() {
                 </div>
               )}
             </div>
-            <SkillGallery
-              key={skill.id}
-              images={getSkillImageUrls(skill).map((src) => ({ src, alt: skill.title }))}
-            />
+            <div className={styles.gallery}>
+              <SkillGallery
+                key={skill.id}
+                images={getSkillImageUrls(skill).map((src) => ({ src, alt: skill.title }))}
+              />
+            </div>
           </div>
         </div>
         {recommendedItems.length > 0 && (
-          <section aria-labelledby="similar-skills-title">
+          <section className={styles.similar} aria-labelledby="similar-skills-title">
             <h2 id="similar-skills-title">Похожие предложения</h2>
             <UserCardsGrid
               items={recommendedItems}

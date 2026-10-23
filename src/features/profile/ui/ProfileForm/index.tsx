@@ -146,6 +146,7 @@ export function ProfileForm({
       <div className={styles.layout}>
         {/* Левая колонка с полями */}
         <div className={styles.fields}>
+          <div className={styles.credentials}>
           <FormInput
             label="Почта"
             type="email"
@@ -176,6 +177,7 @@ export function ProfileForm({
                 error={passwordError || undefined}
               />
             )}
+          </div>
           </div>
 
           <FormInput
@@ -230,6 +232,7 @@ export function ProfileForm({
                 rows={4}
               />
               <span className={styles.textareaIcon}>
+                <img src={editIcon} alt="" width={20} height={20} />
               </span>
             </div>
           </div>
