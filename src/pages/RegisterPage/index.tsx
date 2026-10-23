@@ -8,6 +8,7 @@ import type { City } from '@/shared/types'
 import styles from './RegisterPage.module.css'
 import lightBulbIllustration from './assets/light-bulb.svg'
 import userInfoIllustration from './assets/user-info.svg'
+import { PageLayout } from '@/widgets/PageLayout'
 
 const INITIAL_PROFILE: RegistrationProfileDraft = {
   name: '',
@@ -71,7 +72,7 @@ export default function RegisterPage() {
   }[step]
 
   return (
-    <main className={styles.page}>
+    <PageLayout variant="auth" mainClassName={styles.page}>
       <div className={styles.stepProgress}>
         <p className={styles.stepLabel}>Шаг {step} из 3</p>
         <div className={styles.progress} aria-label={`Шаг ${step} из 3`}>
@@ -127,6 +128,6 @@ export default function RegisterPage() {
           </div>
         </aside>
       </div>
-    </main>
+    </PageLayout>
   )
 }
