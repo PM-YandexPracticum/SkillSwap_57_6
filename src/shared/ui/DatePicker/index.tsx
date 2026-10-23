@@ -6,8 +6,8 @@ import styles from './DatePicker.module.css'
 import { shift } from '@floating-ui/dom'
 
 import { format, isValid, parse, startOfDay } from 'date-fns'
-import calendarIcon from './assets/calendar.svg'
-import chevronDown from './assets/chevron-down.svg'
+import calendarIcon from '@/shared/assets/icons/calendar.svg'
+import chevronDown from '@/shared/assets/icons/chevron-down.svg'
 
 import { useEffect, useId, useRef, useState } from 'react'
 

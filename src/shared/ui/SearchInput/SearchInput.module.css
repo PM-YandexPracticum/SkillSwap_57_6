@@ -26,6 +26,8 @@
   width: 24px;
   height: 24px;
   color: var(--color-text-secondary);
+  background-color: currentcolor;
+  mask: url('../../assets/icons/search.svg') center / contain no-repeat;
   transform: translateY(-50%);
   pointer-events: none;
 }

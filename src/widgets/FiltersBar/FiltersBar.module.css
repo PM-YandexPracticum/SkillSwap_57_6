@@ -71,7 +71,7 @@
   background-color: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background-image: url('../../shared/assets/chevron-down.svg');
+  background-image: url('../../shared/assets/icons/chevron-down.svg');
   background-repeat: no-repeat;
   background-position: right 16px center;
 }

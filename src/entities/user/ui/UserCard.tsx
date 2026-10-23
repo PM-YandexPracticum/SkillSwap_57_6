@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import type { Skill, User } from '@/shared/types'
 import { ROUTES } from '@/shared/lib/constants'
 import { formatAge } from '@/shared/lib/helpers'
-import likeIcon from './assets/like.svg'
+import likeIcon from '@/shared/assets/icons/like.svg'
 import './UserCard.css'
 
 const MAX_VISIBLE_SKILLS = 2
