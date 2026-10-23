@@ -57,7 +57,7 @@ export const AllSkillsMenu = ({ placement = 'bottom' }: AllSkillsMenuProps) => {
       {isOpen && (
         <div className={styles.menu} id={menuId} aria-label="Категории и подкатегории навыков">
           {SKILL_CATEGORY_CATALOGUE.map((category) => (
-            <section className={styles.category} key={category.name}>
+            <section className={styles.category} key={category.name} data-category={category.name}>
               <h2 className={styles.categoryTitle}>{category.name}</h2>
 
               <ul className={styles.subcategoryList}>

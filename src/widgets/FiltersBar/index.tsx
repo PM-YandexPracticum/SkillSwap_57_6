@@ -88,13 +88,15 @@ export default function FiltersBar({
       </label>
 
       {selectedSubcategory !== undefined && onSubcategoryChange && (
-        <Select
-          label="Подкатегория"
-          placeholder="Все подкатегории"
-          options={subcategoryOptions}
-          value={selectedSubcategory}
-          onChange={onSubcategoryChange}
-        />
+        <div className={styles.subcategory}>
+          <Select
+            label="Подкатегория"
+            placeholder="Все подкатегории"
+            options={subcategoryOptions}
+            value={selectedSubcategory}
+            onChange={onSubcategoryChange}
+          />
+        </div>
       )}
     </section>
   )
