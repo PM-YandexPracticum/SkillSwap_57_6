@@ -11,6 +11,7 @@ import { SKILL_IMAGE_TYPES, SKILL_IMAGE_MAX_SIZE_BYTES } from '@/entities/skill/
 import { FormInput } from '@/shared/ui/FormInput'
 import { SkillCategorySelect } from '@/shared/ui/SkillCategorySelect'
 import { MultiImagePicker } from '@/shared/ui/MultiImagePicker'
+import formStyles from '@/shared/styles/formControls.module.css'
 import styles from './SkillForm.module.css'
 
 interface SkillFormProps {
@@ -99,7 +100,7 @@ export function SkillForm({
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+    <form className={`${formStyles.form} ${styles.form}`} onSubmit={handleSubmit} noValidate>
       <FormInput
         label="Название навыка"
         placeholder="Введите название навыка"
@@ -155,7 +156,7 @@ export function SkillForm({
         />
 
         {errors.description && (
-          <p id="skill-description-error" className={styles.error} role="alert">
+          <p id="skill-description-error" className={formStyles.error} role="alert">
             {errors.description}
           </p>
         )}
@@ -178,28 +179,28 @@ export function SkillForm({
       />
 
       {photoError && (
-        <p className={styles.error} role="alert">
+        <p className={formStyles.error} role="alert">
           {photoError}
         </p>
       )}
 
       {externalError && (
-        <p className={styles.error} role="alert">
+        <p className={formStyles.error} role="alert">
           {externalError}
         </p>
       )}
 
       {submitError && (
-        <p className={styles.error} role="alert">
+        <p className={formStyles.error} role="alert">
           {submitError}
         </p>
       )}
 
-      <div className={styles.actions}>
+      <div className={`${formStyles.actions} ${styles.actions}`}>
         {onBack && (
           <button
             type="button"
-            className={`${styles.button} ${styles.backButton}`}
+            className={`${formStyles.button} ${formStyles.secondaryButton} ${styles.button}`}
             onClick={() => onBack(draft)}
             disabled={isDisabled}
           >
@@ -209,7 +210,7 @@ export function SkillForm({
 
         <button
           type="submit"
-          className={`${styles.button} ${styles.submitButton}`}
+          className={`${formStyles.button} ${formStyles.primaryButton} ${styles.button}`}
           disabled={isDisabled}
           aria-busy={isSubmitting}
         >

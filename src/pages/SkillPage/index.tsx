@@ -151,6 +151,7 @@ export default function SkillPage() {
           <div className={styles.author}>
             <UserCard
               user={author}
+              variant="author"
               skills={skills.filter((entry) => entry.authorId === author.id)}
               action={null}
             >

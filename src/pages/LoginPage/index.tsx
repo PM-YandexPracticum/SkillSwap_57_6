@@ -1,3 +1,5 @@
+import authStyles from '@/features/auth/ui/AuthLayout.module.css'
+import formStyles from '@/shared/styles/formControls.module.css'
 import styles from './LoginPage.module.css'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -74,24 +76,32 @@ export default function LoginPage() {
 
   return (
     <PageLayout variant="auth">
-      <section className={styles.container}>
-        <h1 className={styles.title}>Вход</h1>
+      <section className={`${authStyles.page} ${styles.container}`}>
+        <h1 className={`${authStyles.title} ${styles.title}`}>Вход</h1>
 
-        <div className={styles.columns}>
-          <div className={styles.card}>
-            <div className={styles.socialButtons}>
-              <button type="button" className={styles.socialButton} disabled>
+        <div className={`${authStyles.columns} ${styles.columns}`}>
+          <div className={`${authStyles.card} ${styles.card}`}>
+            <div className={formStyles.socialActions}>
+              <button
+                type="button"
+                className={`${formStyles.button} ${formStyles.socialButton}`}
+                disabled
+              >
                 <img src={googleIcon} alt="" />
                 Продолжить с Google
               </button>
 
-              <button type="button" className={styles.socialButton} disabled>
+              <button
+                type="button"
+                className={`${formStyles.button} ${formStyles.socialButton}`}
+                disabled
+              >
                 <img src={appleIcon} alt="" />
                 Продолжить с Apple
               </button>
             </div>
 
-            <div className={styles.divider}>
+            <div className={`${formStyles.divider} ${styles.divider}`}>
               <span>или</span>
             </div>
 
@@ -103,44 +113,50 @@ export default function LoginPage() {
               returnTo={returnTo}
             />
 
-            <div className={styles.feedback}>
-            {catalogStatus === 'loading' && <p>Загружаем каталог...</p>}
+            <div className={authStyles.feedback}>
+              {catalogStatus === 'loading' && <p>Загружаем каталог...</p>}
 
-            {catalogStatus === 'error' && (
-              <div role="alert">
-                <p>{catalogError ?? 'Не удалось загрузить каталог'}</p>
-                <button type="button" onClick={() => void dispatch(getCatalogThunk())}>
-                  Повторить загрузку каталога
-                </button>
-              </div>
-            )}
+              {catalogStatus === 'error' && (
+                <div role="alert">
+                  <p>{catalogError ?? 'Не удалось загрузить каталог'}</p>
+                  <button type="button" onClick={() => void dispatch(getCatalogThunk())}>
+                    Повторить загрузку каталога
+                  </button>
+                </div>
+              )}
 
-            {localDataError && (
-              <div role="alert">
-                <p>{localDataError}</p>
-                <button type="button" onClick={() => dispatch(restoreLocalData())}>
-                  Повторить загрузку локальных данных
-                </button>
-              </div>
-            )}
+              {localDataError && (
+                <div role="alert">
+                  <p>{localDataError}</p>
+                  <button type="button" onClick={() => dispatch(restoreLocalData())}>
+                    Повторить загрузку локальных данных
+                  </button>
+                </div>
+              )}
 
-            {profileError && (
-              <div role="alert">
-                <p>{profileError}</p>
-                <button type="button" onClick={() => dispatch(restoreProfiles())}>
-                  Повторить загрузку профилей
-                </button>
-              </div>
-            )}
+              {profileError && (
+                <div role="alert">
+                  <p>{profileError}</p>
+                  <button type="button" onClick={() => dispatch(restoreProfiles())}>
+                    Повторить загрузку профилей
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className={styles.illustrationCard}>
-            <img src={lightBulb} alt="Лампочка SkillSwap" className={styles.illustration} />
+          <div className={`${authStyles.infoPanel} ${styles.illustrationCard}`}>
+            <img
+              src={lightBulb}
+              alt="Лампочка SkillSwap"
+              className={`${authStyles.illustration} ${styles.illustration}`}
+            />
 
-            <div className={styles.infoCopy}>
+            <div className={authStyles.infoCopy}>
               <h2 className={styles.welcomeTitle}>С возвращением в SkillSwap!</h2>
-              <p className={styles.welcomeText}>Обменивайтесь знаниями и навыками с другими людьми</p>
+              <p className={styles.welcomeText}>
+                Обменивайтесь знаниями и навыками с другими людьми
+              </p>
             </div>
           </div>
         </div>

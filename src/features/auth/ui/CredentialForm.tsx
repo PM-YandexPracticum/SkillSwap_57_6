@@ -2,6 +2,7 @@ import React from 'react'
 import { useForm, SubmitHandler, Path } from 'react-hook-form'
 import type { Credentials, AuthMode } from '../model/Credentials'
 import { validateCredentials } from '../model/Credentials'
+import formStyles from '@/shared/styles/formControls.module.css'
 import styles from './CredentialForm.module.css'
 
 import { FormInput } from '@/shared/ui/FormInput'
@@ -103,20 +104,20 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(onValidSubmit)} noValidate>
+    <form className={formStyles.form} onSubmit={handleSubmit(onValidSubmit)} noValidate>
       {mode === 'register' && (
         <>
-          <div className={styles.alternativeActions}>
-            <button className={styles.alternativeButton} type="button">
+          <div className={formStyles.socialActions}>
+            <button className={`${formStyles.button} ${formStyles.socialButton}`} type="button">
               <img src={googleIcon} alt="" aria-hidden="true" />
               <span>Продолжить с Google</span>
             </button>
-            <button className={styles.alternativeButton} type="button">
+            <button className={`${formStyles.button} ${formStyles.socialButton}`} type="button">
               <img src={appleIcon} alt="" aria-hidden="true" />
               <span>Продолжить с Apple</span>
             </button>
           </div>
-          <div className={styles.divider} aria-label="Или">
+          <div className={formStyles.divider} aria-label="Или">
             <span>или</span>
           </div>
         </>
@@ -154,13 +155,13 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
       </div>
 
       {externalError && (
-        <div className={styles.externalError} role="alert">
+        <div className={formStyles.error} role="alert">
           {externalError}
         </div>
       )}
 
       {errors.root?.message && (
-        <div className={styles.externalError} role="alert">
+        <div className={formStyles.error} role="alert">
           {errors.root.message}
         </div>
       )}
@@ -170,7 +171,7 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
         disabled={isSubmitDisabled}
         aria-disabled={isSubmitDisabled}
         aria-busy={isProcessing || isSubmitting}
-        className={styles.submitButton}
+        className={`${formStyles.button} ${formStyles.primaryButton} ${styles.submitButton}`}
       >
         {isProcessing || isSubmitting
           ? 'Отправка...'

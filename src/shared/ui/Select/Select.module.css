@@ -52,7 +52,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   appearance: none;
-  background: transparent url('../../assets/icons/chevron-down.svg') no-repeat right center / 16px 8px;
+  background: transparent url('../../assets/icons/chevron-down.svg') no-repeat right center / 16px
+    8px;
   border: 0;
 }
 

@@ -1,43 +1,9 @@
 .container {
-  composes: page from '../../features/auth/ui/AuthLayout.module.css';
   margin-inline: auto;
 }
 
-.title {
-  composes: title from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.columns {
-  composes: columns from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.card {
-  composes: card from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.socialButtons {
-  composes: socialActions from '../../shared/styles/formControls.module.css';
-}
-
-.socialButton {
-  composes: socialButton from '../../shared/styles/formControls.module.css';
-}
-
 .divider {
-  composes: divider from '../../shared/styles/formControls.module.css';
   margin-block: 32px;
-}
-
-.illustrationCard {
-  composes: infoPanel from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.illustration {
-  composes: illustration from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.infoCopy {
-  composes: infoCopy from '../../features/auth/ui/AuthLayout.module.css';
 }
 
 .welcomeTitle {
@@ -49,9 +15,6 @@
   line-height: 24px;
 }
 
-.feedback {
-  composes: feedback from '../../features/auth/ui/AuthLayout.module.css';
-}
 @media (width <= 900px) {
   .card {
     min-height: 0;

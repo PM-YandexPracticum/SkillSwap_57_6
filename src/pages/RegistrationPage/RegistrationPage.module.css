@@ -1,7 +1,3 @@
-.page {
-  composes: page from '../../features/auth/ui/AuthLayout.module.css';
-}
-
 .stepProgress {
   display: grid;
   justify-items: center;
@@ -33,29 +29,6 @@
   background: var(--color-primary);
 }
 
-.layout {
-  composes: columns from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.card {
-  composes: card from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.infoPanel {
-  composes: infoPanel from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.illustration {
-  composes: illustration from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.infoCopy {
-  composes: infoCopy from '../../features/auth/ui/AuthLayout.module.css';
-}
-
-.feedback {
-  composes: feedback from '../../features/auth/ui/AuthLayout.module.css';
-}
 @media (width <= 767px) {
   .page {
     padding: 24px 16px;

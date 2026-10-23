@@ -14,6 +14,7 @@ import type { City } from '@/shared/types'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/shared/lib/constants'
 import { PageLayout } from '@/widgets/PageLayout'
+import authStyles from '@/features/auth/ui/AuthLayout.module.css'
 import styles from './RegistrationPage.module.css'
 import lightBulbIllustration from './assets/light-bulb.svg'
 import userInfoIllustration from './assets/user-info.svg'
@@ -120,7 +121,7 @@ export default function RegistrationPage() {
   }[step]
 
   const feedback = (
-    <div className={styles.feedback}>
+    <div className={authStyles.feedback}>
       {(catalogStatus === 'loading' || citiesLoading) && <p role="status">Загружаем данные...</p>}
       {[
         { error: catalogError, label: 'каталога', retry: () => dispatch(getCatalogThunk()) },
@@ -147,7 +148,7 @@ export default function RegistrationPage() {
 
   return (
     <PageLayout variant="auth">
-      <div className={styles.page}>
+      <div className={`${authStyles.page} ${styles.page}`}>
         <div className={styles.stepProgress}>
           <p className={styles.stepLabel}>Шаг {step} из 3</p>
           <div className={styles.progress} aria-label={`Шаг ${step} из 3`}>
@@ -159,8 +160,11 @@ export default function RegistrationPage() {
             ))}
           </div>
         </div>
-        <div className={styles.layout}>
-          <section className={styles.card} aria-label={`Регистрация, шаг ${step}`}>
+        <div className={`${authStyles.columns} ${styles.layout}`}>
+          <section
+            className={`${authStyles.card} ${styles.card}`}
+            aria-label={`Регистрация, шаг ${step}`}
+          >
             <RegistrationForm
               cities={cities}
               avatarSettings={AVATAR_SETTINGS}
@@ -171,7 +175,7 @@ export default function RegistrationPage() {
               feedback={feedback}
             />
             {registeredAccount && !registrationComplete && (
-              <div className={styles.feedback} role="alert">
+              <div className={authStyles.feedback} role="alert">
                 <p>Аккаунт сохранён. {authError}</p>
                 <button type="button" onClick={() => beginSession(registeredAccount)}>
                   Повторить вход
@@ -180,9 +184,16 @@ export default function RegistrationPage() {
             )}
           </section>
 
-          <aside className={styles.infoPanel} aria-label={sideContent.title}>
-            <img className={styles.illustration} src={sideContent.image} alt="" />
-            <div className={styles.infoCopy}>
+          <aside
+            className={`${authStyles.infoPanel} ${styles.infoPanel}`}
+            aria-label={sideContent.title}
+          >
+            <img
+              className={`${authStyles.illustration} ${styles.illustration}`}
+              src={sideContent.image}
+              alt=""
+            />
+            <div className={`${authStyles.infoCopy} ${styles.infoCopy}`}>
               <h2>{sideContent.title}</h2>
               <p>{sideContent.description}</p>
             </div>

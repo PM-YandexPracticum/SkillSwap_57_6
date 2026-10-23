@@ -57,6 +57,7 @@ function SkillGroup({ title, skills, hideEmpty }: SkillGroupProps) {
 
 interface UserCardProps {
   user: User
+  variant?: 'default' | 'author'
   children?: ReactNode
   /** Все навыки пользователя: teach и learn */
   skills: Skill[]
@@ -72,6 +73,7 @@ interface UserCardProps {
 
 export function UserCard({
   user,
+  variant = 'default',
   skills,
   action,
   children,
@@ -97,7 +99,7 @@ export function UserCard({
   const metaText = metaParts.join(', ')
 
   return (
-    <article className="user-card">
+    <article className={variant === 'author' ? 'user-card user-card--author' : 'user-card'}>
       <div className="user-card__user">
         {showAvatar ? (
           <img

@@ -7,6 +7,7 @@ import { Select } from '@/shared/ui/Select'
 import { ImagePicker } from '@/shared/ui/ImagePicker'
 import { validateRegistrationPersonalDraft } from '@/features/auth/model/registrationValidation'
 import { validateCredentials } from '@/features/auth/model/Credentials'
+import formStyles from '@/shared/styles/formControls.module.css'
 import styles from './ProfileForm.module.css'
 
 export interface ProfileDraft {
@@ -142,42 +143,42 @@ export function ProfileForm({
   const isFormDisabled = disabled || isSubmitting
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+    <form className={formStyles.form} onSubmit={handleSubmit} noValidate>
       <div className={styles.layout}>
         {/* Левая колонка с полями */}
         <div className={styles.fields}>
           <div className={styles.credentials}>
-          <FormInput
-            label="Почта"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isFormDisabled}
-            error={errors.email}
-            endAdornment={<img src={editIcon} alt="" width={20} height={20} />}
-          />
+            <FormInput
+              label="Почта"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isFormDisabled}
+              error={errors.email}
+              endAdornment={<img src={editIcon} alt="" width={20} height={20} />}
+            />
 
-          <div className={styles.passwordBlock}>
-            {!showPassword ? (
-              <button
-                type="button"
-                className={styles.changePasswordBtn}
-                onClick={() => setShowPassword(true)}
-                disabled={isFormDisabled}
-              >
-                Изменить пароль
-              </button>
-            ) : (
-              <FormInput
-                label="Новый пароль"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isFormDisabled}
-                error={passwordError || undefined}
-              />
-            )}
-          </div>
+            <div className={styles.passwordBlock}>
+              {!showPassword ? (
+                <button
+                  type="button"
+                  className={styles.changePasswordBtn}
+                  onClick={() => setShowPassword(true)}
+                  disabled={isFormDisabled}
+                >
+                  Изменить пароль
+                </button>
+              ) : (
+                <FormInput
+                  label="Новый пароль"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isFormDisabled}
+                  error={passwordError || undefined}
+                />
+              )}
+            </div>
           </div>
 
           <FormInput
@@ -237,11 +238,11 @@ export function ProfileForm({
             </div>
           </div>
 
-          {externalError && <p className={styles.externalError}>{externalError}</p>}
+          {externalError && <p className={formStyles.error}>{externalError}</p>}
 
           <button
             type="submit"
-            className={styles.submitButton}
+            className={`${formStyles.button} ${formStyles.primaryButton} ${styles.submitButton}`}
             disabled={isFormDisabled || isAvatarPending}
           >
             {isSubmitting ? 'Сохранение...' : 'Сохранить'}

@@ -1,7 +1,3 @@
-.form {
-  composes: form from '../../../../shared/styles/formControls.module.css';
-}
-
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 460px) 244px;
@@ -99,12 +95,7 @@
   pointer-events: none;
 }
 
-.externalError {
-  composes: error from '../../../../shared/styles/formControls.module.css';
-}
-
 .submitButton {
-  composes: primaryButton from '../../../../shared/styles/formControls.module.css';
   margin-top: 16px;
 }
 
@@ -165,6 +156,7 @@
   font-size: 64px;
   line-height: 1;
 }
+
 @media (width < 768px) {
   .layout {
     grid-template-columns: 1fr;

@@ -34,12 +34,10 @@
 }
 
 .primaryButton {
-  composes: button;
   background: var(--color-primary);
 }
 
 .secondaryButton {
-  composes: button;
   background: var(--color-bg);
 }
 
@@ -69,7 +67,6 @@
 }
 
 .socialButton {
-  composes: button;
   border-color: var(--color-text-secondary);
   background: var(--color-bg);
 }

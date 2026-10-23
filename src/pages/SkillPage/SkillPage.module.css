@@ -20,20 +20,6 @@
   min-width: 0;
 }
 
-.author :global(.user-card) {
-  grid-template-rows: auto auto 1fr;
-  gap: 20px;
-  padding: 24px;
-}
-
-.author :global(.user-card__name) {
-  padding-right: 0;
-}
-
-.author :global(.user-card__button) {
-  display: none;
-}
-
 .about {
   font-size: 16px;
   line-height: 24px;

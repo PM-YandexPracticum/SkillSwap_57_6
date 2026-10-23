@@ -85,6 +85,7 @@
   color: var(--color-accent);
   text-decoration: underline;
 }
+
 @media (width < 1024px) {
   .container {
     flex-direction: column;
