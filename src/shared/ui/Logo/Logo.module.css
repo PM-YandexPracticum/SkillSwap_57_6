@@ -1,0 +1,12 @@
+.logo {
+  display: inline-grid;
+  grid-template-columns: 40px auto;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}

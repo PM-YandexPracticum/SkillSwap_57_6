@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { SKILL_CATEGORY_CATALOGUE } from '@/shared/lib/constants'
 import styles from './AllSkillsMenu.module.css'
+import chevronDown from '@/shared/assets/chevron-down.svg'
 
 type AllSkillsMenuProps = {
   placement?: 'top' | 'bottom'
@@ -49,7 +50,7 @@ export const AllSkillsMenu = ({ placement = 'bottom' }: AllSkillsMenuProps) => {
       >
         <span>Все навыки</span>
         <span className={styles.arrow} aria-hidden="true">
-          ⌄
+          <img src={chevronDown} alt="" width={16} height={8} />
         </span>
       </button>
 

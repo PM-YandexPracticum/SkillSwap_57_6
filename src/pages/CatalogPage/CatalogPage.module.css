@@ -1,29 +1,40 @@
 .main {
   display: grid;
-  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  grid-template-columns: 324px minmax(0, 1fr);
+  align-items: start;
   gap: 24px;
   width: 100%;
-  max-width: 1388px;
+  max-width: 1440px;
   margin: 0 auto;
+  padding: 16px 36px 60px;
 }
 
 .filters {
   min-width: 0;
   padding: 24px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background-color: var(--color-bg);
   border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
+  display: grid;
+  gap: 32px;
 }
 
 .filtersHeader {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
+}
+
+.filtersHeader h2,
+.recommended h2 {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.3px;
+}
+
+.filtersHeader h2 {
+  font-size: 20px;
+  line-height: 24px;
 }
 
 .reset {
@@ -64,15 +75,26 @@
 }
 
 .user_section {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 40px;
   min-width: 0;
+}
+
+.recommended {
+  display: grid;
+  gap: 32px;
+}
+
+@media (width < 1360px) {
+  .main {
+    grid-template-columns: 260px minmax(0, 1fr);
+    padding-inline: 24px;
+  }
 }
 
 @media (width < 768px) {
   .main {
     grid-template-columns: minmax(0, 1fr);
-    padding: 24px 16px;
+    padding: 16px 16px 40px;
   }
 }

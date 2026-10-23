@@ -1,33 +1,70 @@
 .header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto auto minmax(160px, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px 24px;
+  gap: 24px;
   width: 100%;
+  max-width: 1440px;
   min-width: 0;
-  min-height: 72px;
-  padding: 0 36px;
-  background-color: #f9faf7;
-  box-sizing: border-box;
+  min-height: 120px;
+  margin-inline: auto;
+  padding: 32px 36px;
+  letter-spacing: 0.32px;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-  color: #222;
+.header[data-variant='auth'] {
+  grid-template-columns: auto 1fr;
+}
+
+.header[data-variant='auth'] > a:last-child {
+  justify-self: end;
 }
 
 .search {
-  flex: 1 1 240px;
-  max-width: 527px;
   min-width: 0;
 }
 
 .nav {
   display: flex;
+  grid-column: -2 / -1;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.favorites {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 48px;
+}
+
+.login,
+.register {
+  padding: 11px 24px;
+  border: 1px solid var(--color-primary);
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.register {
+  background-color: var(--color-primary);
+}
+
+.login:hover,
+.register:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.header a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+.logo {
+  display: grid;
+}
+
+.nav:has(.profile) {
   gap: 24px;
 }
 
@@ -97,34 +134,42 @@
 }
 
 .error {
-  width: 100%;
+  grid-column: 1 / -1;
   color: var(--color-error);
 }
 
-.nav a {
-  color: #222;
-  text-decoration: none;
-  font-size: 14px;
-}
+@media (width < 1200px) {
+  .header {
+    grid-template-columns: auto auto 1fr auto;
+  }
 
-.nav a:hover {
-  text-decoration: underline;
+  .search {
+    grid-row: 2;
+    grid-column: 1 / -1;
+  }
 }
 
 @media (width < 768px) {
   .header {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    justify-content: stretch;
-    gap: 12px;
-    padding: 16px;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    padding: 24px 16px;
   }
 
   .search {
-    max-width: none;
+    grid-row: auto;
   }
 
   .nav {
-    gap: 8px 16px;
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    grid-column: 1 / -1;
+  }
+
+  .header[data-variant='auth'] .logo {
+    grid-column: auto;
   }
 }

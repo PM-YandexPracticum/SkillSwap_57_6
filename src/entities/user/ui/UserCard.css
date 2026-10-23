@@ -6,22 +6,23 @@
   --card-accent-pressed: #508826;
   --card-tag-default: #e8ecf7;
 
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   gap: 20px;
   width: 100%;
   min-width: 0;
   height: 100%;
   padding: 20px;
   border-radius: 12px;
-  font-family: Roboto, var(--font-sans);
+  font-family: var(--font-sans);
   color: var(--card-text);
   background-color: var(--card-bg);
 }
 
 .user-card__user {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
 }
@@ -35,18 +36,15 @@
 }
 
 .user-card__avatar--placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   font-size: 40px;
   font-weight: 500;
   background-color: var(--card-tag-default);
 }
 
 .user-card__info {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  display: grid;
   gap: 4px;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -54,7 +52,7 @@
 
 .user-card__name {
   padding-right: 28px;
-  font-family: 'Open Sans', var(--font-sans);
+  font-family: var(--font-heading);
   font-size: 20px;
   font-weight: 600;
   line-height: 24px;
@@ -78,14 +76,13 @@
 }
 
 .user-card__skills {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  align-content: start;
   gap: 12px;
 }
 
 .user-card__group {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 8px;
 }
 
@@ -117,6 +114,30 @@
   border-radius: 20px;
   overflow-wrap: anywhere;
   background-color: var(--card-tag-default);
+}
+
+.user-card__tag[data-category='Бизнес и карьера'] {
+  background-color: #eee7f7;
+}
+
+.user-card__tag[data-category='Творчество и искусство'] {
+  background-color: #f7e7f2;
+}
+
+.user-card__tag[data-category='Иностранные языки'] {
+  background-color: #ebe5c5;
+}
+
+.user-card__tag[data-category='Образование и развитие'] {
+  background-color: #e7f2f6;
+}
+
+.user-card__tag[data-category='Дом и уют'] {
+  background-color: #f7ebe5;
+}
+
+.user-card__tag[data-category='Здоровье и лайфстайл'] {
+  background-color: #e9f7e7;
 }
 
 .user-card__button {
