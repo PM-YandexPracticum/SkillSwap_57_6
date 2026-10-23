@@ -16,6 +16,17 @@
   color: #abd27a;
 }
 
+.icon {
+  width: 24px;
+  height: 24px;
+  background-color: currentcolor;
+  mask: url('../../../../shared/assets/icons/heart-outline.svg') center / contain no-repeat;
+}
+
+.button[aria-pressed='true'] .icon {
+  mask-image: url('../../../../shared/assets/icons/heart-filled.svg');
+}
+
 .button:focus-visible {
   outline: 2px solid #508826;
   outline-offset: 2px;

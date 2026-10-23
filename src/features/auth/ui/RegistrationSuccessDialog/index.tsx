@@ -1,3 +1,4 @@
+import checkIcon from '@/shared/assets/icons/check.svg'
 import { useEffect, useRef } from 'react'
 import styles from './RegistrationSuccessDialog.module.css'
 
@@ -64,22 +65,7 @@ export function RegistrationSuccessDialog({ onClose }: RegistrationSuccessDialog
         onKeyDown={handleKeyDown}
       >
         <div className={styles.iconWrapper}>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              d="M20 6L9 17L4 12"
-              stroke="#253017"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <img src={checkIcon} alt="" width={24} height={24} />
         </div>
 
         <h2 id="success-dialog-title" className={styles.title}>

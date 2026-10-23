@@ -30,6 +30,8 @@
 .bell {
   width: 24px;
   height: 24px;
+  background-color: currentcolor;
+  mask: url('../../shared/assets/icons/notification.svg') center / contain no-repeat;
 }
 
 .badge {

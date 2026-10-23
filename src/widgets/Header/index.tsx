@@ -3,7 +3,8 @@ import { shallowEqual } from 'react-redux'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/shared/lib/constants'
 import styles from './Header.module.css'
-import { APP_TITLE } from '@/shared/lib/appTitle'
+import { Logo } from '@/shared/ui/Logo'
+import favoriteIcon from '@/shared/assets/icons/like.svg'
 import { SearchInput } from '@/shared/ui/SearchInput'
 import { AllSkillsMenu } from '@/widgets/AllSkillsMenu'
 import { NotificationMenu } from '@/widgets/NotificationMenu'
@@ -53,9 +54,9 @@ export const Header = ({ variant = 'default', searchValue, onSearchChange }: Hea
   }, [user?.id, variant])
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-variant={variant}>
       <Link className={styles.logo} to={ROUTES.HOME}>
-        {APP_TITLE}
+        <Logo />
       </Link>
       {variant === 'auth' ? (
         <Link to={ROUTES.HOME}>Закрыть ×</Link>
@@ -69,7 +70,9 @@ export const Header = ({ variant = 'default', searchValue, onSearchChange }: Hea
             </div>
           )}
           <nav className={styles.nav} aria-label="Основная навигация">
-            <Link to={ROUTES.FAVORITES}>Избранное</Link>
+            <Link className={styles.favorites} to={ROUTES.FAVORITES} aria-label="Избранное">
+              <img src={favoriteIcon} alt="" width={20} height={18} />
+            </Link>
             {user && <NotificationMenu />}
             {user ? (
               <details className={styles.profile} ref={menuRef} key={user.id}>
@@ -110,10 +113,10 @@ export const Header = ({ variant = 'default', searchValue, onSearchChange }: Hea
               </details>
             ) : (
               <>
-                <Link to={ROUTES.LOGIN} state={authState}>
+                <Link className={styles.login} to={ROUTES.LOGIN} state={authState}>
                   Войти
                 </Link>
-                <Link to={ROUTES.REGISTER} state={authState}>
+                <Link className={styles.register} to={ROUTES.REGISTER} state={authState}>
                   Зарегистрироваться
                 </Link>
               </>

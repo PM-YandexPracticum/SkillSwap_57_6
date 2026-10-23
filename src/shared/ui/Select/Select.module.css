@@ -1,11 +1,12 @@
 .wrapper {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
+  display: grid;
+  gap: 4px;
   width: 100%;
   min-width: 0;
   color: var(--color-text);
+  font: 400 16px / 24px var(--font-sans);
+  letter-spacing: 0.32px;
 }
 
 .label {
@@ -17,21 +18,17 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  padding: var(--space-sm) var(--space-md);
+  min-height: 48px;
+  padding: 11px 20px;
   background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--color-text-secondary);
+  border-radius: 12px;
 }
 
 .control:focus-within {
   border-color: var(--color-primary);
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-}
-
-.control[data-custom-dropdown]:focus-within {
-  border-color: #69735d;
-  outline: none;
 }
 
 .control[data-error] {
@@ -48,13 +45,15 @@
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  padding: 0;
+  padding: 0 32px 0 0;
   overflow: hidden;
   font: inherit;
   color: inherit;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: transparent;
+  appearance: none;
+  background: transparent url('../../assets/icons/chevron-down.svg') no-repeat right center / 16px
+    8px;
   border: 0;
 }
 
@@ -108,18 +107,15 @@
 }
 
 .chevron {
-  width: 10px;
-  height: 10px;
-  margin: 0 4px 4px 12px;
+  width: 16px;
+  height: 8px;
+  margin-left: 12px;
   flex: 0 0 auto;
-  border-right: 1.5px solid currentcolor;
-  border-bottom: 1.5px solid currentcolor;
-  transform: rotate(45deg);
+  background: url('../../assets/icons/chevron-down.svg') center / contain no-repeat;
 }
 
 .dropdownTrigger[aria-expanded='true'] .chevron {
-  margin-bottom: -4px;
-  transform: rotate(225deg);
+  transform: rotate(180deg);
 }
 
 .options {
@@ -128,20 +124,26 @@
   right: -1px;
   left: -1px;
   z-index: 20;
-  max-height: 160px;
-  padding: 0;
+  max-height: 240px;
+  padding: 8px;
   overflow-y: auto;
   list-style: none;
   background: #fff;
-  border: 1px solid #69735d;
+  border: 1px solid var(--color-text-secondary);
   border-top: 0;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 12px 12px;
 }
 
 .option {
-  padding: 6px 12px;
-  color: #253017;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--color-text);
   cursor: pointer;
+}
+
+.option:hover,
+.option[aria-selected='true'] {
+  background: var(--color-primary-hover);
 }
 
 .control[data-open] {

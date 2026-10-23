@@ -4,23 +4,10 @@ import type { ReactNode } from 'react'
 import type { Skill, User } from '@/shared/types'
 import { ROUTES } from '@/shared/lib/constants'
 import { formatAge } from '@/shared/lib/helpers'
-import likeIcon from './assets/like.svg'
+import likeIcon from '@/shared/assets/icons/like.svg'
 import './UserCard.css'
 
 const MAX_VISIBLE_SKILLS = 2
-
-// Палитра тегов. Цвет выбирается по названию категории
-const CATEGORY_COLORS = ['#eee7f7', '#f7e7f2', '#ebe5c5', '#e7f2f6', '#e9f7e7', '#f7ebe5'] as const
-
-const getCategoryColor = (category: string) => {
-  let hash = 0
-
-  for (let i = 0; i < category.length; i += 1) {
-    hash = category.charCodeAt(i) + ((hash << 5) - hash)
-  }
-
-  return CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length]
-}
 
 const getSkillPath = (id: string) => generatePath(ROUTES.SKILL, { id })
 
@@ -50,7 +37,7 @@ function SkillGroup({ title, skills, hideEmpty }: SkillGroupProps) {
             <li key={skill.id} className="user-card__tags-item">
               <Link
                 className="user-card__tag"
-                style={{ backgroundColor: getCategoryColor(skill.category) }}
+                data-category={skill.category}
                 to={getSkillPath(skill.id)}
               >
                 {skill.title}
@@ -70,6 +57,8 @@ function SkillGroup({ title, skills, hideEmpty }: SkillGroupProps) {
 
 interface UserCardProps {
   user: User
+  variant?: 'default' | 'author'
+  children?: ReactNode
   /** Все навыки пользователя: teach и learn */
   skills: Skill[]
   /**
@@ -82,7 +71,14 @@ interface UserCardProps {
   hideEmptyGroups?: boolean
 }
 
-export function UserCard({ user, skills, action, hideEmptyGroups = false }: UserCardProps) {
+export function UserCard({
+  user,
+  variant = 'default',
+  skills,
+  action,
+  children,
+  hideEmptyGroups = false,
+}: UserCardProps) {
   const [avatarFailed, setAvatarFailed] = useState(false)
 
   // При смене URL аватара сбрасываем флаг ошибки загрузки.
@@ -103,7 +99,7 @@ export function UserCard({ user, skills, action, hideEmptyGroups = false }: User
   const metaText = metaParts.join(', ')
 
   return (
-    <article className="user-card">
+    <article className={variant === 'author' ? 'user-card user-card--author' : 'user-card'}>
       <div className="user-card__user">
         {showAvatar ? (
           <img
@@ -122,11 +118,13 @@ export function UserCard({ user, skills, action, hideEmptyGroups = false }: User
           {metaText && <p className="user-card__meta">{metaText}</p>}
         </div>
         {action === undefined ? (
-          <img className="user-card__like" src={likeIcon} alt="" width={24} height={24} />
+          <img className="user-card__like" src={likeIcon} alt="" width={20} height={18} />
         ) : (
           action !== null && <div className="user-card__action">{action}</div>
         )}
       </div>
+
+      {children}
 
       <div className="user-card__skills">
         <SkillGroup title="Может научить:" skills={teachSkills} hideEmpty={hideEmptyGroups} />

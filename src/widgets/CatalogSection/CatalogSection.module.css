@@ -1,15 +1,14 @@
 .section {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 24px;
   width: 100%;
   min-width: 0;
 }
 
 .header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
 }
 
@@ -17,7 +16,8 @@
   color: #253017;
   font-size: 24px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 32px;
+  letter-spacing: -0.3px;
 }
 
 .showAll {
@@ -26,8 +26,8 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  min-height: 44px;
-  padding: 10px 20px;
+  min-height: 48px;
+  padding: 12px 24px;
   border-radius: 12px;
   color: #253017;
   background-color: #fff;
@@ -43,9 +43,16 @@
 }
 
 .arrow {
-  width: 9px;
-  height: 9px;
-  border-top: 1.5px solid currentcolor;
-  border-right: 1.5px solid currentcolor;
-  transform: rotate(45deg);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+}
+
+.arrow img {
+  transform: rotate(-90deg);
+}
+
+.showAll[aria-expanded='true'] .arrow img {
+  transform: rotate(90deg);
 }

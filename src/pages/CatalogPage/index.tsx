@@ -184,7 +184,7 @@ const CatalogPage = () => {
 
             <CatalogSection title="Новое" items={newestItems} renderAction={renderFavoriteAction} />
 
-            <section>
+            <section className={styles.recommended}>
               <h2>Рекомендуем</h2>
 
               <CatalogResults

@@ -8,6 +8,7 @@ import { validateRegistrationProfileDraft } from '../../model/registrationValida
 import { RegistrationPersonalFields } from '../RegistrationPersonalFields'
 import { ImagePicker } from '@/shared/ui/ImagePicker'
 import { SkillCategorySelect } from '@/shared/ui/SkillCategorySelect'
+import formStyles from '@/shared/styles/formControls.module.css'
 import styles from './RegistrationProfileFields.module.css'
 import type { City } from '@/shared/types'
 
@@ -82,7 +83,7 @@ export function RegistrationProfileFields({
   }
 
   return (
-    <div className={styles.container}>
+    <div className={`${formStyles.form} ${styles.container}`}>
       <div className={styles.fields}>
         <ImagePicker
           variant="avatar"
@@ -122,12 +123,17 @@ export function RegistrationProfileFields({
         />
       </div>
 
-      <div className={styles.actions}>
-        <button className={styles.backButton} type="button" onClick={onBack} disabled={disabled}>
+      <div className={`${formStyles.actions} ${styles.actions}`}>
+        <button
+          className={`${formStyles.button} ${formStyles.secondaryButton} ${styles.backButton}`}
+          type="button"
+          onClick={onBack}
+          disabled={disabled}
+        >
           Назад
         </button>
         <button
-          className={styles.continueButton}
+          className={`${formStyles.button} ${formStyles.primaryButton} ${styles.continueButton}`}
           type="button"
           onClick={handleContinue}
           disabled={disabled}

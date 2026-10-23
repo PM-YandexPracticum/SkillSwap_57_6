@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { SKILL_CATEGORY_CATALOGUE } from '@/shared/lib/constants'
 import styles from './AllSkillsMenu.module.css'
+import chevronDown from '@/shared/assets/icons/chevron-down.svg'
 
 type AllSkillsMenuProps = {
   placement?: 'top' | 'bottom'
@@ -49,14 +50,14 @@ export const AllSkillsMenu = ({ placement = 'bottom' }: AllSkillsMenuProps) => {
       >
         <span>Все навыки</span>
         <span className={styles.arrow} aria-hidden="true">
-          ⌄
+          <img src={chevronDown} alt="" width={16} height={8} />
         </span>
       </button>
 
       {isOpen && (
         <div className={styles.menu} id={menuId} aria-label="Категории и подкатегории навыков">
           {SKILL_CATEGORY_CATALOGUE.map((category) => (
-            <section className={styles.category} key={category.name}>
+            <section className={styles.category} key={category.name} data-category={category.name}>
               <h2 className={styles.categoryTitle}>{category.name}</h2>
 
               <ul className={styles.subcategoryList}>

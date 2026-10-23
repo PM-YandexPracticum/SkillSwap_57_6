@@ -1,13 +1,16 @@
+@import url('./fonts.css');
+
 /* ─── CSS Custom Properties ─────────────────────────────── */
 :root {
   /* Colors */
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
+  --color-primary: #abd27a;
+  --color-primary-hover: #deebc5;
+  --color-accent: #508826;
   --color-bg: #fff;
-  --color-bg-secondary: #f9fafb;
-  --color-text: #111827;
-  --color-text-secondary: #6b7280;
-  --color-border: #e5e7eb;
+  --color-bg-secondary: #f9faf7;
+  --color-text: #253017;
+  --color-text-secondary: #69735d;
+  --color-border: #e4e8df;
   --color-error: #ef4444;
   --color-success: #22c55e;
 
@@ -20,7 +23,8 @@
   --space-2xl: 48px;
 
   /* Typography */
-  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-sans: 'Roboto', arial, sans-serif;
+  --font-heading: 'Open Sans', var(--font-sans);
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -59,9 +63,16 @@ body {
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   color: var(--color-text);
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-secondary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
 }
 
 a {

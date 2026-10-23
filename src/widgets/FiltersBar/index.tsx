@@ -53,7 +53,7 @@ export default function FiltersBar({
   return (
     <section className={styles.panel} aria-label="Фильтры навыков">
       <fieldset className={styles.typeGroup}>
-        <legend className={styles.heading}>Тип навыка</legend>
+        <legend className={styles.typeLegend}>Тип навыка</legend>
         <div className={styles.options}>
           {TYPE_OPTIONS.map(({ value, label }) => (
             <label key={value} className={styles.option}>
@@ -88,13 +88,15 @@ export default function FiltersBar({
       </label>
 
       {selectedSubcategory !== undefined && onSubcategoryChange && (
-        <Select
-          label="Подкатегория"
-          placeholder="Все подкатегории"
-          options={subcategoryOptions}
-          value={selectedSubcategory}
-          onChange={onSubcategoryChange}
-        />
+        <div className={styles.subcategory}>
+          <Select
+            label="Подкатегория"
+            placeholder="Все подкатегории"
+            options={subcategoryOptions}
+            value={selectedSubcategory}
+            onChange={onSubcategoryChange}
+          />
+        </div>
       )}
     </section>
   )

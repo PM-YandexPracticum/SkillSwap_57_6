@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { CatalogItem } from '@/shared/types'
 import { UserCardsGrid } from '@/widgets/UserCardsGrid'
 import styles from './CatalogSection.module.css'
+import chevronDown from '@/shared/assets/icons/chevron-down.svg'
 
 const INITIAL_VISIBLE_ITEMS = 3
 const MAX_VISIBLE_ITEMS = 9
@@ -33,7 +34,9 @@ export function CatalogSection({ title, items, renderAction }: CatalogSectionPro
             aria-expanded={isExpanded}
           >
             {buttonText}
-            <span className={styles.arrow} aria-hidden="true" />
+            <span className={styles.arrow} aria-hidden="true">
+              <img src={chevronDown} alt="" width={16} height={8} />
+            </span>
           </button>
         )}
       </div>

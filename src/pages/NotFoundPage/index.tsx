@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PageLayout } from '@/widgets/PageLayout'
 import { ROUTES } from '@/shared/lib/constants'
-import illustration from './assets/error-404.svg'
+import illustration from '@/shared/assets/illustrations/error-404.svg'
 import styles from './NotFoundPage.module.css'
 
 export default function NotFoundPage() {

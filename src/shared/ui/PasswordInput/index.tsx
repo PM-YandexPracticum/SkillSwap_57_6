@@ -2,7 +2,7 @@ import { forwardRef, useState } from 'react'
 import { FormInput } from '../FormInput'
 import type { FormInputProps } from '../FormInput'
 
-import eyeIcon from './eye.svg'
+import eyeIcon from '@/shared/assets/icons/eye.svg'
 
 export type PasswordInputProps = Omit<FormInputProps, 'type' | 'endAdornment'>
 

@@ -1,5 +1,4 @@
 .container {
-  position: relative;
   min-width: 0;
 }
 
@@ -9,7 +8,7 @@
   justify-content: center;
   gap: 8px;
   max-width: 100%;
-  padding: 10px 16px;
+  padding: 10px 0;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -24,49 +23,93 @@
 }
 
 .trigger:focus-visible {
-  outline: 2px solid #4778c7;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
 .menu {
   position: absolute;
   z-index: 1000;
-  top: calc(100% + 8px);
-  left: 0;
+  top: calc(100% + 16px);
+  left: 50%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: max-content;
   align-content: start;
-  gap: 20px;
-  width: min(560px, calc(100vw - 48px));
-  height: min(70vh, 600px);
-  padding: 20px;
-  box-sizing: border-box;
+  gap: 40px;
+  width: min(1136px, calc(100% - 72px));
+  max-height: calc(100dvh - 160px);
+  padding: 60px;
   min-height: 0;
   overflow: hidden auto;
   overscroll-behavior: contain;
-  border: 1px solid #e0e0e0;
   border-radius: 12px;
-  background: #fff;
-  color: #222;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: 0 8px 24px rgb(37 48 23 / 8%);
+  transform: translateX(-50%);
 }
 
 .category {
+  --category-color: #eee7f7;
+  --category-icon: url('../../shared/assets/icons/briefcase.svg');
+
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+  align-content: start;
   min-width: 0;
 }
 
+.category::before {
+  content: '';
+  grid-row: 1 / span 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--category-color) var(--category-icon) center / 24px no-repeat;
+}
+
+.category[data-category='Творчество и искусство'] {
+  --category-color: #f7e7f2;
+  --category-icon: url('../../shared/assets/icons/palette.svg');
+}
+
+.category[data-category='Иностранные языки'] {
+  --category-color: #ebe5c5;
+  --category-icon: url('../../shared/assets/icons/global.svg');
+}
+
+.category[data-category='Образование и развитие'] {
+  --category-color: #e7f2f6;
+  --category-icon: url('../../shared/assets/icons/book.svg');
+}
+
+.category[data-category='Дом и уют'] {
+  --category-color: #f7ebe5;
+  --category-icon: url('../../shared/assets/icons/home.svg');
+}
+
+.category[data-category='Здоровье и лайфстайл'] {
+  --category-color: #e9f7e7;
+  --category-icon: url('../../shared/assets/icons/lifestyle.svg');
+}
+
 .categoryTitle {
-  margin: 0 0 10px;
-  font-size: 15px;
+  display: grid;
+  align-items: center;
+  min-height: 40px;
+  font-size: 20px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 24px;
+  letter-spacing: -0.22px;
   overflow-wrap: anywhere;
 }
 
 .subcategoryList {
   display: grid;
-  gap: 8px;
+  grid-column: 2;
+  gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -74,31 +117,60 @@
 
 .subcategory {
   min-width: 0;
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.32px;
   overflow-wrap: anywhere;
 }
 
 .container[data-placement='top'] .menu {
   top: auto;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 16px);
+  max-height: min(70dvh, calc(100dvh - 256px));
+  padding: 32px;
 }
 
 .arrow {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  top: -5px;
-  font-size: 22px;
-  line-height: 1;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
 }
 
-@media (width <= 480px) {
+.trigger[aria-expanded='true'] .arrow {
+  transform: rotate(180deg);
+}
+
+.container[data-placement='top'] .trigger {
+  padding: 0;
+}
+
+.container[data-placement='top'] .arrow {
+  display: none;
+}
+
+@media (width < 1200px) {
   .menu {
+    max-height: calc(100dvh - 216px);
+    padding: 32px;
+  }
+}
+
+@media (width < 768px) {
+  .menu {
+    position: fixed;
+    inset: 136px 16px auto;
     grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
-    padding: 16px;
+    gap: 32px;
+    width: auto;
+    max-height: calc(100dvh - 152px);
+    padding: 24px;
+    transform: none;
+  }
+
+  .container[data-placement='top'] .menu {
+    bottom: 16px;
+    max-height: 70dvh;
+    padding: 24px;
   }
 }

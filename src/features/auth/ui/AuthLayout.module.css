@@ -1,0 +1,94 @@
+.page {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 32px;
+  width: 100%;
+  padding: 16px 36px 60px;
+  color: var(--color-text);
+  letter-spacing: 0.32px;
+}
+
+.title {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.3px;
+  text-align: center;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+  max-width: 1136px;
+}
+
+.card {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  min-height: 692px;
+  padding: 40px 60px;
+  border-radius: 12px;
+  background: var(--color-bg);
+}
+
+.infoPanel {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 24px;
+  min-width: 0;
+  padding: 40px;
+  border-radius: 12px;
+  background: var(--color-bg);
+  text-align: center;
+}
+
+.illustration {
+  width: 300px;
+  height: 300px;
+  object-fit: contain;
+}
+
+.infoCopy {
+  display: grid;
+  gap: 12px;
+  max-width: 436px;
+}
+
+.infoCopy h2 {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.3px;
+}
+
+.infoCopy p {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.feedback {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.feedback:empty {
+  display: none;
+}
+
+.feedback [role='alert'] {
+  color: var(--color-error);
+}
+
+.feedback button {
+  color: var(--color-accent);
+  text-align: left;
+  text-decoration: underline;
+}

@@ -1,0 +1,107 @@
+.form {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  width: 100%;
+  color: var(--color-text);
+  font: 400 16px / 24px var(--font-sans);
+  letter-spacing: 0.32px;
+}
+
+.actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 11px 20px;
+  border: 1px solid var(--color-primary);
+  border-radius: 12px;
+  color: var(--color-text);
+  font: inherit;
+  line-height: 24px;
+  letter-spacing: 0.32px;
+}
+
+.primaryButton {
+  background: var(--color-primary);
+}
+
+.secondaryButton {
+  background: var(--color-bg);
+}
+
+.button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.button:disabled {
+  color: var(--color-text-secondary);
+  background: var(--color-border);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+}
+
+.button[aria-busy='true'] {
+  cursor: wait;
+}
+
+.socialActions {
+  display: grid;
+  gap: 16px;
+}
+
+.socialButton {
+  border-color: var(--color-text-secondary);
+  background: var(--color-bg);
+}
+
+.socialButton img {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.socialButton:disabled {
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+  background: var(--color-bg);
+}
+
+.divider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  margin-block: 16px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  height: 1px;
+  background: var(--color-border);
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}

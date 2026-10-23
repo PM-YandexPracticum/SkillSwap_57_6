@@ -88,7 +88,7 @@ export function MultiSelect({
           <span id={`${id}-value`} className={styles.summary}>
             {selected.length ? selected.join(', ') : 'Выберите варианты'}
           </span>
-          <span aria-hidden="true">{open && !disabled ? '▴' : '▾'}</span>
+          <span className={styles.chevron} aria-hidden="true" />
         </button>
         <div className={styles.panel} id={`${id}-options`} hidden={!open || disabled}>
           {uniqueOptions.length ? (

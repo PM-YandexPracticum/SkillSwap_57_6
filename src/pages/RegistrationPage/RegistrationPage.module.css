@@ -1,107 +1,32 @@
-.page {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 48px 24px;
-  background: var(--color-bg-secondary);
-}
-
 .stepProgress {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 24px;
-  width: min(100%, 424px);
-  margin-bottom: 32px;
-  color: #253017;
+  display: grid;
+  justify-items: center;
+  gap: 16px;
 }
 
 .stepLabel {
-  color: inherit;
+  font-family: var(--font-heading);
   font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
-  text-align: center;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: -0.3px;
 }
 
 .progress {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
   gap: 16px;
 }
 
 .progressStep,
 .progressActive {
-  flex: 0 0 60px;
-  width: 60px;
   height: 4px;
-  border-radius: 999px;
-  background: #e6e8e2;
+  border-radius: 4px;
+  background: var(--color-border);
 }
 
 .progressActive {
-  background: #abd27a;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-  width: min(100%, 1168px);
-  align-items: stretch;
-}
-
-.card {
-  min-width: 0;
-  height: fit-content;
-  padding: 48px 60px;
-  background: var(--color-bg);
-  border-radius: var(--radius-lg);
-}
-
-.infoPanel {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  min-height: 100%;
-  padding: 40px;
-  text-align: center;
-  background: var(--color-bg);
-  border-radius: var(--radius-lg);
-}
-
-.illustration {
-  display: block;
-  width: 300px;
-  height: 300px;
-  max-width: 100%;
-  object-fit: contain;
-  margin-bottom: 40px;
-}
-
-.infoCopy {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 440px;
-}
-
-.infoCopy h2 {
-  color: #253017;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.infoCopy p {
-  color: #253017;
-  font-size: 16px;
-  line-height: 1.5;
+  background: var(--color-primary);
 }
 
 @media (width <= 767px) {
