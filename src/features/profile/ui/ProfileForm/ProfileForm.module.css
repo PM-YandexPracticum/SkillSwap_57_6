@@ -57,6 +57,18 @@
   gap: 8px;
 }
 
+.textareaContainer {
+  position: relative;
+  width: 100%;
+}
+
+.textareaIcon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  pointer-events: none;
+}
+
 .label {
   font-size: 14px;
   font-weight: 500;
@@ -73,6 +85,7 @@
   color: #253017;
   resize: vertical;
   min-height: 100px;
+  padding-right: 40px;
 }
 
 .textarea:focus {
@@ -132,11 +145,7 @@
   padding-top: 20px;
 }
 
-.avatarColumn > div {
-  flex-direction: column-reverse;
-}
-
-.avatarColumn .avatarWrapper {
+.avatarWrapper {
   position: relative;
   width: 240px;
   height: 240px;
@@ -145,11 +154,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible;
+  overflow: hidden;
 }
 
-.avatarPreview,
-.avatarWrapper > img {
+.avatarPreview {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -162,6 +170,13 @@
   color: #9ca3af;
 }
 
+.avatarError {
+  color: var(--color-error, #ef4444);
+  font-size: 12px;
+  text-align: center;
+  margin: 0;
+}
+
 @media (width < 768px) {
   .layout {
     grid-template-columns: 1fr;
@@ -171,7 +186,7 @@
     order: -1;
   }
 
-  .avatarColumn .avatarWrapper {
+  .avatarWrapper {
     width: 160px;
     height: 160px;
   }
