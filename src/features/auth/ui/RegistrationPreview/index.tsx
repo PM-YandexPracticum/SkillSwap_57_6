@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { Skill } from '@/shared/types'
 import type { SkillGalleryImage } from '@/entities/skill/ui/SkillGallery'
 import editIcon from './assets/Icon right.svg'
@@ -11,6 +11,7 @@ interface RegistrationPreviewProps {
   onConfirm: () => void
   disabled?: boolean
   error?: string | null
+  feedback?: ReactNode
 }
 
 export function RegistrationPreview({
@@ -20,6 +21,7 @@ export function RegistrationPreview({
   onConfirm,
   disabled = false,
   error,
+  feedback,
 }: RegistrationPreviewProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const activeImage = images[activeImageIndex]
@@ -112,6 +114,7 @@ export function RegistrationPreview({
           </div>
         </div>
 
+        {feedback}
         {error && (
           <p className={styles.error} role="alert">
             {error}

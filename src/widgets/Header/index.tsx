@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { shallowEqual } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/shared/lib/constants'
 import styles from './Header.module.css'
 import { APP_TITLE } from '@/shared/lib/appTitle'
@@ -21,6 +21,8 @@ export type HeaderProps = {
 export const Header = ({ variant = 'default', searchValue, onSearchChange }: HeaderProps) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
+  const authState = { returnTo: location.pathname + location.search + location.hash }
   const user = useAppSelector(selectAuthUser)
   const profile = useAppSelector(selectCurrentProfile, shallowEqual)
   const error = useAppSelector(selectAuthError)
@@ -108,8 +110,12 @@ export const Header = ({ variant = 'default', searchValue, onSearchChange }: Hea
               </details>
             ) : (
               <>
-                <Link to={ROUTES.LOGIN}>Войти</Link>
-                <Link to={ROUTES.REGISTER}>Зарегистрироваться</Link>
+                <Link to={ROUTES.LOGIN} state={authState}>
+                  Войти
+                </Link>
+                <Link to={ROUTES.REGISTER} state={authState}>
+                  Зарегистрироваться
+                </Link>
               </>
             )}
           </nav>

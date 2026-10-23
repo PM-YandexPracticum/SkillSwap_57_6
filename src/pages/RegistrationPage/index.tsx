@@ -1,29 +1,40 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { fetchCities } from '@/api/cities'
 import { RegistrationForm } from '@/features/auth/ui/RegistrationForm'
-import { registerFullAccount } from '@/features/auth/model/registration'
+import { registerFullAccount, type RegisteredAccount } from '@/features/auth/model/registration'
+import { selectAuthError, selectAuthUser } from '@/features/auth/model/authSlice'
+import { startSession } from '@/features/auth/model/authThunks'
+import { getCatalogThunk } from '@/features/catalog/model/catalogSlice'
+import { restoreLocalData } from '@/features/localData/model/localDataSlice'
+import { restoreProfiles } from '@/features/profile/model/profileSlice'
 import { RegistrationSuccessDialog } from '@/features/auth/ui/RegistrationSuccessDialog'
-import { useAppDispatch } from '@/store/hooks'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { getSafeReturnTo } from '@/features/auth/lib/getSafeReturnTo'
 import type { City } from '@/shared/types'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/shared/lib/constants'
 import { PageLayout } from '@/widgets/PageLayout'
-import styles from './RegisterPage.module.css'
+import styles from './RegistrationPage.module.css'
 import lightBulbIllustration from './assets/light-bulb.svg'
 import userInfoIllustration from './assets/user-info.svg'
 import presentationBoardIllustration from './assets/presentation-board.svg'
 
 const AVATAR_SETTINGS = {
-  acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
-  maxSizeBytes: 5 * 1024 * 1024,
+  acceptedTypes: ['image/jpeg', 'image/png'],
 }
 
-export default function RegisterPage() {
+export default function RegistrationPage() {
   const dispatch = useAppDispatch()
   const location = useLocation()
   const navigate = useNavigate()
   const returnTo = getSafeReturnTo(location.state?.returnTo)
+  const user = useAppSelector(selectAuthUser)
+  const authError = useAppSelector(selectAuthError)
+  const { status: catalogStatus, error: catalogError } = useAppSelector((state) => state.catalog)
+  const localDataError = useAppSelector((state) => state.localData.readError)
+  const profileError = useAppSelector((state) => state.profile.readError)
+  const [registeredAccount, setRegisteredAccount] = useState<RegisteredAccount | null>(null)
+  const savedAccountRef = useRef<RegisteredAccount | null>(null)
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [registrationComplete, setRegistrationComplete] = useState(false)
   const [cities, setCities] = useState<City[]>([])
@@ -32,12 +43,27 @@ export default function RegisterPage() {
   const [citiesRetry, setCitiesRetry] = useState(0)
 
   useEffect(() => {
+    if (catalogStatus === 'idle') void dispatch(getCatalogThunk())
+  }, [dispatch, catalogStatus])
+
+  useEffect(() => {
+    dispatch(restoreLocalData())
+    dispatch(restoreProfiles())
+  }, [dispatch])
+
+  useEffect(() => {
+    if (user && !savedAccountRef.current) navigate(ROUTES.HOME, { replace: true })
+  }, [user, navigate])
+
+  useEffect(() => {
     const controller = new AbortController()
     setCitiesLoading(true)
     setCitiesError(null)
 
     fetchCities(controller.signal)
-      .then(setCities)
+      .then((value) => {
+        if (!controller.signal.aborted) setCities(value)
+      })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return
         setCitiesError(error instanceof Error ? error.message : 'Не удалось загрузить города')
@@ -49,15 +75,29 @@ export default function RegisterPage() {
     return () => controller.abort()
   }, [citiesRetry])
 
+  const isReady =
+    catalogStatus === 'success' &&
+    !localDataError &&
+    !profileError &&
+    !citiesLoading &&
+    !citiesError
+  const beginSession = (account: RegisteredAccount) => {
+    if (dispatch(startSession(account))) setRegistrationComplete(true)
+  }
+
   const handleRegistrationSubmit = async (
     credentials: Parameters<typeof registerFullAccount>[0],
     profileDraft: Parameters<typeof registerFullAccount>[1],
     skillDraft: Parameters<typeof registerFullAccount>[2],
-  ) => {
-    await dispatch(
+  ): Promise<void> => {
+    if (savedAccountRef.current) return
+    if (!isReady) throw new Error('Дождитесь загрузки данных и повторите попытку.')
+    const account = await dispatch(
       registerFullAccount(credentials, profileDraft, skillDraft, cities, AVATAR_SETTINGS),
     )
-    setRegistrationComplete(true)
+    savedAccountRef.current = account
+    setRegisteredAccount(account)
+    beginSession(account)
   }
 
   const sideContent = {
@@ -79,6 +119,32 @@ export default function RegisterPage() {
     },
   }[step]
 
+  const feedback = (
+    <>
+      {(catalogStatus === 'loading' || citiesLoading) && <p role="status">Загружаем данные...</p>}
+      {[
+        { error: catalogError, label: 'каталога', retry: () => dispatch(getCatalogThunk()) },
+        {
+          error: localDataError,
+          label: 'локальных данных',
+          retry: () => dispatch(restoreLocalData()),
+        },
+        { error: profileError, label: 'профилей', retry: () => dispatch(restoreProfiles()) },
+        { error: citiesError, label: 'городов', retry: () => setCitiesRetry((retry) => retry + 1) },
+      ].map(
+        ({ error, label, retry }) =>
+          error && (
+            <div role="alert" key={label}>
+              <p>{error}</p>
+              <button type="button" onClick={retry}>
+                Повторить загрузку {label}
+              </button>
+            </div>
+          ),
+      )}
+    </>
+  )
+
   return (
     <PageLayout variant="auth">
       <div className={styles.page}>
@@ -99,12 +165,19 @@ export default function RegisterPage() {
               cities={cities}
               avatarSettings={AVATAR_SETTINGS}
               onSubmit={handleRegistrationSubmit}
+              disabled={!isReady || registeredAccount !== null}
               returnTo={returnTo}
               onStepChange={setStep}
-              citiesLoading={citiesLoading}
-              citiesError={citiesError}
-              onRetryCities={() => setCitiesRetry((retry) => retry + 1)}
+              feedback={feedback}
             />
+            {registeredAccount && !registrationComplete && (
+              <div role="alert">
+                <p>Аккаунт сохранён. {authError}</p>
+                <button type="button" onClick={() => beginSession(registeredAccount)}>
+                  Повторить вход
+                </button>
+              </div>
+            )}
           </section>
 
           <aside className={styles.infoPanel} aria-label={sideContent.title}>
@@ -117,9 +190,7 @@ export default function RegisterPage() {
         </div>
       </div>
       {registrationComplete && (
-        <RegistrationSuccessDialog
-          onClose={() => navigate(ROUTES.LOGIN, { state: { returnTo } })}
-        />
+        <RegistrationSuccessDialog onClose={() => navigate(returnTo, { replace: true })} />
       )}
     </PageLayout>
   )
