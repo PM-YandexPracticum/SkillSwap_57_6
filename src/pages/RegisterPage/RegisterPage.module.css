@@ -4,7 +4,6 @@
   flex-direction: column;
   justify-content: flex-start;
   width: 100%;
-  min-height: 100vh;
   padding: 48px 24px;
   background: var(--color-bg-secondary);
 }
@@ -103,31 +102,6 @@
   color: #253017;
   font-size: 16px;
   line-height: 1.5;
-}
-
-.header h1 {
-  margin-bottom: 32px;
-  font-size: var(--font-size-2xl);
-}
-
-.loadError {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  color: var(--color-error);
-}
-
-.loadError button {
-  align-self: flex-start;
-  padding: 10px 16px;
-  color: #fff;
-  background: var(--color-primary);
-  border-radius: var(--radius-md);
-}
-
-.savedEmail {
-  margin-top: 16px;
-  color: var(--color-text-secondary);
 }
 
 @media (width <= 767px) {

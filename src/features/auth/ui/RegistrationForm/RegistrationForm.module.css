@@ -1,0 +1,14 @@
+.form {
+  width: 100%;
+  min-width: 0;
+}
+
+.step[hidden] {
+  display: none;
+}
+
+.previewStatus {
+  margin: 0;
+  color: var(--color-text-secondary);
+  text-align: center;
+}

@@ -1,23 +1,18 @@
 import { useEffect, useState } from 'react'
 import { fetchCities } from '@/api/cities'
-import { RegistrationProfileFields } from '@/features/auth/ui/RegistrationProfileFields'
-import { CredentialForm } from '@/features/auth/ui/CredentialForm'
-import type { Credentials } from '@/features/auth/model/Credentials'
-import type { RegistrationProfileDraft } from '@/features/auth/model/registrationTypes'
+import { RegistrationForm } from '@/features/auth/ui/RegistrationForm'
+import { registerFullAccount } from '@/features/auth/model/registration'
+import { RegistrationSuccessDialog } from '@/features/auth/ui/RegistrationSuccessDialog'
+import { useAppDispatch } from '@/store/hooks'
+import { getSafeReturnTo } from '@/features/auth/lib/getSafeReturnTo'
 import type { City } from '@/shared/types'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/shared/lib/constants'
+import { PageLayout } from '@/widgets/PageLayout'
 import styles from './RegisterPage.module.css'
 import lightBulbIllustration from './assets/light-bulb.svg'
 import userInfoIllustration from './assets/user-info.svg'
-
-const INITIAL_PROFILE: RegistrationProfileDraft = {
-  name: '',
-  birthDate: null,
-  gender: '',
-  city: '',
-  avatarFile: null,
-  learnCategories: [],
-  learnSubcategories: [],
-}
+import presentationBoardIllustration from './assets/presentation-board.svg'
 
 const AVATAR_SETTINGS = {
   acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
@@ -25,9 +20,12 @@ const AVATAR_SETTINGS = {
 }
 
 export default function RegisterPage() {
-  const [step, setStep] = useState<1 | 2>(1)
-  const [credentials, setCredentials] = useState<Credentials | null>(null)
-  const [profile, setProfile] = useState(INITIAL_PROFILE)
+  const dispatch = useAppDispatch()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const returnTo = getSafeReturnTo(location.state?.returnTo)
+  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const [registrationComplete, setRegistrationComplete] = useState(false)
   const [cities, setCities] = useState<City[]>([])
   const [citiesLoading, setCitiesLoading] = useState(true)
   const [citiesError, setCitiesError] = useState<string | null>(null)
@@ -51,9 +49,15 @@ export default function RegisterPage() {
     return () => controller.abort()
   }, [citiesRetry])
 
-  const handleCredentialsSubmit = async (values: Credentials) => {
-    setCredentials(values)
-    setStep(2)
+  const handleRegistrationSubmit = async (
+    credentials: Parameters<typeof registerFullAccount>[0],
+    profileDraft: Parameters<typeof registerFullAccount>[1],
+    skillDraft: Parameters<typeof registerFullAccount>[2],
+  ) => {
+    await dispatch(
+      registerFullAccount(credentials, profileDraft, skillDraft, cities, AVATAR_SETTINGS),
+    )
+    setRegistrationComplete(true)
   }
 
   const sideContent = {
@@ -68,65 +72,55 @@ export default function RegisterPage() {
       title: 'Расскажите немного о себе',
       description: 'Это поможет другим людям лучше вас узнать, чтобы выбрать для обмена.',
     },
+    3: {
+      image: presentationBoardIllustration,
+      title: 'Укажите, чем вы готовы поделиться',
+      description: 'Так другие люди смогут увидеть ваши предложения и предложить вам обмен!',
+    },
   }[step]
 
   return (
-    <main className={styles.page}>
-      <div className={styles.stepProgress}>
-        <p className={styles.stepLabel}>Шаг {step} из 3</p>
-        <div className={styles.progress} aria-label={`Шаг ${step} из 3`}>
-          {[1, 2, 3].map((item) => (
-            <span
-              className={item <= step ? styles.progressActive : styles.progressStep}
-              key={item}
-            />
-          ))}
-        </div>
-      </div>
-      <div className={styles.layout}>
-        <section className={styles.card} aria-label={`Регистрация, шаг ${step}`}>
-          {step === 1 && (
-            <CredentialForm
-              mode="register"
-              onSubmit={handleCredentialsSubmit}
-              returnTo="/register"
-            />
-          )}
-
-          {step === 2 &&
-            (citiesLoading ? (
-              <p role="status">Загружаем список городов...</p>
-            ) : citiesError ? (
-              <div className={styles.loadError} role="alert">
-                <p>Не удалось загрузить список городов: {citiesError}</p>
-                <button type="button" onClick={() => setCitiesRetry((retry) => retry + 1)}>
-                  Повторить
-                </button>
-              </div>
-            ) : (
-              <RegistrationProfileFields
-                value={profile}
-                cities={cities}
-                avatarSettings={AVATAR_SETTINGS}
-                onChange={setProfile}
-                onBack={() => setStep(1)}
-                onContinue={setProfile}
+    <PageLayout variant="auth">
+      <div className={styles.page}>
+        <div className={styles.stepProgress}>
+          <p className={styles.stepLabel}>Шаг {step} из 3</p>
+          <div className={styles.progress} aria-label={`Шаг ${step} из 3`}>
+            {[1, 2, 3].map((item) => (
+              <span
+                className={item <= step ? styles.progressActive : styles.progressStep}
+                key={item}
               />
             ))}
-
-          {step === 1 && credentials && (
-            <p className={styles.savedEmail}>Email: {credentials.email}</p>
-          )}
-        </section>
-
-        <aside className={styles.infoPanel} aria-label={sideContent.title}>
-          <img className={styles.illustration} src={sideContent.image} alt="" />
-          <div className={styles.infoCopy}>
-            <h2>{sideContent.title}</h2>
-            <p>{sideContent.description}</p>
           </div>
-        </aside>
+        </div>
+        <div className={styles.layout}>
+          <section className={styles.card} aria-label={`Регистрация, шаг ${step}`}>
+            <RegistrationForm
+              cities={cities}
+              avatarSettings={AVATAR_SETTINGS}
+              onSubmit={handleRegistrationSubmit}
+              returnTo={returnTo}
+              onStepChange={setStep}
+              citiesLoading={citiesLoading}
+              citiesError={citiesError}
+              onRetryCities={() => setCitiesRetry((retry) => retry + 1)}
+            />
+          </section>
+
+          <aside className={styles.infoPanel} aria-label={sideContent.title}>
+            <img className={styles.illustration} src={sideContent.image} alt="" />
+            <div className={styles.infoCopy}>
+              <h2>{sideContent.title}</h2>
+              <p>{sideContent.description}</p>
+            </div>
+          </aside>
+        </div>
       </div>
-    </main>
+      {registrationComplete && (
+        <RegistrationSuccessDialog
+          onClose={() => navigate(ROUTES.LOGIN, { state: { returnTo } })}
+        />
+      )}
+    </PageLayout>
   )
 }

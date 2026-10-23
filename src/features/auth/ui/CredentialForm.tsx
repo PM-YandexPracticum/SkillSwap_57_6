@@ -17,6 +17,7 @@ interface CredentialFormProps {
   externalError?: string | null
   returnTo?: string
   disabled?: boolean
+  submitLabel?: string
   // Опционально: если родителю нужно знать об ошибках отправки
   onError?: (error: unknown) => void
 }
@@ -28,6 +29,7 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
   externalError,
   returnTo,
   disabled = false,
+  submitLabel,
   onError,
 }) => {
   const location = useLocation()
@@ -172,7 +174,9 @@ export const CredentialForm: React.FC<CredentialFormProps> = ({
         aria-busy={isProcessing || isSubmitting}
         className={styles.submitButton}
       >
-        {isProcessing || isSubmitting ? 'Отправка...' : mode === 'login' ? 'Войти' : 'Далее'}
+        {isProcessing || isSubmitting
+          ? 'Отправка...'
+          : (submitLabel ?? (mode === 'login' ? 'Войти' : 'Далее'))}
       </button>
 
       <p

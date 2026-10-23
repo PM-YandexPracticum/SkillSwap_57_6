@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
-import { ImagePicker } from '../ImagePicker'
+import { useEffect, useRef, useState } from 'react'
+import type { ChangeEvent, DragEvent } from 'react'
+import { validateImageFile } from '@/shared/lib/validateImageFile'
+import addGalleryIcon from './assets/gallery-add.svg'
 import styles from './MultiImagePicker.module.css'
 
 interface MultiImagePickerProps {
@@ -19,88 +21,124 @@ export function MultiImagePicker({
   disabled = false,
   onValidationChange,
 }: MultiImagePickerProps) {
-  const [errors, setErrors] = useState<Record<number, string>>({})
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [previews, setPreviews] = useState<{ file: File; url: string; valueIndex: number }[]>([])
 
-  /* Очищаем ошибки при внешнем сбросе списка.*/
   useEffect(() => {
-    if (value.length === 0) {
-      setErrors({})
+    const nextPreviews = value.flatMap((file, valueIndex) =>
+      file ? [{ file, url: URL.createObjectURL(file), valueIndex }] : [],
+    )
+    setPreviews(nextPreviews)
+
+    return () => {
+      nextPreviews.forEach(({ url }) => URL.revokeObjectURL(url))
     }
   }, [value])
 
-  /* Передаём родителю все ошибки слотов.*/
-  useEffect(() => {
-    const messages = Object.entries(errors).map(
-      ([index, message]) => `Фото ${Number(index) + 1}: ${message}`,
-    )
+  const addFiles = (files: FileList | File[]) => {
+    if (disabled || files.length === 0) return
 
-    onValidationChange?.(messages.length ? messages.join('\n') : null)
-  }, [errors, onValidationChange])
-
-  /*Добавление нового изображения */
-  const addImage = () => {
-    onChange([...value, null])
-  }
-
-  /*Удаление изображения */
-  const removeImage = (index: number) => {
-    onChange(value.filter((_, i) => i !== index))
-
-    setErrors((current) =>
-      Object.fromEntries(
-        Object.entries(current)
-          .filter(([key]) => Number(key) !== index)
-          .map(([key, message]) => [Number(key) > index ? Number(key) - 1 : Number(key), message]),
-      ),
-    )
-  }
-
-  /*Обновление изображения */
-  const updateImage = (index: number, file: File | null) => {
-    onChange(value.map((current, i) => (i === index ? file : current)))
-  }
-
-  const updateError = (index: number, error: string | null) => {
-    setErrors((current) => {
-      if (error === null) {
-        if (!(index in current)) return current
-
-        const next = { ...current }
-        delete next[index]
-        return next
+    const acceptedFiles: File[] = []
+    const errors: string[] = []
+    Array.from(files).forEach((file) => {
+      const error = validateImageFile(file, acceptedTypes, maxSizeBytes)
+      if (error) {
+        errors.push(`${file.name}: ${error}`)
+      } else {
+        acceptedFiles.push(file)
       }
-
-      if (current[index] === error) return current
-
-      return { ...current, [index]: error }
     })
+
+    const nextError = errors.length > 0 ? errors.join('\n') : null
+    setUploadError(nextError)
+    onValidationChange?.(nextError)
+
+    if (acceptedFiles.length > 0) {
+      onChange([...value.filter((file): file is File => file !== null), ...acceptedFiles])
+    }
+  }
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.currentTarget.files) addFiles(event.currentTarget.files)
+    event.currentTarget.value = ''
+  }
+
+  const handleDragOver = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault()
+    if (!disabled) setIsDragging(true)
+  }
+
+  const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault()
+    setIsDragging(false)
+    if (event.dataTransfer.files) addFiles(event.dataTransfer.files)
+  }
+
+  const removeImage = (index: number) => {
+    if (disabled) return
+    onChange(value.filter((_, currentIndex) => currentIndex !== index))
+    setUploadError(null)
+    onValidationChange?.(null)
   }
 
   return (
     <div className={styles.container}>
-      {value.map((file, index) => (
-        <div className={styles.item} key={index}>
-          <ImagePicker
-            value={file}
-            onChange={(newFile) => {
-              if (newFile === null) {
-                removeImage(index)
-              } else {
-                updateImage(index, newFile)
-              }
-            }}
-            acceptedTypes={acceptedTypes}
-            maxSizeBytes={maxSizeBytes}
-            disabled={disabled}
-            error={errors[index]}
-            onValidationChange={(error) => updateError(index, error)}
-          />
-        </div>
-      ))}
+      <label
+        className={[
+          styles.dropzone,
+          isDragging ? styles.dropzoneDragging : '',
+          disabled ? styles.dropzoneDisabled : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        onDragEnter={handleDragOver}
+        onDragOver={handleDragOver}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+      >
+        <input
+          ref={inputRef}
+          className={styles.fileInput}
+          type="file"
+          accept={acceptedTypes.join(',')}
+          multiple
+          disabled={disabled}
+          onChange={handleFileChange}
+          aria-label="Выбрать изображения навыка"
+        />
+        <span className={styles.dropHint}>Перетащите или выберите изображение навыка</span>
+        <span className={styles.chooseAction}>
+          <img src={addGalleryIcon} alt="" aria-hidden="true" />
+          Выбрать изображение
+        </span>
+      </label>
 
-      <button type="button" onClick={addImage} disabled={disabled}>
-        Добавить фото
-      </button>
+      {uploadError && (
+        <p className={styles.error} role="alert">
+          {uploadError}
+        </p>
+      )}
+
+      {previews.length > 0 && (
+        <div className={styles.previews}>
+          {previews.map(({ file, url, valueIndex }) => (
+            <div className={styles.preview} key={`${file.name}-${valueIndex}`}>
+              <img src={url} alt={file.name} />
+              <button
+                type="button"
+                className={styles.removeButton}
+                onClick={() => removeImage(valueIndex)}
+                disabled={disabled}
+                aria-label={`Удалить изображение ${file.name}`}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
