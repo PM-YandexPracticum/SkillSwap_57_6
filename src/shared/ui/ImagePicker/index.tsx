@@ -12,6 +12,7 @@ export interface ImagePickerProps extends FilePickerProps {
   variant?: 'default' | 'avatar'
 }
 
+
 const IMAGE_ERROR =
   'Не удалось отобразить изображение: файл повреждён или имеет неподдерживаемый формат'
 export function ImagePicker({ variant = 'default', ...props }: ImagePickerProps) {
