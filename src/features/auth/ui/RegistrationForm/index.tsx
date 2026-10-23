@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { City } from '@/shared/types'
 import type { SkillGalleryImage } from '@/entities/skill/ui/SkillGallery'
 import type { RegistrationSkillDraft } from '@/entities/skill/model/registrationSkillDraft'
@@ -17,8 +17,9 @@ export interface RegistrationFormProps {
     credentials: Credentials,
     profileDraft: RegistrationProfileDraft,
     skillDraft: RegistrationSkillDraft,
-  ) => void | Promise<void>
+  ) => Promise<void>
   externalError?: string | null
+  feedback?: ReactNode
   disabled?: boolean
   returnTo?: string
   onStepChange?: (step: 1 | 2 | 3) => void
@@ -58,6 +59,7 @@ export function RegistrationForm({
   avatarSettings,
   onSubmit,
   externalError,
+  feedback,
   disabled = false,
   returnTo,
   onStepChange,
@@ -147,6 +149,7 @@ export function RegistrationForm({
 
   return (
     <div className={styles.form}>
+      {!showPreview && feedback}
       <div className={styles.step} hidden={step !== 1}>
         <CredentialForm
           mode="register"
@@ -159,28 +162,26 @@ export function RegistrationForm({
       </div>
 
       <div className={styles.step} hidden={step !== 2}>
-        {citiesLoading ? (
-          <p role="status">Загружаем список городов...</p>
-        ) : citiesError ? (
+        {citiesLoading && <p role="status">Загружаем список городов...</p>}
+        {citiesError && (
           <div role="alert">
             <p>Не удалось загрузить список городов: {citiesError}</p>
             {onRetryCities && (
-              <button type="button" onClick={onRetryCities} disabled={isFormDisabled}>
+              <button type="button" onClick={onRetryCities} disabled={isSubmitting}>
                 Повторить
               </button>
             )}
           </div>
-        ) : (
-          <RegistrationProfileFields
-            value={profileDraft}
-            cities={cities}
-            avatarSettings={avatarSettings}
-            disabled={isFormDisabled}
-            onChange={setProfileDraft}
-            onBack={() => goToStep(1)}
-            onContinue={() => goToStep(3)}
-          />
         )}
+        <RegistrationProfileFields
+          value={profileDraft}
+          cities={cities}
+          avatarSettings={avatarSettings}
+          disabled={isFormDisabled || citiesLoading || !!citiesError}
+          onChange={setProfileDraft}
+          onBack={() => goToStep(1)}
+          onContinue={() => goToStep(3)}
+        />
       </div>
 
       <div className={styles.step} hidden={step !== 3}>
@@ -215,6 +216,7 @@ export function RegistrationForm({
             onConfirm={handleConfirm}
             disabled={isFormDisabled}
             error={submitError ?? externalError}
+            feedback={feedback}
           />
         ) : (
           <p className={styles.previewStatus} role="status">
